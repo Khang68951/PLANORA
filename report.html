@@ -1,0 +1,887 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Project Planora - interactive project report and showcase">
+  <meta name="theme-color" content="#0b1020">
+  <title>Planora | Project Report</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b14;
+      --surface: rgba(19, 25, 43, 0.82);
+      --surface-solid: #13192b;
+      --surface-2: #1b243b;
+      --text: #f5f7ff;
+      --muted: #9da8be;
+      --primary: #8b7cff;
+      --primary-2: #53d8fb;
+      --accent: #8ef0c7;
+      --warning: #ffc978;
+      --line: rgba(255, 255, 255, 0.11);
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+      --radius-lg: 28px;
+      --radius-md: 18px;
+      --sidebar: 280px;
+    }
+
+    :root[data-theme="light"] {
+      color-scheme: light;
+      --bg: #f2f5fb;
+      --surface: rgba(255, 255, 255, 0.88);
+      --surface-solid: #ffffff;
+      --surface-2: #e8edf7;
+      --text: #11182a;
+      --muted: #5e687b;
+      --line: rgba(17, 24, 42, 0.11);
+      --shadow: 0 24px 70px rgba(30, 52, 90, 0.13);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 32px; }
+
+    ::selection { background: color-mix(in srgb, var(--primary) 48%, transparent); color: var(--text); }
+
+    :focus-visible {
+      outline: 3px solid var(--primary-2);
+      outline-offset: 4px;
+    }
+
+    body {
+      margin: 0;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 12% 10%, rgba(139, 124, 255, 0.2), transparent 28rem),
+        radial-gradient(circle at 86% 26%, rgba(83, 216, 251, 0.14), transparent 30rem),
+        var(--bg);
+      color: var(--text);
+      font: 16px/1.65 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .scroll-progress {
+      position: fixed;
+      inset: 0 0 auto var(--sidebar);
+      z-index: 60;
+      height: 3px;
+      background: transparent;
+      pointer-events: none;
+    }
+
+    .scroll-progress span {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--primary-2), var(--accent));
+      box-shadow: 0 0 16px color-mix(in srgb, var(--primary-2) 70%, transparent);
+      transform: scaleX(0);
+      transform-origin: left;
+      will-change: transform;
+    }
+
+    .pointer-glow {
+      position: fixed;
+      z-index: -1;
+      width: 440px;
+      height: 440px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(139, 124, 255, 0.11), transparent 68%);
+      opacity: 0;
+      pointer-events: none;
+      transform: translate3d(-50%, -50%, 0);
+      transition: opacity 300ms ease;
+    }
+
+    body.pointer-active .pointer-glow { opacity: 1; }
+
+    a { color: inherit; }
+    button { font: inherit; }
+
+    .skip-link {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 100;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: var(--text);
+      color: var(--bg);
+      transform: translateY(-160%);
+    }
+
+    .skip-link:focus { transform: translateY(0); }
+
+    .ambient {
+      position: fixed;
+      z-index: -1;
+      width: 340px;
+      height: 340px;
+      border-radius: 50%;
+      background: var(--primary);
+      opacity: 0.07;
+      filter: blur(40px);
+      pointer-events: none;
+      animation: drift 14s ease-in-out infinite alternate;
+    }
+
+    .ambient.one { top: 54%; left: 18%; }
+    .ambient.two { right: 5%; bottom: 3%; background: var(--primary-2); animation-delay: -6s; }
+
+    @keyframes drift { to { transform: translate(80px, -60px) scale(1.2); } }
+
+    .sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 20;
+      display: flex;
+      width: var(--sidebar);
+      flex-direction: column;
+      padding: 28px 22px;
+      border-right: 1px solid var(--line);
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+      backdrop-filter: blur(20px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #080b14;
+      box-shadow: 0 10px 30px rgba(139, 124, 255, 0.3);
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--primary-2);
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .nav-title { margin: 0 0 10px; color: var(--muted); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; }
+    .sidebar nav { overflow-y: auto; scrollbar-width: thin; }
+    .sidebar nav ol { display: grid; gap: 3px; margin: 0; padding: 0; list-style: none; }
+
+    .sidebar nav a {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 9px 11px;
+      border-radius: 11px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      text-decoration: none;
+      transition: color 160ms ease, background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .sidebar nav a:hover,
+    .sidebar nav a.active { background: var(--surface-2); color: var(--text); }
+    .sidebar nav a.active { box-shadow: inset 3px 0 var(--primary); }
+    .sidebar nav a:hover { transform: translateX(3px); }
+    .nav-index { width: 1.5rem; color: var(--primary-2); font-family: ui-monospace, monospace; font-size: 0.72rem; }
+
+    .sidebar-footer { display: grid; gap: 10px; margin-top: auto; padding-top: 20px; }
+
+    .reading-status {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 7px 12px;
+      color: var(--muted);
+      font-size: 0.72rem;
+    }
+
+    .reading-status-track { grid-column: 1 / -1; height: 3px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+    .reading-status-track span { display: block; width: 100%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-2)); transform: scaleX(0); transform-origin: left; }
+
+    .icon-button,
+    .menu-button {
+      display: inline-flex;
+      min-height: 42px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+    }
+
+    .icon-button:hover, .menu-button:hover { border-color: var(--primary); transform: translateY(-2px); }
+
+    .menu-button { display: none; position: fixed; top: 16px; right: 16px; z-index: 40; width: 46px; }
+
+    main { margin-left: var(--sidebar); }
+    .content { width: min(1180px, calc(100% - 64px)); margin: 0 auto; }
+
+    .hero {
+      position: relative;
+      display: grid;
+      min-height: 94vh;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: clamp(36px, 7vw, 100px);
+      align-items: center;
+      padding: 72px 0;
+    }
+
+    .hero h1 {
+      max-width: 800px;
+      margin: 0;
+      font-size: clamp(4rem, 9vw, 8.8rem);
+      line-height: 0.88;
+      letter-spacing: -0.075em;
+    }
+
+    .hero-copy-block > * { animation: hero-enter 720ms both; }
+    .hero-copy-block > :nth-child(2) { animation-delay: 90ms; }
+    .hero-copy-block > :nth-child(3) { animation-delay: 180ms; }
+    .hero-copy-block > :nth-child(4) { animation-delay: 270ms; }
+
+    @keyframes hero-enter {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .gradient-text {
+      background: linear-gradient(110deg, var(--primary), var(--primary-2) 55%, var(--accent));
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero-copy { max-width: 650px; margin: 28px 0; color: var(--muted); font-size: clamp(1.08rem, 2vw, 1.35rem); }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+
+    .button {
+      display: inline-flex;
+      min-height: 48px;
+      align-items: center;
+      justify-content: center;
+      padding: 0 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
+      text-decoration: none;
+      transition: transform 160ms ease, border-color 160ms ease;
+    }
+
+    .button.primary { border: 0; background: linear-gradient(135deg, var(--primary), #a594ff); color: #080b14; font-weight: 800; }
+    .button:hover { transform: translateY(-2px); border-color: var(--primary); }
+    .button.primary:hover { box-shadow: 0 12px 34px rgba(139, 124, 255, 0.28); }
+
+    .hero-panel {
+      position: relative;
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(150deg, var(--surface), color-mix(in srgb, var(--surface) 70%, transparent));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      animation: panel-enter 900ms 220ms cubic-bezier(.2,.75,.2,1) both;
+      transform-style: preserve-3d;
+    }
+
+    @keyframes panel-enter {
+      from { opacity: 0; transform: translateY(30px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .hero-panel::before {
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: linear-gradient(to bottom, black, transparent);
+      content: "";
+      opacity: 0.35;
+    }
+
+    .orbit {
+      position: relative;
+      display: grid;
+      min-height: 260px;
+      place-items: center;
+    }
+
+    .orbit-ring { position: absolute; width: 230px; height: 230px; border: 1px solid var(--line); border-radius: 50%; animation: spin 18s linear infinite; }
+    .orbit-ring::after { position: absolute; top: 18px; right: 28px; width: 18px; height: 18px; border-radius: 50%; background: var(--primary-2); box-shadow: 0 0 24px var(--primary-2); content: ""; }
+    .orbit-core { display: grid; width: 132px; height: 132px; place-items: center; border-radius: 34px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: #07111b; font-size: 3rem; font-weight: 900; transform: rotate(-7deg); animation: core-float 4s ease-in-out infinite; box-shadow: 0 20px 50px rgba(83, 216, 251, 0.14); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes core-float { 50% { transform: rotate(2deg) translateY(-9px); } }
+
+    .status-row { position: relative; display: flex; justify-content: space-between; gap: 16px; padding-top: 18px; border-top: 1px solid var(--line); }
+    .status-row span { color: var(--muted); font-size: 0.8rem; }
+    .status-row strong { display: block; color: var(--text); font-size: 0.95rem; }
+
+    .section { padding: 90px 0; border-top: 1px solid var(--line); }
+    .section.is-visible .section-number { animation: number-flash 700ms ease both; }
+    @keyframes number-flash { from { opacity: 0; letter-spacing: 0.3em; } to { opacity: 1; letter-spacing: 0.14em; } }
+
+    .reveal-ready {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 650ms cubic-bezier(.2,.75,.2,1), transform 650ms cubic-bezier(.2,.75,.2,1);
+      transition-delay: var(--reveal-delay, 0ms);
+    }
+
+    .reveal-ready.is-revealed { opacity: 1; transform: translateY(0); }
+    .section-heading { display: grid; grid-template-columns: 0.65fr 1.35fr; gap: 48px; margin-bottom: 38px; }
+    .section-number { color: var(--primary-2); font: 700 0.8rem/1 ui-monospace, monospace; letter-spacing: 0.14em; }
+    .section h2 { max-width: 850px; margin: 0; font-size: clamp(2.2rem, 5vw, 4.8rem); line-height: 1; letter-spacing: -0.055em; }
+    .lead { max-width: 760px; margin: 18px 0 0; color: var(--muted); font-size: 1.1rem; }
+
+    .grid { display: grid; gap: 18px; }
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .card {
+      position: relative;
+      padding: 26px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--surface);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      transform: perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) translateY(var(--lift, 0px));
+      transform-style: preserve-3d;
+      transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+    }
+
+    .card::after {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(260px circle at var(--pointer-x, 50%) var(--pointer-y, 50%), rgba(139, 124, 255, 0.13), transparent 64%);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 220ms ease;
+      content: "";
+    }
+
+    .card:hover { --lift: -5px; border-color: color-mix(in srgb, var(--primary) 48%, var(--line)); box-shadow: 0 20px 55px rgba(0, 0, 0, 0.16); }
+    .card:hover::after { opacity: 1; }
+
+    .card h3 { margin: 0 0 10px; font-size: 1.12rem; }
+    .card p { margin: 0; color: var(--muted); }
+    .card-icon { display: grid; width: 44px; height: 44px; place-items: center; margin-bottom: 34px; border-radius: 13px; background: var(--surface-2); color: var(--primary-2); font-weight: 900; }
+
+    .metric { padding: 24px; border-left: 3px solid var(--primary); }
+    .metric strong { display: block; margin-bottom: 4px; font-size: clamp(1.8rem, 4vw, 3.2rem); line-height: 1; letter-spacing: -0.05em; }
+    .metric span { color: var(--muted); font-size: 0.84rem; }
+
+    .placeholder {
+      border: 1px dashed color-mix(in srgb, var(--warning) 55%, transparent);
+      background: color-mix(in srgb, var(--warning) 8%, transparent);
+    }
+
+    .placeholder-label { display: inline-flex; margin-bottom: 12px; padding: 4px 8px; border-radius: 999px; background: color-mix(in srgb, var(--warning) 18%, transparent); color: var(--warning); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+
+    .timeline { position: relative; display: grid; gap: 16px; }
+    .timeline::before { position: absolute; top: 20px; bottom: 20px; left: 20px; width: 1px; background: var(--line); content: ""; }
+    .timeline-item { position: relative; display: grid; grid-template-columns: 42px 1fr; gap: 18px; align-items: start; }
+    .timeline-dot { z-index: 1; display: grid; width: 42px; height: 42px; place-items: center; border: 1px solid var(--line); border-radius: 50%; background: var(--surface-solid); color: var(--primary-2); font-size: 0.75rem; font-weight: 800; }
+    .timeline-item.is-revealed .timeline-dot { border-color: var(--primary-2); box-shadow: 0 0 0 7px color-mix(in srgb, var(--primary-2) 9%, transparent); }
+
+    .architecture {
+      display: grid;
+      min-height: 420px;
+      place-items: center;
+      padding: 34px;
+      border: 1px dashed var(--line);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, rgba(139, 124, 255, 0.08), rgba(83, 216, 251, 0.05));
+      text-align: center;
+    }
+
+    .architecture-stack { display: grid; width: min(650px, 100%); grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .architecture-node { position: relative; padding: 22px 12px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface-solid); transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease; }
+    .architecture-node:hover { z-index: 1; border-color: var(--primary-2); box-shadow: 0 14px 38px rgba(83, 216, 251, 0.12); transform: translateY(-5px); }
+    .architecture-arrow { position: relative; grid-column: 1 / -1; color: var(--primary-2); letter-spacing: 0.5em; overflow: hidden; }
+    .architecture-arrow::after { position: absolute; inset: 0; background: linear-gradient(90deg, transparent, var(--text), transparent); color: transparent; content: "JSON / VALIDATION / SQL"; animation: flow 3s linear infinite; transform: translateX(-100%); }
+    @keyframes flow { to { transform: translateX(100%); } }
+
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius-md); }
+    table { width: 100%; border-collapse: collapse; min-width: 720px; }
+    th, td { padding: 16px 18px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: var(--surface-2); color: var(--muted); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr { transition: background 160ms ease; }
+    tbody tr:hover { background: color-mix(in srgb, var(--primary) 7%, transparent); }
+
+    .status-pill { display: inline-flex; padding: 5px 9px; border-radius: 999px; background: color-mix(in srgb, var(--warning) 15%, transparent); color: var(--warning); font-size: 0.72rem; font-weight: 800; }
+
+    .gallery { display: grid; grid-template-columns: 1.25fr 0.75fr; grid-template-rows: repeat(2, 230px); gap: 16px; }
+    .gallery-item { position: relative; display: grid; place-items: end start; padding: 28px; border: 1px dashed var(--line); border-radius: var(--radius-md); background: linear-gradient(150deg, color-mix(in srgb, var(--primary) 10%, var(--surface)), var(--surface)); color: var(--muted); text-align: left; overflow: hidden; transition: transform 220ms ease, border-color 220ms ease; }
+    .gallery-item:first-child { grid-row: 1 / -1; }
+    .gallery-item::before { position: absolute; top: -35%; right: -18%; width: 190px; height: 190px; border: 1px solid color-mix(in srgb, var(--primary-2) 35%, transparent); border-radius: 42%; content: ""; transform: rotate(18deg); transition: transform 600ms ease; }
+    .gallery-item:hover { border-color: var(--primary); transform: translateY(-4px); }
+    .gallery-item:hover::before { transform: rotate(68deg) scale(1.12); }
+    .gallery-item > div { position: relative; z-index: 1; }
+
+    .quote { padding: clamp(28px, 5vw, 60px); border-radius: var(--radius-lg); background: linear-gradient(135deg, rgba(139, 124, 255, 0.16), rgba(83, 216, 251, 0.08)); font-size: clamp(1.4rem, 3vw, 2.4rem); line-height: 1.35; letter-spacing: -0.03em; }
+    .quote small { display: block; margin-top: 18px; color: var(--muted); font-size: 0.9rem; letter-spacing: 0; }
+
+    .references { counter-reset: reference; display: grid; gap: 10px; padding: 0; list-style: none; }
+    .references li { display: grid; grid-template-columns: 40px 1fr; gap: 12px; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+    .references li::before { counter-increment: reference; content: counter(reference, decimal-leading-zero); color: var(--primary-2); font-family: ui-monospace, monospace; }
+
+    .report-footer { display: flex; justify-content: space-between; gap: 24px; padding: 44px 0 70px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.84rem; }
+
+    .back-to-top {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      z-index: 18;
+      width: 46px;
+      height: 46px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(12px);
+      transition: opacity 180ms ease, transform 180ms ease, border-color 180ms ease;
+      backdrop-filter: blur(16px);
+    }
+
+    .back-to-top.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+    .back-to-top:hover { border-color: var(--primary-2); transform: translateY(-3px); }
+
+    @media (max-width: 1080px) {
+      :root { --sidebar: 245px; }
+      .hero { grid-template-columns: 1fr; min-height: auto; padding-top: 120px; }
+      .hero-panel { max-width: 650px; }
+      .grid.four { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 760px) {
+      .scroll-progress { left: 0; }
+      .menu-button { display: inline-flex; }
+      .sidebar { width: min(88vw, 320px); transform: translateX(-105%); transition: transform 220ms ease; box-shadow: var(--shadow); }
+      .sidebar.open { transform: translateX(0); }
+      main { margin-left: 0; }
+      .content { width: min(100% - 32px, 680px); }
+      .hero h1 { font-size: clamp(3.5rem, 20vw, 6rem); }
+      .section { padding: 68px 0; }
+      .section-heading { grid-template-columns: 1fr; gap: 12px; }
+      .grid.two, .grid.three, .grid.four { grid-template-columns: 1fr; }
+      .gallery { grid-template-columns: 1fr; grid-template-rows: repeat(3, 240px); }
+      .gallery-item:first-child { grid-row: auto; }
+      .architecture-stack { grid-template-columns: 1fr; }
+      .architecture-arrow { grid-column: 1; transform: rotate(90deg); }
+      .report-footer { flex-direction: column; }
+      .pointer-glow { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+      .reveal-ready { opacity: 1; transform: none; }
+      .pointer-glow { display: none; }
+    }
+
+    @media print {
+      @page { margin: 16mm; }
+      :root { color-scheme: light; --bg: #fff; --surface: #fff; --surface-solid: #fff; --surface-2: #f3f3f3; --text: #111; --muted: #444; --line: #ccc; }
+      body { background: #fff; font-size: 10.5pt; }
+      .sidebar, .menu-button, .ambient, .actions, .theme-control, .scroll-progress, .pointer-glow, .back-to-top { display: none !important; }
+      main { margin: 0; }
+      .content { width: auto; }
+      .hero { min-height: 240mm; grid-template-columns: 1fr; page-break-after: always; }
+      .hero h1 { font-size: 72pt; }
+      .hero-panel { box-shadow: none; }
+      .section { padding: 14mm 0; break-before: page; }
+      .card, .table-wrap, .architecture, .gallery-item, .quote { break-inside: avoid; box-shadow: none; }
+      .gallery { grid-template-rows: repeat(2, 130px); }
+      a { text-decoration: none; }
+      .reveal-ready { opacity: 1 !important; transform: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to report</a>
+  <div class="scroll-progress" aria-hidden="true"><span></span></div>
+  <div class="pointer-glow" aria-hidden="true"></div>
+  <div class="ambient one"></div>
+  <div class="ambient two"></div>
+
+  <button class="menu-button" type="button" aria-label="Open report navigation" aria-expanded="false" aria-controls="report-sidebar">Menu</button>
+
+  <aside class="sidebar" id="report-sidebar" aria-label="Report navigation">
+    <div class="brand"><span class="brand-mark">P</span><span>Planora Report</span></div>
+    <p class="nav-title">Explore the project</p>
+    <nav aria-label="Table of contents">
+      <ol>
+        <li><a href="#overview"><span class="nav-index">01</span>Overview</a></li>
+        <li><a href="#problem"><span class="nav-index">02</span>Problem</a></li>
+        <li><a href="#objectives"><span class="nav-index">03</span>Objectives</a></li>
+        <li><a href="#requirements"><span class="nav-index">04</span>Requirements</a></li>
+        <li><a href="#research"><span class="nav-index">05</span>Research</a></li>
+        <li><a href="#methodology"><span class="nav-index">06</span>Methodology</a></li>
+        <li><a href="#design"><span class="nav-index">07</span>Design</a></li>
+        <li><a href="#implementation"><span class="nav-index">08</span>Implementation</a></li>
+        <li><a href="#testing"><span class="nav-index">09</span>Testing</a></li>
+        <li><a href="#results"><span class="nav-index">10</span>Results</a></li>
+        <li><a href="#reflection"><span class="nav-index">11</span>Reflection</a></li>
+        <li><a href="#references"><span class="nav-index">12</span>References</a></li>
+      </ol>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="reading-status" aria-hidden="true"><span>Report progress</span><strong id="progress-label">0%</strong><div class="reading-status-track"><span></span></div></div>
+      <button class="icon-button theme-control" type="button" id="theme-toggle" aria-label="Switch color theme">Switch theme</button>
+      <span class="status-pill">Functional MVP</span>
+    </div>
+  </aside>
+
+  <main id="main-content">
+    <div class="content">
+      <header class="hero" id="top">
+        <div class="hero-copy-block">
+          <p class="eyebrow">Interactive project report / 2026</p>
+          <h1>Project <span class="gradient-text">Planora</span></h1>
+          <p class="hero-copy">A calm, PostgreSQL-backed calendar that helps people see tasks, deadlines, and urgent work without needing technical knowledge to operate it.</p>
+          <div class="actions">
+            <a class="button primary" href="#overview">Explore the work</a>
+            <a class="button" href="#testing">View evidence</a>
+          </div>
+        </div>
+        <div class="hero-panel" aria-label="Current project status">
+          <div class="orbit" aria-hidden="true"><div class="orbit-ring"></div><div class="orbit-core">P</div></div>
+          <div class="status-row">
+            <div><span>Phase</span><strong>MVP</strong></div>
+            <div><span>Build</span><strong>Passing</strong></div>
+            <div><span>Report</span><strong>v0.4</strong></div>
+          </div>
+        </div>
+      </header>
+
+      <section class="section" id="overview">
+        <div class="section-heading"><span class="section-number">01 / OVERVIEW</span><div><h2>Planning without the technical friction.</h2><p class="lead">Planora brings a dashboard, monthly calendar, and task/deadline list together in one responsive interface backed by PostgreSQL.</p></div></div>
+        <div class="grid four">
+          <div class="card metric"><strong>1</strong><span>Primary user type</span></div>
+          <div class="card metric"><strong>3</strong><span>Core product views</span></div>
+          <div class="card metric"><strong>4</strong><span>JSON API operations</span></div>
+          <div class="card metric"><strong>6</strong><span>Seeded demo items</span></div>
+        </div>
+        <div class="grid two" style="margin-top: 18px;">
+          <article class="card"><span class="placeholder-label">Executive summary</span><h3>One source of truth for the days ahead</h3><p>The MVP stores tasks and deadlines in one constrained PostgreSQL table, then derives calendar placement and urgency summaries from that same data. Users can create, search, filter, complete, reopen, and remove items.</p></article>
+          <article class="card"><span class="placeholder-label">Current state</span><h3>Working vertical slice</h3><p>The optimized Next.js build passes. Local PostgreSQL provisioning and schema creation are automated, while live database smoke testing remains to be completed on a machine with Docker or PostgreSQL available.</p></article>
+        </div>
+      </section>
+
+      <section class="section" id="problem">
+        <div class="section-heading"><span class="section-number">02 / PROBLEM</span><div><h2>Important dates disappear into scattered lists.</h2><p class="lead">People need a simple visual answer to three questions: what is due, when is it due, and what needs attention now?</p></div></div>
+        <div class="grid three">
+          <article class="card"><div class="card-icon">01</div><h3>Primary user</h3><p>A student or everyday planner who wants a calendar but should not need database, coding, or configuration knowledge.</p></article>
+          <article class="card"><div class="card-icon">02</div><h3>Core friction</h3><p>Separate task lists and calendars make urgency harder to see, while technical installation steps can make otherwise simple tools inaccessible.</p></article>
+          <article class="card"><div class="card-icon">03</div><h3>MVP boundary</h3><p>Single-user local planning is in scope. Accounts, sharing, reminders, recurring events, external sync, and production hosting are not yet included.</p></article>
+        </div>
+      </section>
+
+      <section class="section" id="objectives">
+        <div class="section-heading"><span class="section-number">03 / OBJECTIVES</span><div><h2>Translate intent into measurable outcomes.</h2><p class="lead">Each objective should later connect to a requirement, implementation decision, test, and evaluation result.</p></div></div>
+        <div class="timeline">
+          <div class="timeline-item"><span class="timeline-dot">A</span><article class="card"><span class="placeholder-label">Overall aim</span><h3>Make near-term commitments obvious and manageable</h3><p>Combine task capture, calendar context, and automatic urgency summaries in an interface that asks little of the user.</p></article></div>
+          <div class="timeline-item"><span class="timeline-dot">O1</span><article class="card"><span class="placeholder-label">Objective</span><h3>Deliver the three-view workflow</h3><p>Dashboard, calendar, and task/deadline list must all reflect the same saved PostgreSQL records.</p></article></div>
+          <div class="timeline-item"><span class="timeline-dot">O2</span><article class="card"><span class="placeholder-label">Objective</span><h3>Automate first-time data setup</h3><p>One repeatable terminal command must create the schema, indexes, configuration, and useful demo records without manual table work.</p></article></div>
+        </div>
+      </section>
+
+      <section class="section" id="requirements">
+        <div class="section-heading"><span class="section-number">04 / REQUIREMENTS</span><div><h2>Define what success must do.</h2><p class="lead">The traceability table will connect every requirement to priority, implementation, and acceptance evidence.</p></div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>ID</th><th>Requirement</th><th>Priority</th><th>Evidence</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>FR-01</td><td>Create and remove tasks or deadlines with date, time, category, priority, and notes.</td><td>Must</td><td>Form, POST and DELETE routes</td><td><span class="status-pill">Built</span></td></tr>
+              <tr><td>FR-02</td><td>Show the same stored items in dashboard, monthly calendar, and filterable list views.</td><td>Must</td><td>Three responsive tabs</td><td><span class="status-pill">Built</span></td></tr>
+              <tr><td>FR-03</td><td>Complete or reopen work and automatically identify overdue and near-due items.</td><td>Must</td><td>PATCH route and derived summaries</td><td><span class="status-pill">Built</span></td></tr>
+              <tr><td>NFR-01</td><td>Create database structures and demo data without manual database administration.</td><td>Must</td><td>Idempotent setup script</td><td><span class="status-pill">Built</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section" id="research">
+        <div class="section-heading"><span class="section-number">05 / RESEARCH</span><div><h2>Use evidence to shape the solution.</h2><p class="lead">Background research should compare alternatives and directly explain why particular product or technical decisions were made.</p></div></div>
+        <div class="grid three">
+          <article class="card placeholder"><div class="card-icon">A</div><span class="placeholder-label">TBD</span><h3>User research</h3><p>Interviews, surveys, observation, personas, or other evidence establishing real user needs.</p></article>
+          <article class="card placeholder"><div class="card-icon">B</div><span class="placeholder-label">TBD</span><h3>Market review</h3><p>Competing solutions, gaps, useful patterns, and opportunities for differentiation.</p></article>
+          <article class="card placeholder"><div class="card-icon">C</div><span class="placeholder-label">TBD</span><h3>Technical research</h3><p>Candidate technologies, tradeoffs, standards, security guidance, and source-backed decisions.</p></article>
+        </div>
+      </section>
+
+      <section class="section" id="methodology">
+        <div class="section-heading"><span class="section-number">06 / METHODOLOGY</span><div><h2>Show how the work moved forward.</h2><p class="lead">The development story will combine milestones, iteration, decisions, risks, and changes in direction.</p></div></div>
+        <div class="timeline">
+          <div class="timeline-item"><span class="timeline-dot">01</span><article class="card"><h3>Foundation</h3><p>Documentation responsibilities and the report experience were established before application development.</p></article></div>
+          <div class="timeline-item"><span class="timeline-dot">02</span><article class="card"><h3>Scope definition</h3><p>The product was bounded to three views, one shared item model, and beginner-safe terminal setup based on the initial stakeholder brief.</p></article></div>
+          <div class="timeline-item"><span class="timeline-dot">03</span><article class="card"><h3>Vertical-slice build</h3><p>The responsive interface, validated Route Handlers, PostgreSQL schema, relative-date seed data, and recovery states were built together.</p></article></div>
+          <div class="timeline-item"><span class="timeline-dot">04</span><article class="card"><h3>Static verification</h3><p>Dependencies installed without reported vulnerabilities, ESLint completed, and the optimized Next.js build compiled all application and API routes.</p></article></div>
+        </div>
+      </section>
+
+      <section class="section" id="design">
+        <div class="section-heading"><span class="section-number">07 / DESIGN</span><div><h2>Make the system understandable at a glance.</h2><p class="lead">Architecture, information flows, interface decisions, and prototypes belong here as visual evidence with concise explanation.</p></div></div>
+        <div class="architecture" role="img" aria-label="Planora architecture from browser interface through Next.js API and PostgreSQL persistence">
+          <div class="architecture-stack">
+            <div class="architecture-node"><strong>Dashboard</strong><br><span>Urgency projection</span></div>
+            <div class="architecture-node"><strong>Calendar</strong><br><span>Monthly projection</span></div>
+            <div class="architecture-node"><strong>Tasks &amp; deadlines</strong><br><span>Search and actions</span></div>
+            <div class="architecture-arrow">JSON / VALIDATION / SQL</div>
+            <div class="architecture-node"><strong>Next.js API</strong><br><span>Four CRUD operations</span></div>
+            <div class="architecture-node"><strong>PostgreSQL</strong><br><span>planner_items</span></div>
+            <div class="architecture-node"><strong>Docker + setup</strong><br><span>Repeatable local provisioning</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="implementation">
+        <div class="section-heading"><span class="section-number">08 / IMPLEMENTATION</span><div><h2>One model, three useful perspectives.</h2><p class="lead">The browser receives one ordered collection; each view transforms it for a different planning question while mutations return to the same validated API.</p></div></div>
+        <div class="gallery" aria-label="Implementation evidence gallery">
+          <div class="gallery-item"><div><span class="placeholder-label">Dashboard</span><p>Four summary cards and a priority queue expose today, the next seven days, overdue work, and completion.</p></div></div>
+          <div class="gallery-item"><div><span class="placeholder-label">Calendar + list</span><p>Month navigation, day-based creation, filtering, search, completion, reopening, and deletion.</p></div></div>
+          <div class="gallery-item"><div><span class="placeholder-label">Data layer</span><p>Parameterized SQL, constrained values, UUID keys, indexes, HTTP validation, and idempotent setup.</p></div></div>
+        </div>
+      </section>
+
+      <section class="section" id="testing">
+        <div class="section-heading"><span class="section-number">09 / TESTING</span><div><h2>Replace confidence with evidence.</h2><p class="lead">Test coverage, scenarios, defects, usability findings, and performance measurements should demonstrate whether requirements were met.</p></div></div>
+        <div class="grid four" style="margin-bottom: 18px;">
+          <div class="card metric"><strong>2</strong><span>Checks executed</span></div>
+          <div class="card metric"><strong>2</strong><span>Checks passed</span></div>
+          <div class="card metric"><strong>1</strong><span>Lint warnings resolved</span></div>
+          <div class="card metric"><strong>0</strong><span>Known build errors</span></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Test</th><th>Requirement</th><th>Method</th><th>Expected</th><th>Actual</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>T-01</td><td>NFR-01</td><td><code>npm run lint</code></td><td>No errors or warnings</td><td>Clean after configuration fix</td><td><span class="status-pill">Pass</span></td></tr>
+              <tr><td>T-02</td><td>FR-01–03</td><td><code>npm run build</code></td><td>UI and API compile</td><td>4 routes built successfully</td><td><span class="status-pill">Pass</span></td></tr>
+              <tr><td>T-03</td><td>FR-01–03</td><td>Live PostgreSQL smoke test</td><td>CRUD persists across reload</td><td>Environment lacks Docker/PostgreSQL</td><td><span class="status-pill">TBD</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section" id="results">
+        <div class="section-heading"><span class="section-number">10 / RESULTS</span><div><h2>Evaluate outcomes, not effort.</h2><p class="lead">Results will be measured against the original objectives, supported by quantitative evidence and user feedback where available.</p></div></div>
+        <blockquote class="quote">The MVP compiles as one coherent planning flow: capture once, then understand the same commitment through urgency, time, or list context.<small>Result supported by the optimized route build; live persistence validation remains pending.</small></blockquote>
+      </section>
+
+      <section class="section" id="reflection">
+        <div class="section-heading"><span class="section-number">11 / REFLECTION</span><div><h2>Be clear about limits and learning.</h2><p class="lead">A strong report distinguishes what was achieved, what remains limited, what changed during development, and what should happen next.</p></div></div>
+        <div class="grid three">
+          <article class="card"><span class="placeholder-label">Limitations</span><h3>Local single-user MVP</h3><p>No accounts, reminders, recurring items, field editing, external sync, production deployment, formal accessibility audit, or live database test evidence yet.</p></article>
+          <article class="card"><span class="placeholder-label">Learning</span><h3>Setup is part of the user experience</h3><p>For a non-technical audience, database creation cannot be a hidden prerequisite. Safe reruns, clear errors, relative demo dates, and copyable commands are product features.</p></article>
+          <article class="card"><span class="placeholder-label">Next priorities</span><h3>Validate before expanding</h3><p>Run live CRUD and browser accessibility tests first, then add item editing and reminders based on user feedback rather than broadening scope immediately.</p></article>
+        </div>
+      </section>
+
+      <section class="section" id="references">
+        <div class="section-heading"><span class="section-number">12 / REFERENCES</span><div><h2>Sources, appendices, and supporting evidence.</h2><p class="lead">Every academic or technical claim must link to a credible source using the citation style required by the course.</p></div></div>
+        <ol class="references">
+          <li><span><a href="https://nextjs.org/docs/app" rel="noreferrer">Next.js documentation — App Router</a>, used for the interface and Route Handler JSON API.</span></li>
+          <li><span><a href="https://www.postgresql.org/docs/17/index.html" rel="noreferrer">PostgreSQL 17 documentation</a>, covering the constraints, timestamps, UUID generation, and indexes used by the data model.</span></li>
+          <li><span><a href="https://tailwindcss.com/docs/installation/using-postcss" rel="noreferrer">Tailwind CSS documentation — PostCSS installation</a>, used for build-time styling integration.</span></li>
+        </ol>
+        <div class="grid two" style="margin-top: 18px;">
+          <article class="card"><span class="placeholder-label">Appendix A</span><h3>Installation and operation</h3><p>README.md contains copyable Ubuntu and Windows terminal commands for dependencies, Docker PostgreSQL, schema creation, seeding, startup, stopping, and troubleshooting.</p></article>
+          <article class="card placeholder"><span class="placeholder-label">Appendix B / TBD</span><h3>Extended evidence</h3><p>Product screenshots, formal user feedback, browser results, accessibility audit results, and live persistence evidence are still required.</p></article>
+        </div>
+      </section>
+
+      <footer class="report-footer">
+        <span>Project Planora / Interactive assignment report</span>
+        <span>Student: TBD / Course: TBD / Updated: 26 August 2026</span>
+      </footer>
+    </div>
+  </main>
+
+  <button class="back-to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+  <script>
+    const root = document.documentElement;
+    const sidebar = document.querySelector('.sidebar');
+    const menuButton = document.querySelector('.menu-button');
+    const themeButton = document.querySelector('#theme-toggle');
+    const navLinks = [...document.querySelectorAll('.sidebar nav a')];
+    const sections = navLinks.map((link) => document.querySelector(link.hash)).filter(Boolean);
+    const progressBars = document.querySelectorAll('.scroll-progress span, .reading-status-track span');
+    const progressLabel = document.querySelector('#progress-label');
+    const backToTop = document.querySelector('.back-to-top');
+    const pointerGlow = document.querySelector('.pointer-glow');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const mobileLayout = window.matchMedia('(max-width: 760px)');
+
+    try {
+      const savedTheme = localStorage.getItem('planora-report-theme');
+      if (savedTheme === 'light' || savedTheme === 'dark') root.dataset.theme = savedTheme;
+    } catch (error) {
+      // The report still works when storage is unavailable.
+    }
+
+    const syncThemeButton = () => {
+      const light = root.dataset.theme === 'light';
+      themeButton.textContent = light ? 'Use dark theme' : 'Use light theme';
+      themeButton.setAttribute('aria-label', light ? 'Switch to dark color theme' : 'Switch to light color theme');
+      document.querySelector('meta[name="theme-color"]').content = light ? '#f2f5fb' : '#0b1020';
+    };
+
+    syncThemeButton();
+
+    const setMenuState = (open, returnFocus = false) => {
+      sidebar.classList.toggle('open', open);
+      menuButton.setAttribute('aria-expanded', String(open));
+      menuButton.textContent = open ? 'Close' : 'Menu';
+      if (mobileLayout.matches) {
+        sidebar.toggleAttribute('inert', !open);
+        sidebar.setAttribute('aria-hidden', String(!open));
+      } else {
+        sidebar.removeAttribute('inert');
+        sidebar.removeAttribute('aria-hidden');
+      }
+      if (returnFocus) menuButton.focus();
+    };
+
+    setMenuState(false);
+    mobileLayout.addEventListener('change', () => setMenuState(false));
+
+    menuButton.addEventListener('click', () => {
+      const isOpen = !sidebar.classList.contains('open');
+      setMenuState(isOpen);
+      if (isOpen) navLinks[0].focus();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape' || !sidebar.classList.contains('open')) return;
+      setMenuState(false, true);
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!sidebar.classList.contains('open') || sidebar.contains(event.target) || menuButton.contains(event.target)) return;
+      setMenuState(false);
+    });
+
+    navLinks.forEach((link) => link.addEventListener('click', () => {
+      setMenuState(false);
+    }));
+
+    themeButton.addEventListener('click', () => {
+      const nextTheme = root.dataset.theme === 'light' ? 'dark' : 'light';
+      root.dataset.theme = nextTheme;
+      try { localStorage.setItem('planora-report-theme', nextTheme); } catch (error) {}
+      syncThemeButton();
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        navLinks.forEach((link) => {
+          const active = link.hash === `#${entry.target.id}`;
+          link.classList.toggle('active', active);
+          if (active) link.setAttribute('aria-current', 'location');
+          else link.removeAttribute('aria-current');
+        });
+      });
+    }, { rootMargin: '-25% 0px -65% 0px', threshold: 0 });
+
+    sections.forEach((section) => observer.observe(section));
+
+    const revealTargets = document.querySelectorAll('.section-heading, .card, .timeline-item, .architecture, .gallery-item, .table-wrap, .quote, .references li');
+    revealTargets.forEach((target, index) => {
+      target.classList.add('reveal-ready');
+      target.style.setProperty('--reveal-delay', `${Math.min(index % 4, 3) * 70}ms`);
+    });
+
+    const revealObserver = new IntersectionObserver((entries, currentObserver) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-revealed');
+        currentObserver.unobserve(entry.target);
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+
+    revealTargets.forEach((target) => revealObserver.observe(target));
+
+    const metricObserver = new IntersectionObserver((entries, currentObserver) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const value = entry.target;
+        const target = Number.parseInt(value.textContent, 10);
+        if (!Number.isFinite(target) || reducedMotion.matches) return currentObserver.unobserve(value);
+        const startedAt = performance.now();
+        const animateCount = (now) => {
+          const progress = Math.min((now - startedAt) / 700, 1);
+          value.textContent = String(Math.round(target * (1 - Math.pow(1 - progress, 3))));
+          if (progress < 1) requestAnimationFrame(animateCount);
+        };
+        requestAnimationFrame(animateCount);
+        currentObserver.unobserve(value);
+      });
+    }, { threshold: 0.65 });
+
+    document.querySelectorAll('.metric strong').forEach((metric) => metricObserver.observe(metric));
+
+    let scrollFrame;
+    const updateScrollUI = () => {
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = scrollable > 0 ? Math.min(window.scrollY / scrollable, 1) : 0;
+      progressBars.forEach((bar) => { bar.style.transform = `scaleX(${progress})`; });
+      progressLabel.textContent = `${Math.round(progress * 100)}%`;
+      backToTop.classList.toggle('visible', window.scrollY > window.innerHeight * 0.65);
+      scrollFrame = null;
+    };
+
+    window.addEventListener('scroll', () => {
+      if (!scrollFrame) scrollFrame = requestAnimationFrame(updateScrollUI);
+    }, { passive: true });
+    window.addEventListener('resize', updateScrollUI, { passive: true });
+    updateScrollUI();
+
+    backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: reducedMotion.matches ? 'auto' : 'smooth' }));
+
+    if (finePointer.matches && !reducedMotion.matches) {
+      document.addEventListener('pointermove', (event) => {
+        document.body.classList.add('pointer-active');
+        pointerGlow.style.left = `${event.clientX}px`;
+        pointerGlow.style.top = `${event.clientY}px`;
+      }, { passive: true });
+
+      document.querySelectorAll('.card').forEach((card) => {
+        card.addEventListener('pointermove', (event) => {
+          const bounds = card.getBoundingClientRect();
+          const x = (event.clientX - bounds.left) / bounds.width;
+          const y = (event.clientY - bounds.top) / bounds.height;
+          card.style.setProperty('--pointer-x', `${x * 100}%`);
+          card.style.setProperty('--pointer-y', `${y * 100}%`);
+          card.style.setProperty('--tilt-x', `${(0.5 - y) * 3}deg`);
+          card.style.setProperty('--tilt-y', `${(x - 0.5) * 3}deg`);
+        });
+        card.addEventListener('pointerleave', () => {
+          card.style.removeProperty('--tilt-x');
+          card.style.removeProperty('--tilt-y');
+        });
+      });
+    }
+  </script>
+</body>
+</html>
