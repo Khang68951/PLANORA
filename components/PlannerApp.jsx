@@ -10,6 +10,7 @@ import {
   ChevronRight,
   CircleAlert,
   Clock3,
+  FolderKanban,
   LayoutDashboard,
   ListTodo,
   Menu,
@@ -22,6 +23,7 @@ import {
   X,
 } from "lucide-react";
 import CategoryPanel from "./CategoryPanel";
+import ProjectWorkspace, { UnsavedDocumentDialog } from "./ProjectWorkspace";
 import { descendantsOf, visibleCategoryTree } from "@/lib/categories";
 import { calendarDays, shiftCalendarCursor, startOfDay } from "@/lib/calendar";
 import { DEFAULT_APP_PREFERENCES, normalizeAppPreferences } from "@/lib/preferences";
@@ -41,6 +43,7 @@ const tabs = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "calendar", label: "Calendar", icon: CalendarDays },
   { id: "items", label: "Tasks & deadlines", icon: ListTodo },
+  { id: "projects", label: "Projects", icon: FolderKanban },
 ];
 
 const sameDay = (a, b) => startOfDay(a).getTime() === startOfDay(b).getTime();
@@ -382,8 +385,8 @@ function ItemModal({ initialDate, item, onClose, onSave, saving, categories, pro
             <label className="field"><span>Due time</span><input required type="time" value={form.dueTime} onChange={(event) => setForm({ ...form, dueTime: event.target.value })} /></label>
           </div>}
           <div className="form-grid">
-            <label className="field"><span>Project <small>optional</small></span><select value={form.projectId} onChange={(event) => setForm({ ...form, projectId: event.target.value })}><option value="">No project</option>{projects.map((project) => <option key={project.id} value={project.id}>{project.title}</option>)}</select></label>
-            <label className="field"><span>Category</span><select required disabled={Boolean(selectedProject)} value={selectedProject?.category_id || form.categoryId} onChange={(event) => setForm({ ...form, categoryId: event.target.value })}>{categories.filter((category) => !category.is_hidden || category.id === form.categoryId).map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select>{selectedProject ? <small>Inherited from {selectedProject.title}</small> : null}</label>
+            <label className="field"><span>Project <small>optional</small></span><select value={form.projectId} onChange={(event) => setForm({ ...form, projectId: event.target.value })}><option value="">No project</option>{projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}</select></label>
+            <label className="field"><span>Category</span><select required disabled={Boolean(selectedProject)} value={selectedProject?.categoryId || form.categoryId} onChange={(event) => setForm({ ...form, categoryId: event.target.value })}>{categories.filter((category) => !category.is_hidden || category.id === form.categoryId).map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select>{selectedProject ? <small>Inherited from {selectedProject.name}</small> : null}</label>
             <label className="field"><span>Priority</span><select value={form.priority} onChange={(event) => setForm({ ...form, priority: event.target.value })}><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></label>
             <label className="field"><span>Status</span><select value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value })}><option value="pending">Pending</option><option value="completed">Completed</option></select></label>
           </div>
@@ -398,11 +401,25 @@ function ItemModal({ initialDate, item, onClose, onSave, saving, categories, pro
 
 function AppSettingsModal({ preferences, onClose, onSave }) {
   const [draft, setDraft] = useState(preferences);
+  const [ai, setAi] = useState(null);
+  const [providers, setProviders] = useState(null);
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+  useEffect(() => {
+    fetch("/api/settings/ai", { cache: "no-store" }).then(async (response) => { const data = await response.json(); if (!response.ok) throw new Error(data.error); setAi(data.config); setProviders(data.providers); }).catch((loadError) => setError(loadError.message));
+  }, []);
   const themes = [
     { id: "paper", name: "Paper", note: "Warm and calm", colors: ["#f5f4ed", "#214e47"] },
     { id: "ocean", name: "Ocean", note: "Cool and clear", colors: ["#eef5f7", "#245c70"] },
     { id: "night", name: "Night", note: "Low-light focus", colors: ["#0f1716", "#91cbb8"] },
   ];
+  const saveAll = async () => {
+    setSaving(true); setError("");
+    try {
+      if (ai) { const response = await fetch("/api/settings/ai", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(ai) }); const data = await response.json(); if (!response.ok) throw new Error(data.error); }
+      onSave(draft);
+    } catch (saveError) { setError(saveError.message); setSaving(false); }
+  };
   return (
     <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
       <section className="modal app-settings-modal" id="app-settings-dialog" role="dialog" aria-modal="true" aria-labelledby="app-settings-title">
@@ -425,8 +442,13 @@ function AppSettingsModal({ preferences, onClose, onSave }) {
           <label htmlFor="reduced-motion"><strong>Reduce motion</strong><span>Turns off decorative movement and transitions.</span></label>
           <label className="settings-switch"><input id="reduced-motion" type="checkbox" checked={draft.reducedMotion} onChange={(event) => setDraft({ ...draft, reducedMotion: event.target.checked })} /><span /></label>
         </div>
-        <p className="settings-storage-note">These preferences are saved only in this browser.</p>
-        <div className="modal-actions"><button className="secondary-button" type="button" onClick={onClose}>Cancel</button><button className="primary-button" type="button" onClick={() => onSave(draft)}>Save settings</button></div>
+        <div className="settings-section">
+          <div><strong>Project AI provider</strong><span>API keys stay on the server and are never sent to this browser.</span></div>
+          {ai && providers ? <div className="ai-settings-grid"><label className="field"><span>Provider</span><select value={ai.provider} onChange={(event) => { const provider = event.target.value; setAi({ provider, model: providers[provider].defaultModel }); }}><option value="openrouter">OpenRouter</option><option value="deepseek">DeepSeek</option></select></label><label className="field"><span>Model</span><input maxLength={120} value={ai.model} onChange={(event) => setAi({ ...ai, model: event.target.value })} /></label><p className={providers[ai.provider].keyConfigured ? "ai-key-ready" : "ai-key-missing"}>{providers[ai.provider].keyConfigured ? "Server API key configured" : "Server API key missing — add it to .env.local"}</p></div> : <p className="muted-copy">Loading AI settings…</p>}
+        </div>
+        <p className="settings-storage-note">Display preferences are saved in this browser. AI provider choices are saved in PostgreSQL; secret keys remain in .env.local.</p>
+        {error ? <p className="form-error">{error}</p> : null}
+        <div className="modal-actions"><button className="secondary-button" type="button" onClick={onClose}>Cancel</button><button className="primary-button" disabled={saving || !ai} type="button" onClick={saveAll}>{saving ? "Saving…" : "Save settings"}</button></div>
       </section>
     </div>
   );
@@ -449,6 +471,8 @@ export default function PlannerApp() {
   const [cursor, setCursor] = useState(new Date());
   const [preferences, setPreferences] = useState(storedPreferences);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [projectDocumentDirty, setProjectDocumentDirty] = useState(false);
+  const [pendingMainTab, setPendingMainTab] = useState(null);
 
   const filterCategories = useMemo(() => {
     const hiddenIds = new Set(categories.filter((category) => category.is_hidden).flatMap((category) => [...descendantsOf(categories, category.id)]));
@@ -495,7 +519,8 @@ export default function PlannerApp() {
     catch (error) { setDbError(error.message); }
   };
 
-  const navigate = (tab) => { setActiveTab(tab); setMenuOpen(false); };
+  const navigate = (tab) => { if (tab === activeTab) return setMenuOpen(false); if (activeTab === "projects" && projectDocumentDirty) { setPendingMainTab(tab); setMenuOpen(false); return; } setActiveTab(tab); setMenuOpen(false); };
+  const confirmMainNavigation = () => { const tab = pendingMainTab; setPendingMainTab(null); setProjectDocumentDirty(false); if (tab) setActiveTab(tab); };
   const openAdd = (date = null) => { setEditingItem(null); setModalDate(date); setModalOpen(true); };
   const openEdit = (item) => { setEditingItem(item); setModalDate(null); setModalOpen(true); };
   const savePreferences = (next) => {
@@ -567,10 +592,12 @@ export default function PlannerApp() {
           {!loading && activeTab === "dashboard" ? <Dashboard items={itemsForTab("dashboard")} categories={filterCategories} categoryFilter={categoryFilters.dashboard} onCategoryFilter={(selected) => updateCategoryFilter("dashboard", selected)} onNavigate={navigate} onToggle={toggleItem} onDelete={deleteItem} onEdit={openEdit} onAdd={openAdd} /> : null}
           {!loading && activeTab === "calendar" ? <CalendarView key={preferences.defaultCalendarView} defaultMode={preferences.defaultCalendarView} items={itemsForTab("calendar")} categories={filterCategories} categoryFilter={categoryFilters.calendar} onCategoryFilter={(selected) => updateCategoryFilter("calendar", selected)} cursor={cursor} setCursor={setCursor} onToggle={toggleItem} onDelete={deleteItem} onEdit={openEdit} onAdd={openAdd} /> : null}
           {!loading && activeTab === "items" ? <ItemsView items={itemsForTab("items")} categories={filterCategories} categoryFilter={categoryFilters.items} onCategoryFilter={(selected) => updateCategoryFilter("items", selected)} onToggle={toggleItem} onDelete={deleteItem} onEdit={openEdit} onAdd={openAdd} /> : null}
+          {!loading && activeTab === "projects" ? <ProjectWorkspace categories={filterCategories} projects={projects} onProjectsChanged={refreshWorkspace} onDocumentDirtyChange={setProjectDocumentDirty} /> : null}
         </div>
       </main>
       {modalOpen ? <ItemModal initialDate={modalDate} item={editingItem} onClose={() => { setModalOpen(false); setEditingItem(null); }} onSave={saveItem} saving={saving} categories={categories} projects={projects} settings={settings} /> : null}
       {settingsOpen ? <AppSettingsModal preferences={preferences} onClose={() => setSettingsOpen(false)} onSave={savePreferences} /> : null}
+      {pendingMainTab ? <UnsavedDocumentDialog onCancel={() => setPendingMainTab(null)} onDiscard={confirmMainNavigation} /> : null}
     </div>
   );
 }

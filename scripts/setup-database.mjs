@@ -10,12 +10,13 @@ import {
 } from "../lib/database-url.mjs";
 
 const envPath = resolve(".env.local");
+const aiEnvironment = `OPENROUTER_API_KEY=\nOPENROUTER_MODEL=openrouter/free\nDEEPSEEK_API_KEY=\nDEEPSEEK_MODEL=deepseek-v4-flash\nAI_PROVIDER=openrouter\n`;
 const retryableCodes = new Set(["ECONNREFUSED", "ECONNRESET", "ENETUNREACH", "ETIMEDOUT", "57P03"]);
 const sleep = (milliseconds) => new Promise((resolvePromise) => setTimeout(resolvePromise, milliseconds));
 
 async function prepareLocalEnvironment() {
   if (!existsSync(envPath)) {
-    await writeFile(envPath, `DATABASE_URL=${DEFAULT_DATABASE_URL}\n`, "utf8");
+    await writeFile(envPath, `DATABASE_URL=${DEFAULT_DATABASE_URL}\n${aiEnvironment}`, "utf8");
     console.log("Created .env.local with Planora's local IPv4 database address.");
     return DEFAULT_DATABASE_URL;
   }
@@ -25,18 +26,30 @@ async function prepareLocalEnvironment() {
 
   if (!fileUrl) {
     const separator = currentText && !currentText.endsWith("\n") ? "\n" : "";
-    await writeFile(envPath, `${currentText}${separator}DATABASE_URL=${DEFAULT_DATABASE_URL}\n`, "utf8");
+    await writeFile(envPath, ensureAiEnvironment(`${currentText}${separator}DATABASE_URL=${DEFAULT_DATABASE_URL}\n`), "utf8");
     console.log("Added DATABASE_URL to .env.local.");
     return DEFAULT_DATABASE_URL;
   }
 
   const normalized = normalizeDatabaseEnvText(currentText);
-  if (normalized.changed) {
-    await writeFile(envPath, normalized.text, "utf8");
-    console.log("Updated .env.local from localhost to 127.0.0.1 to avoid reaching the wrong PostgreSQL server.");
+  const preparedText = ensureAiEnvironment(normalized.text);
+  if (normalized.changed || preparedText !== currentText) {
+    await writeFile(envPath, preparedText, "utf8");
+    console.log(normalized.changed
+      ? "Updated .env.local from localhost to 127.0.0.1 to avoid reaching the wrong PostgreSQL server."
+      : "Added missing AI configuration defaults to .env.local.");
   }
 
   return normalizeDatabaseUrl(fileUrl);
+}
+
+function ensureAiEnvironment(text) {
+  let result = text.endsWith("\n") ? text : `${text}\n`;
+  for (const line of aiEnvironment.trimEnd().split("\n")) {
+    const key = line.split("=")[0];
+    if (!new RegExp(`^${key}=`, "m").test(result)) result += `${line}\n`;
+  }
+  return result;
 }
 
 async function waitForDatabase(pool, attempts = 12) {
@@ -158,19 +171,26 @@ try {
     try {
       await client.query("BEGIN");
       const demoProject = await client.query(
-        `INSERT INTO projects (title, category_id)
-         SELECT 'University capstone', id FROM categories WHERE name = 'University' AND deleted_at IS NULL
+        `INSERT INTO projects (title, description, category_id, project_type, start_date, deadline, status, progress)
+         SELECT 'University capstone', 'Plan and deliver the final university capstone.', id, 'academic', CURRENT_DATE, CURRENT_DATE + 30, 'active', 35
+         FROM categories WHERE name = 'University' AND deleted_at IS NULL
          RETURNING id`,
       );
       const demoProjectId = demoProject.rows[0]?.id || null;
+      let demoMemberId = null;
+      if (demoProjectId) {
+        demoMemberId = (await client.query("INSERT INTO project_members (project_id, name, role) VALUES ($1, 'You', 'Project owner') RETURNING id", [demoProjectId])).rows[0].id;
+        await client.query("INSERT INTO project_members (project_id, name, role) VALUES ($1, 'Alex Morgan', 'Research partner')", [demoProjectId]);
+        await client.query("INSERT INTO project_documents (project_id, title, content_html) VALUES ($1, 'Project brief', '<h2>Capstone goal</h2><p>Deliver a clear, evidence-backed final project.</p>')", [demoProjectId]);
+      }
       for (const item of demoItems) {
         const taskEnd = new Date(new Date(item.at).getTime() + 60 * 60 * 1000).toISOString();
-        await client.query(
+        const insertedItem = await client.query(
           `INSERT INTO planner_items (title, description, kind, start_at, end_at, due_at, category_id, project_id, priority, status)
            VALUES ($1, $2, $3, $4, $5, $6,
              COALESCE((SELECT id FROM categories WHERE name = $7 AND deleted_at IS NULL LIMIT 1),
                       (SELECT default_category_id FROM planner_settings WHERE id = 1)),
-             $8, $9, $10)`,
+             $8, $9, $10) RETURNING id`,
           [
             item.title, item.description, item.kind,
             item.kind === "task" ? item.at : null,
@@ -180,6 +200,7 @@ try {
             item.priority, item.status,
           ],
         );
+        if (demoMemberId && item.category === "University") await client.query("INSERT INTO planner_item_assignees (item_id, member_id) VALUES ($1, $2)", [insertedItem.rows[0].id, demoMemberId]);
       }
       await client.query("COMMIT");
       console.log(`Database is ready. Added ${demoItems.length} demo items.`);

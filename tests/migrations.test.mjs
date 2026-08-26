@@ -13,3 +13,12 @@ test("task timestamp migration removes legacy constraints before clearing due_at
   assert.ok(dropTemporalCheck >= 0 && dropTemporalCheck < convertTasks);
   assert.ok(convertTasks < clearTaskDueAt);
 });
+
+test("project workspace migration includes every required relation and AI setting", async () => {
+  const migration = await readFile(new URL("../database/migrations/003_project_workspace.sql", import.meta.url), "utf8");
+  for (const table of ["project_members", "planner_item_assignees", "project_documents", "project_files", "project_ai_messages", "project_ai_tools"]) {
+    assert.match(migration, new RegExp(`CREATE TABLE ${table}\\b`));
+  }
+  assert.match(migration, /ALTER TABLE planner_settings ADD COLUMN IF NOT EXISTS ai_provider/);
+  assert.match(migration, /member_id UUID NOT NULL REFERENCES project_members\(id\) ON DELETE CASCADE/);
+});

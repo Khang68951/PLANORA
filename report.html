@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -76,10 +77,19 @@
       --shadow: 0 24px 80px rgba(0, 255, 92, 0.1);
     }
 
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; scroll-padding-top: 32px; }
+    * {
+      box-sizing: border-box;
+    }
 
-    ::selection { background: color-mix(in srgb, var(--primary) 48%, transparent); color: var(--text); }
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 32px;
+    }
+
+    ::selection {
+      background: color-mix(in srgb, var(--primary) 48%, transparent);
+      color: var(--text);
+    }
 
     :focus-visible {
       outline: 3px solid var(--primary-2);
@@ -130,10 +140,17 @@
       transition: opacity 300ms ease;
     }
 
-    body.pointer-active .pointer-glow { opacity: 1; }
+    body.pointer-active .pointer-glow {
+      opacity: 1;
+    }
 
-    a { color: inherit; }
-    button { font: inherit; }
+    a {
+      color: inherit;
+    }
+
+    button {
+      font: inherit;
+    }
 
     .skip-link {
       position: fixed;
@@ -147,7 +164,9 @@
       transform: translateY(-160%);
     }
 
-    .skip-link:focus { transform: translateY(0); }
+    .skip-link:focus {
+      transform: translateY(0);
+    }
 
     .ambient {
       position: fixed;
@@ -162,10 +181,23 @@
       animation: drift 14s ease-in-out infinite alternate;
     }
 
-    .ambient.one { top: 54%; left: 18%; }
-    .ambient.two { right: 5%; bottom: 3%; background: var(--primary-2); animation-delay: -6s; }
+    .ambient.one {
+      top: 54%;
+      left: 18%;
+    }
 
-    @keyframes drift { to { transform: translate(80px, -60px) scale(1.2); } }
+    .ambient.two {
+      right: 5%;
+      bottom: 3%;
+      background: var(--primary-2);
+      animation-delay: -6s;
+    }
+
+    @keyframes drift {
+      to {
+        transform: translate(80px, -60px) scale(1.2);
+      }
+    }
 
     .sidebar {
       position: fixed;
@@ -209,9 +241,27 @@
       text-transform: uppercase;
     }
 
-    .nav-title { margin: 0 0 10px; color: var(--muted); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; }
-    .sidebar nav { overflow-y: auto; scrollbar-width: thin; }
-    .sidebar nav ol { display: grid; gap: 3px; margin: 0; padding: 0; list-style: none; }
+    .nav-title {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .sidebar nav {
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+    }
+
+    .sidebar nav ol {
+      display: grid;
+      gap: 3px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
 
     .sidebar nav a {
       display: flex;
@@ -226,12 +276,32 @@
     }
 
     .sidebar nav a:hover,
-    .sidebar nav a.active { background: var(--surface-2); color: var(--text); }
-    .sidebar nav a.active { box-shadow: inset 3px 0 var(--primary); }
-    .sidebar nav a:hover { transform: translateX(3px); }
-    .nav-index { width: 1.5rem; color: var(--primary-2); font-family: ui-monospace, monospace; font-size: 0.72rem; }
+    .sidebar nav a.active {
+      background: var(--surface-2);
+      color: var(--text);
+    }
 
-    .sidebar-footer { display: grid; gap: 10px; margin-top: auto; padding-top: 20px; }
+    .sidebar nav a.active {
+      box-shadow: inset 3px 0 var(--primary);
+    }
+
+    .sidebar nav a:hover {
+      transform: translateX(3px);
+    }
+
+    .nav-index {
+      width: 1.5rem;
+      color: var(--primary-2);
+      font-family: ui-monospace, monospace;
+      font-size: 0.72rem;
+    }
+
+    .sidebar-footer {
+      display: grid;
+      gap: 10px;
+      margin-top: auto;
+      padding-top: 20px;
+    }
 
     .reading-status {
       display: grid;
@@ -241,8 +311,22 @@
       font-size: 0.72rem;
     }
 
-    .reading-status-track { grid-column: 1 / -1; height: 3px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
-    .reading-status-track span { display: block; width: 100%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-2)); transform: scaleX(0); transform-origin: left; }
+    .reading-status-track {
+      grid-column: 1 / -1;
+      height: 3px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      overflow: hidden;
+    }
+
+    .reading-status-track span {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--primary-2));
+      transform: scaleX(0);
+      transform-origin: left;
+    }
 
     .icon-button,
     .menu-button {
@@ -259,12 +343,29 @@
       transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
     }
 
-    .icon-button:hover, .menu-button:hover { border-color: var(--primary); transform: translateY(-2px); }
+    .icon-button:hover,
+    .menu-button:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
 
-    .menu-button { display: none; position: fixed; top: 16px; right: 16px; z-index: 40; width: 46px; }
+    .menu-button {
+      display: none;
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 40;
+      width: 46px;
+    }
 
-    main { margin-left: var(--sidebar); }
-    .content { width: min(1180px, calc(100% - 64px)); margin: 0 auto; }
+    main {
+      margin-left: var(--sidebar);
+    }
+
+    .content {
+      width: min(1180px, calc(100% - 64px));
+      margin: 0 auto;
+    }
 
     .hero {
       position: relative;
@@ -284,14 +385,32 @@
       letter-spacing: -0.075em;
     }
 
-    .hero-copy-block > * { animation: hero-enter 720ms both; }
-    .hero-copy-block > :nth-child(2) { animation-delay: 90ms; }
-    .hero-copy-block > :nth-child(3) { animation-delay: 180ms; }
-    .hero-copy-block > :nth-child(4) { animation-delay: 270ms; }
+    .hero-copy-block>* {
+      animation: hero-enter 720ms both;
+    }
+
+    .hero-copy-block> :nth-child(2) {
+      animation-delay: 90ms;
+    }
+
+    .hero-copy-block> :nth-child(3) {
+      animation-delay: 180ms;
+    }
+
+    .hero-copy-block> :nth-child(4) {
+      animation-delay: 270ms;
+    }
 
     @keyframes hero-enter {
-      from { opacity: 0; transform: translateY(24px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(24px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .gradient-text {
@@ -300,8 +419,18 @@
       color: transparent;
     }
 
-    .hero-copy { max-width: 650px; margin: 28px 0; color: var(--muted); font-size: clamp(1.08rem, 2vw, 1.35rem); }
-    .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+    .hero-copy {
+      max-width: 650px;
+      margin: 28px 0;
+      color: var(--muted);
+      font-size: clamp(1.08rem, 2vw, 1.35rem);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
 
     .button {
       display: inline-flex;
@@ -316,9 +445,21 @@
       transition: transform 160ms ease, border-color 160ms ease;
     }
 
-    .button.primary { border: 0; background: linear-gradient(135deg, var(--primary), #a594ff); color: #080b14; font-weight: 800; }
-    .button:hover { transform: translateY(-2px); border-color: var(--primary); }
-    .button.primary:hover { box-shadow: 0 12px 34px rgba(var(--primary-rgb), 0.28); }
+    .button.primary {
+      border: 0;
+      background: linear-gradient(135deg, var(--primary), #a594ff);
+      color: #080b14;
+      font-weight: 800;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      border-color: var(--primary);
+    }
+
+    .button.primary:hover {
+      box-shadow: 0 12px 34px rgba(var(--primary-rgb), 0.28);
+    }
 
     .hero-panel {
       position: relative;
@@ -328,13 +469,20 @@
       background: linear-gradient(150deg, var(--surface), color-mix(in srgb, var(--surface) 70%, transparent));
       box-shadow: var(--shadow);
       overflow: hidden;
-      animation: panel-enter 900ms 220ms cubic-bezier(.2,.75,.2,1) both;
+      animation: panel-enter 900ms 220ms cubic-bezier(.2, .75, .2, 1) both;
       transform-style: preserve-3d;
     }
 
     @keyframes panel-enter {
-      from { opacity: 0; transform: translateY(30px) scale(0.97); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
+      from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.97);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
     }
 
     .hero-panel::before {
@@ -347,16 +495,62 @@
       opacity: 0.35;
     }
 
-    .product-window { position: relative; z-index: 1; min-width: 0; }
-    .window-bar { display: flex; align-items: center; gap: 7px; padding-bottom: 16px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 0.7rem; }
-    .window-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
-    .window-dot:nth-child(1) { background: #ff7d91; }
-    .window-dot:nth-child(2) { background: var(--warning); }
-    .window-dot:nth-child(3) { background: var(--accent); }
-    .window-title { margin-left: 7px; }
-    .window-badge { margin-left: auto; padding: 3px 7px; border-radius: 999px; background: color-mix(in srgb, var(--primary-2) 12%, transparent); color: var(--primary-2); font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+    .product-window {
+      position: relative;
+      z-index: 1;
+      min-width: 0;
+    }
 
-    .preview-tabs { display: flex; gap: 5px; padding: 14px 0; }
+    .window-bar {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.7rem;
+    }
+
+    .window-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--line);
+    }
+
+    .window-dot:nth-child(1) {
+      background: #ff7d91;
+    }
+
+    .window-dot:nth-child(2) {
+      background: var(--warning);
+    }
+
+    .window-dot:nth-child(3) {
+      background: var(--accent);
+    }
+
+    .window-title {
+      margin-left: 7px;
+    }
+
+    .window-badge {
+      margin-left: auto;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--primary-2) 12%, transparent);
+      color: var(--primary-2);
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .preview-tabs {
+      display: flex;
+      gap: 5px;
+      padding: 14px 0;
+    }
+
     .preview-tab {
       flex: 1;
       padding: 8px 6px;
@@ -369,70 +563,314 @@
       cursor: pointer;
       transition: color 180ms ease, background 180ms ease, transform 180ms ease;
     }
-    .preview-tab:hover { color: var(--text); }
-    .preview-tab[aria-selected="true"] { background: var(--surface-2); color: var(--text); box-shadow: inset 0 -2px var(--primary); }
 
-    .preview-stage { min-height: 254px; }
-    .preview-pane { animation: pane-in 320ms ease both; }
-    .preview-pane[hidden] { display: none; }
-    @keyframes pane-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .preview-tab:hover {
+      color: var(--text);
+    }
 
-    .mini-heading { display: flex; align-items: end; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
-    .mini-heading strong { font-size: 0.88rem; }
-    .mini-heading span { color: var(--muted); font-size: 0.65rem; }
-    .mini-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-bottom: 8px; }
-    .mini-stat { padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: color-mix(in srgb, var(--surface-solid) 76%, transparent); }
-    .mini-stat strong { display: block; font-size: 1.05rem; line-height: 1; }
-    .mini-stat span { color: var(--muted); font-size: 0.58rem; }
-    .mini-stat.urgent { border-color: color-mix(in srgb, #ff7d91 42%, var(--line)); }
+    .preview-tab[aria-selected="true"] {
+      background: var(--surface-2);
+      color: var(--text);
+      box-shadow: inset 0 -2px var(--primary);
+    }
 
-    .mini-task { display: grid; grid-template-columns: auto 1fr auto; gap: 9px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--line); }
-    .mini-task:last-child { border-bottom: 0; }
-    .mini-task-copy { min-width: 0; }
-    .mini-task-copy strong { display: block; overflow: hidden; font-size: 0.72rem; text-overflow: ellipsis; white-space: nowrap; }
-    .mini-task-copy span, .mini-due { color: var(--muted); font-size: 0.58rem; }
-    .mini-due { padding: 3px 6px; border-radius: 999px; background: var(--surface-2); }
-    .demo-check { display: grid; width: 20px; height: 20px; place-items: center; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: transparent; cursor: pointer; transition: 180ms ease; }
-    .demo-check[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: #07111b; }
-    .mini-task:has(.demo-check[aria-pressed="true"]) .mini-task-copy { opacity: 0.48; text-decoration: line-through; }
+    .preview-stage {
+      min-height: 254px;
+    }
 
-    .mini-calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-    .mini-day-label { color: var(--muted); font-size: 0.52rem; text-align: center; text-transform: uppercase; }
-    .mini-day { position: relative; min-height: 35px; border: 1px solid transparent; border-radius: 8px; background: color-mix(in srgb, var(--surface-solid) 70%, transparent); color: var(--text); font-size: 0.62rem; cursor: pointer; }
-    .mini-day:hover { border-color: var(--primary); }
-    .mini-day[aria-selected="true"] { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: #07111b; font-weight: 900; transform: translateY(-2px); }
-    .mini-day.has-item::after { position: absolute; right: 4px; bottom: 4px; width: 4px; height: 4px; border-radius: 50%; background: var(--warning); content: ""; }
-    .mini-day[aria-selected="true"]::after { background: #07111b; }
+    .preview-pane {
+      animation: pane-in 320ms ease both;
+    }
 
-    .mini-filter { display: flex; gap: 6px; margin-bottom: 8px; }
-    .mini-filter span { padding: 4px 7px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: 0.56rem; }
-    .mini-filter span:first-child { border-color: var(--primary); color: var(--text); }
+    .preview-pane[hidden] {
+      display: none;
+    }
 
-    .status-row { position: relative; display: flex; justify-content: space-between; gap: 16px; padding-top: 18px; border-top: 1px solid var(--line); }
-    .status-row span { color: var(--muted); font-size: 0.8rem; }
-    .status-row strong { display: block; color: var(--text); font-size: 0.95rem; }
+    @keyframes pane-in {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
 
-    .section { padding: 90px 0; border-top: 1px solid var(--line); }
-    .section.is-visible .section-number { animation: number-flash 700ms ease both; }
-    @keyframes number-flash { from { opacity: 0; letter-spacing: 0.3em; } to { opacity: 1; letter-spacing: 0.14em; } }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .mini-heading {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .mini-heading strong {
+      font-size: 0.88rem;
+    }
+
+    .mini-heading span {
+      color: var(--muted);
+      font-size: 0.65rem;
+    }
+
+    .mini-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+      margin-bottom: 8px;
+    }
+
+    .mini-stat {
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--surface-solid) 76%, transparent);
+    }
+
+    .mini-stat strong {
+      display: block;
+      font-size: 1.05rem;
+      line-height: 1;
+    }
+
+    .mini-stat span {
+      color: var(--muted);
+      font-size: 0.58rem;
+    }
+
+    .mini-stat.urgent {
+      border-color: color-mix(in srgb, #ff7d91 42%, var(--line));
+    }
+
+    .mini-task {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 9px;
+      align-items: center;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .mini-task:last-child {
+      border-bottom: 0;
+    }
+
+    .mini-task-copy {
+      min-width: 0;
+    }
+
+    .mini-task-copy strong {
+      display: block;
+      overflow: hidden;
+      font-size: 0.72rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .mini-task-copy span,
+    .mini-due {
+      color: var(--muted);
+      font-size: 0.58rem;
+    }
+
+    .mini-due {
+      padding: 3px 6px;
+      border-radius: 999px;
+      background: var(--surface-2);
+    }
+
+    .demo-check {
+      display: grid;
+      width: 20px;
+      height: 20px;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: transparent;
+      color: transparent;
+      cursor: pointer;
+      transition: 180ms ease;
+    }
+
+    .demo-check[aria-pressed="true"] {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #07111b;
+    }
+
+    .mini-task:has(.demo-check[aria-pressed="true"]) .mini-task-copy {
+      opacity: 0.48;
+      text-decoration: line-through;
+    }
+
+    .mini-calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
+
+    .mini-day-label {
+      color: var(--muted);
+      font-size: 0.52rem;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .mini-day {
+      position: relative;
+      min-height: 35px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--surface-solid) 70%, transparent);
+      color: var(--text);
+      font-size: 0.62rem;
+      cursor: pointer;
+    }
+
+    .mini-day:hover {
+      border-color: var(--primary);
+    }
+
+    .mini-day[aria-selected="true"] {
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #07111b;
+      font-weight: 900;
+      transform: translateY(-2px);
+    }
+
+    .mini-day.has-item::after {
+      position: absolute;
+      right: 4px;
+      bottom: 4px;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--warning);
+      content: "";
+    }
+
+    .mini-day[aria-selected="true"]::after {
+      background: #07111b;
+    }
+
+    .mini-filter {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .mini-filter span {
+      padding: 4px 7px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 0.56rem;
+    }
+
+    .mini-filter span:first-child {
+      border-color: var(--primary);
+      color: var(--text);
+    }
+
+    .status-row {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .status-row span {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .status-row strong {
+      display: block;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .section {
+      padding: 90px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .section.is-visible .section-number {
+      animation: number-flash 700ms ease both;
+    }
+
+    @keyframes number-flash {
+      from {
+        opacity: 0;
+        letter-spacing: 0.3em;
+      }
+
+      to {
+        opacity: 1;
+        letter-spacing: 0.14em;
+      }
+    }
 
     .reveal-ready {
       opacity: 0;
       transform: translateY(28px);
-      transition: opacity 650ms cubic-bezier(.2,.75,.2,1), transform 650ms cubic-bezier(.2,.75,.2,1);
+      transition: opacity 650ms cubic-bezier(.2, .75, .2, 1), transform 650ms cubic-bezier(.2, .75, .2, 1);
       transition-delay: var(--reveal-delay, 0ms);
     }
 
-    .reveal-ready.is-revealed { opacity: 1; transform: translateY(0); }
-    .section-heading { display: grid; grid-template-columns: 0.65fr 1.35fr; gap: 48px; margin-bottom: 38px; }
-    .section-number { color: var(--primary-2); font: 700 0.8rem/1 ui-monospace, monospace; letter-spacing: 0.14em; }
-    .section h2 { max-width: 850px; margin: 0; font-size: clamp(2.2rem, 5vw, 4.8rem); line-height: 1; letter-spacing: -0.055em; }
-    .lead { max-width: 760px; margin: 18px 0 0; color: var(--muted); font-size: 1.1rem; }
+    .reveal-ready.is-revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
 
-    .grid { display: grid; gap: 18px; }
-    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .section-heading {
+      display: grid;
+      grid-template-columns: 0.65fr 1.35fr;
+      gap: 48px;
+      margin-bottom: 38px;
+    }
+
+    .section-number {
+      color: var(--primary-2);
+      font: 700 0.8rem/1 ui-monospace, monospace;
+      letter-spacing: 0.14em;
+    }
+
+    .section h2 {
+      max-width: 850px;
+      margin: 0;
+      font-size: clamp(2.2rem, 5vw, 4.8rem);
+      line-height: 1;
+      letter-spacing: -0.055em;
+    }
+
+    .lead {
+      max-width: 760px;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 1.1rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .grid.four {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
 
     .card {
       position: relative;
@@ -457,29 +895,116 @@
       content: "";
     }
 
-    .card:hover { --lift: -5px; border-color: color-mix(in srgb, var(--primary) 48%, var(--line)); box-shadow: 0 20px 55px rgba(0, 0, 0, 0.16); }
-    .card:hover::after { opacity: 1; }
+    .card:hover {
+      --lift: -5px;
+      border-color: color-mix(in srgb, var(--primary) 48%, var(--line));
+      box-shadow: 0 20px 55px rgba(0, 0, 0, 0.16);
+    }
 
-    .card h3 { margin: 0 0 10px; font-size: 1.12rem; }
-    .card p { margin: 0; color: var(--muted); }
-    .card-icon { display: grid; width: 44px; height: 44px; place-items: center; margin-bottom: 34px; border-radius: 13px; background: var(--surface-2); color: var(--primary-2); font-weight: 900; }
+    .card:hover::after {
+      opacity: 1;
+    }
 
-    .metric { padding: 24px; border-left: 3px solid var(--primary); }
-    .metric strong { display: block; margin-bottom: 4px; font-size: clamp(1.8rem, 4vw, 3.2rem); line-height: 1; letter-spacing: -0.05em; }
-    .metric span { color: var(--muted); font-size: 0.84rem; }
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 1.12rem;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .card-icon {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      place-items: center;
+      margin-bottom: 34px;
+      border-radius: 13px;
+      background: var(--surface-2);
+      color: var(--primary-2);
+      font-weight: 900;
+    }
+
+    .metric {
+      padding: 24px;
+      border-left: 3px solid var(--primary);
+    }
+
+    .metric strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: clamp(1.8rem, 4vw, 3.2rem);
+      line-height: 1;
+      letter-spacing: -0.05em;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
 
     .placeholder {
       border: 1px dashed color-mix(in srgb, var(--warning) 55%, transparent);
       background: color-mix(in srgb, var(--warning) 8%, transparent);
     }
 
-    .placeholder-label { display: inline-flex; margin-bottom: 12px; padding: 4px 8px; border-radius: 999px; background: color-mix(in srgb, var(--warning) 18%, transparent); color: var(--warning); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+    .placeholder-label {
+      display: inline-flex;
+      margin-bottom: 12px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--warning) 18%, transparent);
+      color: var(--warning);
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
 
-    .timeline { position: relative; display: grid; gap: 16px; }
-    .timeline::before { position: absolute; top: 20px; bottom: 20px; left: 20px; width: 1px; background: var(--line); content: ""; }
-    .timeline-item { position: relative; display: grid; grid-template-columns: 42px 1fr; gap: 18px; align-items: start; }
-    .timeline-dot { z-index: 1; display: grid; width: 42px; height: 42px; place-items: center; border: 1px solid var(--line); border-radius: 50%; background: var(--surface-solid); color: var(--primary-2); font-size: 0.75rem; font-weight: 800; }
-    .timeline-item.is-revealed .timeline-dot { border-color: var(--primary-2); box-shadow: 0 0 0 7px color-mix(in srgb, var(--primary-2) 9%, transparent); }
+    .timeline {
+      position: relative;
+      display: grid;
+      gap: 16px;
+    }
+
+    .timeline::before {
+      position: absolute;
+      top: 20px;
+      bottom: 20px;
+      left: 20px;
+      width: 1px;
+      background: var(--line);
+      content: "";
+    }
+
+    .timeline-item {
+      position: relative;
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .timeline-dot {
+      z-index: 1;
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: var(--surface-solid);
+      color: var(--primary-2);
+      font-size: 0.75rem;
+      font-weight: 800;
+    }
+
+    .timeline-item.is-revealed .timeline-dot {
+      border-color: var(--primary-2);
+      box-shadow: 0 0 0 7px color-mix(in srgb, var(--primary-2) 9%, transparent);
+    }
 
     .architecture {
       display: grid;
@@ -492,78 +1017,442 @@
       background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.08), rgba(var(--primary-2-rgb), 0.05));
     }
 
-    .architecture-map { display: grid; grid-template-columns: 1fr 28px 1fr; gap: 12px; align-content: center; }
-    .architecture-node { position: relative; min-height: 94px; padding: 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface-solid); color: var(--text); text-align: left; cursor: pointer; transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease; }
-    .architecture-node:nth-of-type(3) { grid-column: 1; }
-    .architecture-node:nth-of-type(4) { grid-column: 3; }
-    .architecture-node:nth-of-type(5) { grid-column: 1 / -1; width: calc(50% - 14px); justify-self: center; }
-    .architecture-node:hover { z-index: 1; border-color: var(--primary-2); box-shadow: 0 14px 38px rgba(var(--primary-2-rgb), 0.12); transform: translateY(-4px); }
-    .architecture-node[aria-selected="true"] { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 12%, var(--surface-solid)); box-shadow: inset 3px 0 var(--primary); }
-    .architecture-node span { display: block; margin-top: 5px; color: var(--muted); font-size: 0.7rem; }
-    .architecture-connector { position: relative; align-self: center; height: 1px; background: var(--line); overflow: hidden; }
-    .architecture-connector::after { position: absolute; top: -2px; left: -5px; width: 5px; height: 5px; border-radius: 50%; background: var(--primary-2); box-shadow: 0 0 10px var(--primary-2); content: ""; animation: signal 2s linear infinite; }
-    @keyframes signal { to { left: 100%; } }
-    .architecture-detail { display: grid; align-content: center; padding: clamp(22px, 4vw, 36px); border: 1px solid var(--line); border-radius: 20px; background: var(--surface-solid); }
-    .architecture-panel { animation: pane-in 320ms ease both; }
-    .architecture-panel[hidden] { display: none; }
-    .architecture-panel h3 { margin: 0 0 10px; font-size: 1.4rem; letter-spacing: -0.03em; }
-    .architecture-panel p { margin: 0; color: var(--muted); }
-    .tech-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; }
-    .tech-tags span { padding: 5px 8px; border-radius: 999px; background: var(--surface-2); color: var(--primary-2); font: 700 0.64rem/1 ui-monospace, monospace; }
+    .architecture-map {
+      display: grid;
+      grid-template-columns: 1fr 28px 1fr;
+      gap: 12px;
+      align-content: center;
+    }
 
-    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius-md); }
-    table { width: 100%; border-collapse: collapse; min-width: 720px; }
-    th, td { padding: 16px 18px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
-    th { background: var(--surface-2); color: var(--muted); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; }
-    tbody tr:last-child td { border-bottom: 0; }
-    tbody tr { transition: background 160ms ease; }
-    tbody tr:hover { background: color-mix(in srgb, var(--primary) 7%, transparent); }
+    .architecture-node {
+      position: relative;
+      min-height: 94px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface-solid);
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+      transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+    }
 
-    .status-pill { display: inline-flex; padding: 5px 9px; border-radius: 999px; background: color-mix(in srgb, var(--warning) 15%, transparent); color: var(--warning); font-size: 0.72rem; font-weight: 800; }
+    .architecture-node:nth-of-type(3) {
+      grid-column: 1;
+    }
 
-    .case-study { display: grid; grid-template-columns: minmax(250px, 0.64fr) minmax(0, 1.36fr); min-height: 480px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface); overflow: hidden; }
-    .case-tabs { display: grid; align-content: center; padding: 16px; border-right: 1px solid var(--line); }
-    .case-tab { padding: 18px; border: 0; border-radius: 14px; background: transparent; color: var(--text); text-align: left; cursor: pointer; transition: background 180ms ease, transform 180ms ease; }
-    .case-tab:hover { transform: translateX(3px); }
-    .case-tab[aria-selected="true"] { background: var(--surface-2); box-shadow: inset 3px 0 var(--primary); }
-    .case-tab strong { display: block; margin-bottom: 4px; }
-    .case-tab span { color: var(--muted); font-size: 0.76rem; }
-    .case-visual { position: relative; display: grid; place-items: center; min-width: 0; padding: clamp(24px, 5vw, 54px); background: radial-gradient(circle at 50% 25%, color-mix(in srgb, var(--primary) 12%, transparent), transparent 58%); }
-    .case-panel { width: min(620px, 100%); animation: case-in 420ms cubic-bezier(.2,.75,.2,1) both; }
-    .case-panel[hidden] { display: none; }
-    @keyframes case-in { from { opacity: 0; transform: translateX(14px) scale(.985); } to { opacity: 1; transform: translateX(0) scale(1); } }
-    .case-caption { margin-bottom: 24px; }
-    .case-caption h3 { margin: 0 0 7px; font-size: clamp(1.5rem, 3vw, 2.2rem); letter-spacing: -0.04em; }
-    .case-caption p { max-width: 560px; margin: 0; color: var(--muted); }
-    .projection-map { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-    .projection-source { grid-column: 1 / -1; padding: 18px; border: 1px solid var(--primary); border-radius: 14px; background: color-mix(in srgb, var(--primary) 12%, var(--surface-solid)); text-align: center; }
-    .projection-node { padding: 17px 10px; border: 1px solid var(--line); border-radius: 13px; background: var(--surface-solid); text-align: center; }
-    .projection-node strong { display: block; font-size: 0.8rem; }
-    .projection-node span { color: var(--muted); font-size: 0.64rem; }
-    .route-list { display: grid; gap: 8px; }
-    .route-row { display: grid; grid-template-columns: 74px 1fr auto; gap: 12px; align-items: center; padding: 13px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-solid); }
-    .route-method { color: var(--accent); font: 800 0.7rem/1 ui-monospace, monospace; }
-    .route-row:nth-child(2) .route-method { color: var(--primary-2); }
-    .route-row:nth-child(3) .route-method { color: var(--warning); }
-    .route-row:nth-child(4) .route-method { color: #ff7d91; }
-    .route-row code { color: var(--text); font-size: 0.72rem; }
-    .route-row span:last-child { color: var(--muted); font-size: 0.64rem; }
-    .schema-card { border: 1px solid var(--line); border-radius: 16px; background: var(--surface-solid); overflow: hidden; }
-    .schema-title { display: flex; justify-content: space-between; padding: 14px 16px; background: var(--surface-2); }
-    .schema-title code { color: var(--primary-2); }
-    .schema-fields { display: grid; grid-template-columns: repeat(2, 1fr); }
-    .schema-field { display: flex; justify-content: space-between; gap: 8px; padding: 11px 15px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); font-size: 0.7rem; }
-    .schema-field:nth-child(even) { border-right: 0; }
-    .schema-field span:last-child { color: var(--muted); font-family: ui-monospace, monospace; }
+    .architecture-node:nth-of-type(4) {
+      grid-column: 3;
+    }
 
-    .quote { padding: clamp(28px, 5vw, 60px); border-radius: var(--radius-lg); background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.16), rgba(var(--primary-2-rgb), 0.08)); font-size: clamp(1.4rem, 3vw, 2.4rem); line-height: 1.35; letter-spacing: -0.03em; }
-    .quote small { display: block; margin-top: 18px; color: var(--muted); font-size: 0.9rem; letter-spacing: 0; }
+    .architecture-node:nth-of-type(5) {
+      grid-column: 1 / -1;
+      width: calc(50% - 14px);
+      justify-self: center;
+    }
 
-    .references { counter-reset: reference; display: grid; gap: 10px; padding: 0; list-style: none; }
-    .references li { display: grid; grid-template-columns: 40px 1fr; gap: 12px; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
-    .references li::before { counter-increment: reference; content: counter(reference, decimal-leading-zero); color: var(--primary-2); font-family: ui-monospace, monospace; }
+    .architecture-node:hover {
+      z-index: 1;
+      border-color: var(--primary-2);
+      box-shadow: 0 14px 38px rgba(var(--primary-2-rgb), 0.12);
+      transform: translateY(-4px);
+    }
 
-    .report-footer { display: flex; justify-content: space-between; gap: 24px; padding: 44px 0 70px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.84rem; }
+    .architecture-node[aria-selected="true"] {
+      border-color: var(--primary);
+      background: color-mix(in srgb, var(--primary) 12%, var(--surface-solid));
+      box-shadow: inset 3px 0 var(--primary);
+    }
+
+    .architecture-node span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 0.7rem;
+    }
+
+    .architecture-connector {
+      position: relative;
+      align-self: center;
+      height: 1px;
+      background: var(--line);
+      overflow: hidden;
+    }
+
+    .architecture-connector::after {
+      position: absolute;
+      top: -2px;
+      left: -5px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--primary-2);
+      box-shadow: 0 0 10px var(--primary-2);
+      content: "";
+      animation: signal 2s linear infinite;
+    }
+
+    @keyframes signal {
+      to {
+        left: 100%;
+      }
+    }
+
+    .architecture-detail {
+      display: grid;
+      align-content: center;
+      padding: clamp(22px, 4vw, 36px);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--surface-solid);
+    }
+
+    .architecture-panel {
+      animation: pane-in 320ms ease both;
+    }
+
+    .architecture-panel[hidden] {
+      display: none;
+    }
+
+    .architecture-panel h3 {
+      margin: 0 0 10px;
+      font-size: 1.4rem;
+      letter-spacing: -0.03em;
+    }
+
+    .architecture-panel p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .tech-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 18px;
+    }
+
+    .tech-tags span {
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      color: var(--primary-2);
+      font: 700 0.64rem/1 ui-monospace, monospace;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+    }
+
+    th,
+    td {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--surface-2);
+      color: var(--muted);
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    tbody tr {
+      transition: background 160ms ease;
+    }
+
+    tbody tr:hover {
+      background: color-mix(in srgb, var(--primary) 7%, transparent);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--warning) 15%, transparent);
+      color: var(--warning);
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
+
+    .case-study {
+      display: grid;
+      grid-template-columns: minmax(250px, 0.64fr) minmax(0, 1.36fr);
+      min-height: 480px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      overflow: hidden;
+    }
+
+    .case-tabs {
+      display: grid;
+      align-content: center;
+      padding: 16px;
+      border-right: 1px solid var(--line);
+    }
+
+    .case-tab {
+      padding: 18px;
+      border: 0;
+      border-radius: 14px;
+      background: transparent;
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+      transition: background 180ms ease, transform 180ms ease;
+    }
+
+    .case-tab:hover {
+      transform: translateX(3px);
+    }
+
+    .case-tab[aria-selected="true"] {
+      background: var(--surface-2);
+      box-shadow: inset 3px 0 var(--primary);
+    }
+
+    .case-tab strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .case-tab span {
+      color: var(--muted);
+      font-size: 0.76rem;
+    }
+
+    .case-visual {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-width: 0;
+      padding: clamp(24px, 5vw, 54px);
+      background: radial-gradient(circle at 50% 25%, color-mix(in srgb, var(--primary) 12%, transparent), transparent 58%);
+    }
+
+    .case-panel {
+      width: min(620px, 100%);
+      animation: case-in 420ms cubic-bezier(.2, .75, .2, 1) both;
+    }
+
+    .case-panel[hidden] {
+      display: none;
+    }
+
+    @keyframes case-in {
+      from {
+        opacity: 0;
+        transform: translateX(14px) scale(.985);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+      }
+    }
+
+    .case-caption {
+      margin-bottom: 24px;
+    }
+
+    .case-caption h3 {
+      margin: 0 0 7px;
+      font-size: clamp(1.5rem, 3vw, 2.2rem);
+      letter-spacing: -0.04em;
+    }
+
+    .case-caption p {
+      max-width: 560px;
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .projection-map {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .projection-source {
+      grid-column: 1 / -1;
+      padding: 18px;
+      border: 1px solid var(--primary);
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--primary) 12%, var(--surface-solid));
+      text-align: center;
+    }
+
+    .projection-node {
+      padding: 17px 10px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: var(--surface-solid);
+      text-align: center;
+    }
+
+    .projection-node strong {
+      display: block;
+      font-size: 0.8rem;
+    }
+
+    .projection-node span {
+      color: var(--muted);
+      font-size: 0.64rem;
+    }
+
+    .route-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .route-row {
+      display: grid;
+      grid-template-columns: 74px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface-solid);
+    }
+
+    .route-method {
+      color: var(--accent);
+      font: 800 0.7rem/1 ui-monospace, monospace;
+    }
+
+    .route-row:nth-child(2) .route-method {
+      color: var(--primary-2);
+    }
+
+    .route-row:nth-child(3) .route-method {
+      color: var(--warning);
+    }
+
+    .route-row:nth-child(4) .route-method {
+      color: #ff7d91;
+    }
+
+    .route-row code {
+      color: var(--text);
+      font-size: 0.72rem;
+    }
+
+    .route-row span:last-child {
+      color: var(--muted);
+      font-size: 0.64rem;
+    }
+
+    .schema-card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface-solid);
+      overflow: hidden;
+    }
+
+    .schema-title {
+      display: flex;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: var(--surface-2);
+    }
+
+    .schema-title code {
+      color: var(--primary-2);
+    }
+
+    .schema-fields {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .schema-field {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 11px 15px;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      font-size: 0.7rem;
+    }
+
+    .schema-field:nth-child(even) {
+      border-right: 0;
+    }
+
+    .schema-field span:last-child {
+      color: var(--muted);
+      font-family: ui-monospace, monospace;
+    }
+
+    .quote {
+      padding: clamp(28px, 5vw, 60px);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.16), rgba(var(--primary-2-rgb), 0.08));
+      font-size: clamp(1.4rem, 3vw, 2.4rem);
+      line-height: 1.35;
+      letter-spacing: -0.03em;
+    }
+
+    .quote small {
+      display: block;
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      letter-spacing: 0;
+    }
+
+    .references {
+      counter-reset: reference;
+      display: grid;
+      gap: 10px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .references li {
+      display: grid;
+      grid-template-columns: 40px 1fr;
+      gap: 12px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
+    }
+
+    .references li::before {
+      counter-increment: reference;
+      content: counter(reference, decimal-leading-zero);
+      color: var(--primary-2);
+      font-family: ui-monospace, monospace;
+    }
+
+    .report-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 44px 0 70px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
 
     .back-to-top {
       position: fixed;
@@ -585,8 +1474,16 @@
       backdrop-filter: blur(16px);
     }
 
-    .back-to-top.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
-    .back-to-top:hover { border-color: var(--primary-2); transform: translateY(-3px); }
+    .back-to-top.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    .back-to-top:hover {
+      border-color: var(--primary-2);
+      transform: translateY(-3px);
+    }
 
     .theme-dialog {
       width: min(1120px, calc(100% - 32px));
@@ -600,129 +1497,628 @@
       overflow: auto;
     }
 
-    .theme-dialog[open] { animation: dialog-in 260ms cubic-bezier(.2,.75,.2,1) both; }
-    .theme-dialog::backdrop { background: rgba(5, 8, 17, 0.7); backdrop-filter: blur(10px); animation: backdrop-in 220ms ease both; }
-    @keyframes dialog-in { from { opacity: 0; transform: translateY(18px) scale(.975); } to { opacity: 1; transform: translateY(0) scale(1); } }
-    @keyframes backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+    .theme-dialog[open] {
+      animation: dialog-in 260ms cubic-bezier(.2, .75, .2, 1) both;
+    }
 
-    .theme-dialog-shell { padding: clamp(22px, 4vw, 38px); }
-    .theme-dialog-header { display: flex; align-items: start; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
-    .theme-dialog-header h2 { margin: 0; font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1; letter-spacing: -0.045em; }
-    .theme-dialog-header p { max-width: 580px; margin: 10px 0 0; color: var(--muted); }
-    .theme-close { flex: 0 0 auto; width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); color: var(--text); cursor: pointer; transition: transform 160ms ease, border-color 160ms ease; }
-    .theme-close:hover { border-color: var(--primary); transform: rotate(5deg); }
+    .theme-dialog::backdrop {
+      background: rgba(5, 8, 17, 0.7);
+      backdrop-filter: blur(10px);
+      animation: backdrop-in 220ms ease both;
+    }
 
-    .theme-options { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
-    .theme-option { position: relative; padding: 10px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); color: var(--text); text-align: left; cursor: pointer; transition: transform 190ms ease, border-color 190ms ease, box-shadow 190ms ease; }
-    .theme-option:hover { border-color: var(--primary); transform: translateY(-4px); box-shadow: 0 16px 38px rgba(0, 0, 0, 0.12); }
-    .theme-option[aria-pressed="true"] { border-color: var(--primary); box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 22%, transparent); }
-    .theme-option[aria-pressed="true"]::after { position: absolute; top: 18px; right: 18px; z-index: 2; display: grid; width: 24px; height: 24px; place-items: center; border-radius: 50%; background: var(--primary); color: #080b14; font-size: 0.75rem; font-weight: 900; content: "✓"; }
-    .theme-option-copy { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; padding: 12px 6px 5px; }
-    .theme-option-copy strong { font-size: 0.92rem; }
-    .theme-option-copy span { color: var(--muted); font-size: 0.66rem; }
+    @keyframes dialog-in {
+      from {
+        opacity: 0;
+        transform: translateY(18px) scale(.975);
+      }
 
-    .theme-preview { --preview-bg: #080b14; --preview-surface: #13192b; --preview-text: #f5f7ff; --preview-muted: #9da8be; --preview-primary: #8b7cff; --preview-secondary: #53d8fb; position: relative; display: block; min-height: 190px; padding: 13px; border-radius: 13px; background: radial-gradient(circle at 80% 20%, color-mix(in srgb, var(--preview-secondary) 14%, transparent), transparent 45%), var(--preview-bg); color: var(--preview-text); overflow: hidden; }
-    .theme-preview[data-preview-theme="light"] { --preview-bg: #f2f5fb; --preview-surface: #ffffff; --preview-text: #11182a; --preview-muted: #5e687b; --preview-primary: #8b7cff; --preview-secondary: #53d8fb; }
-    .theme-preview[data-preview-theme="sunrise"] { --preview-bg: #f8f1e8; --preview-surface: #fffaf3; --preview-text: #2b1d1a; --preview-muted: #74635c; --preview-primary: #dc654f; --preview-secondary: #a53b69; }
-    .theme-preview[data-preview-theme="led"] { --preview-bg: #020403; --preview-surface: #070c09; --preview-text: #f4fff6; --preview-muted: #9bb3a1; --preview-primary: #39ff14; --preview-secondary: #00e5ff; box-shadow: inset 0 0 26px rgba(57, 255, 20, 0.06); }
-    .theme-preview-bar { display: flex; gap: 4px; align-items: center; margin-bottom: 22px; }
-    .theme-preview-bar i { width: 5px; height: 5px; border-radius: 50%; background: var(--preview-primary); }
-    .theme-preview-bar span { margin-left: 5px; color: var(--preview-muted); font-size: 0.42rem; }
-    .theme-preview-hero { display: grid; grid-template-columns: 1.15fr .85fr; gap: 12px; align-items: center; }
-    .theme-preview-kicker { display: block; margin-bottom: 5px; color: var(--preview-secondary); font-size: 0.38rem; font-weight: 900; letter-spacing: .12em; }
-    .theme-preview-title { display: block; font-size: clamp(1.25rem, 2.2vw, 2rem); line-height: .83; letter-spacing: -.08em; }
-    .theme-preview-title em { display: block; background: linear-gradient(110deg, var(--preview-primary), var(--preview-secondary)); background-clip: text; color: transparent; font-style: normal; }
-    .theme-preview-line { display: block; width: 82%; height: 3px; margin-top: 12px; border-radius: 999px; background: var(--preview-muted); opacity: .38; }
-    .theme-preview-panel { padding: 10px; border: 1px solid color-mix(in srgb, var(--preview-text) 12%, transparent); border-radius: 10px; background: var(--preview-surface); box-shadow: 0 8px 20px color-mix(in srgb, var(--preview-text) 8%, transparent); }
-    .theme-preview-panel span { display: block; height: 5px; margin-bottom: 6px; border-radius: 999px; background: color-mix(in srgb, var(--preview-muted) 30%, transparent); }
-    .theme-preview-panel span:first-child { width: 54%; background: var(--preview-primary); }
-    .theme-preview-panel span:nth-child(2) { width: 86%; }
-    .theme-preview-panel span:nth-child(3) { width: 70%; }
-    .theme-dialog-note { margin: 18px 0 0; color: var(--muted); font-size: 0.74rem; text-align: center; }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes backdrop-in {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .theme-dialog-shell {
+      padding: clamp(22px, 4vw, 38px);
+    }
+
+    .theme-dialog-header {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .theme-dialog-header h2 {
+      margin: 0;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      line-height: 1;
+      letter-spacing: -0.045em;
+    }
+
+    .theme-dialog-header p {
+      max-width: 580px;
+      margin: 10px 0 0;
+      color: var(--muted);
+    }
+
+    .theme-close {
+      flex: 0 0 auto;
+      width: 42px;
+      height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface-2);
+      color: var(--text);
+      cursor: pointer;
+      transition: transform 160ms ease, border-color 160ms ease;
+    }
+
+    .theme-close:hover {
+      border-color: var(--primary);
+      transform: rotate(5deg);
+    }
+
+    .theme-options {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .theme-option {
+      position: relative;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--surface);
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+      transition: transform 190ms ease, border-color 190ms ease, box-shadow 190ms ease;
+    }
+
+    .theme-option:hover {
+      border-color: var(--primary);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 38px rgba(0, 0, 0, 0.12);
+    }
+
+    .theme-option[aria-pressed="true"] {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 22%, transparent);
+    }
+
+    .theme-option[aria-pressed="true"]::after {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      z-index: 2;
+      display: grid;
+      width: 24px;
+      height: 24px;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #080b14;
+      font-size: 0.75rem;
+      font-weight: 900;
+      content: "✓";
+    }
+
+    .theme-option-copy {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: baseline;
+      padding: 12px 6px 5px;
+    }
+
+    .theme-option-copy strong {
+      font-size: 0.92rem;
+    }
+
+    .theme-option-copy span {
+      color: var(--muted);
+      font-size: 0.66rem;
+    }
+
+    .theme-preview {
+      --preview-bg: #080b14;
+      --preview-surface: #13192b;
+      --preview-text: #f5f7ff;
+      --preview-muted: #9da8be;
+      --preview-primary: #8b7cff;
+      --preview-secondary: #53d8fb;
+      position: relative;
+      display: block;
+      min-height: 190px;
+      padding: 13px;
+      border-radius: 13px;
+      background: radial-gradient(circle at 80% 20%, color-mix(in srgb, var(--preview-secondary) 14%, transparent), transparent 45%), var(--preview-bg);
+      color: var(--preview-text);
+      overflow: hidden;
+    }
+
+    .theme-preview[data-preview-theme="light"] {
+      --preview-bg: #f2f5fb;
+      --preview-surface: #ffffff;
+      --preview-text: #11182a;
+      --preview-muted: #5e687b;
+      --preview-primary: #8b7cff;
+      --preview-secondary: #53d8fb;
+    }
+
+    .theme-preview[data-preview-theme="sunrise"] {
+      --preview-bg: #f8f1e8;
+      --preview-surface: #fffaf3;
+      --preview-text: #2b1d1a;
+      --preview-muted: #74635c;
+      --preview-primary: #dc654f;
+      --preview-secondary: #a53b69;
+    }
+
+    .theme-preview[data-preview-theme="led"] {
+      --preview-bg: #020403;
+      --preview-surface: #070c09;
+      --preview-text: #f4fff6;
+      --preview-muted: #9bb3a1;
+      --preview-primary: #39ff14;
+      --preview-secondary: #00e5ff;
+      box-shadow: inset 0 0 26px rgba(57, 255, 20, 0.06);
+    }
+
+    .theme-preview-bar {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      margin-bottom: 22px;
+    }
+
+    .theme-preview-bar i {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--preview-primary);
+    }
+
+    .theme-preview-bar span {
+      margin-left: 5px;
+      color: var(--preview-muted);
+      font-size: 0.42rem;
+    }
+
+    .theme-preview-hero {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .theme-preview-kicker {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--preview-secondary);
+      font-size: 0.38rem;
+      font-weight: 900;
+      letter-spacing: .12em;
+    }
+
+    .theme-preview-title {
+      display: block;
+      font-size: clamp(1.25rem, 2.2vw, 2rem);
+      line-height: .83;
+      letter-spacing: -.08em;
+    }
+
+    .theme-preview-title em {
+      display: block;
+      background: linear-gradient(110deg, var(--preview-primary), var(--preview-secondary));
+      background-clip: text;
+      color: transparent;
+      font-style: normal;
+    }
+
+    .theme-preview-line {
+      display: block;
+      width: 82%;
+      height: 3px;
+      margin-top: 12px;
+      border-radius: 999px;
+      background: var(--preview-muted);
+      opacity: .38;
+    }
+
+    .theme-preview-panel {
+      padding: 10px;
+      border: 1px solid color-mix(in srgb, var(--preview-text) 12%, transparent);
+      border-radius: 10px;
+      background: var(--preview-surface);
+      box-shadow: 0 8px 20px color-mix(in srgb, var(--preview-text) 8%, transparent);
+    }
+
+    .theme-preview-panel span {
+      display: block;
+      height: 5px;
+      margin-bottom: 6px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--preview-muted) 30%, transparent);
+    }
+
+    .theme-preview-panel span:first-child {
+      width: 54%;
+      background: var(--preview-primary);
+    }
+
+    .theme-preview-panel span:nth-child(2) {
+      width: 86%;
+    }
+
+    .theme-preview-panel span:nth-child(3) {
+      width: 70%;
+    }
+
+    .theme-dialog-note {
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 0.74rem;
+      text-align: center;
+    }
 
     @media (max-width: 1080px) {
-      :root { --sidebar: 245px; }
-      .hero { grid-template-columns: 1fr; min-height: auto; padding-top: 120px; }
-      .hero-panel { width: min(700px, 100%); }
-      .grid.four { grid-template-columns: repeat(2, 1fr); }
+      :root {
+        --sidebar: 245px;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+        min-height: auto;
+        padding-top: 120px;
+      }
+
+      .hero-panel {
+        width: min(700px, 100%);
+      }
+
+      .grid.four {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     @media (max-width: 1000px) {
-      .theme-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .theme-options {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
     }
 
     @media (max-width: 760px) {
-      .scroll-progress { left: 0; }
-      .menu-button { display: inline-flex; }
-      .sidebar { width: min(88vw, 320px); transform: translateX(-105%); transition: transform 220ms ease; box-shadow: var(--shadow); }
-      .sidebar.open { transform: translateX(0); }
-      main { margin-left: 0; }
-      .content { width: min(100% - 32px, 680px); }
-      .hero h1 { font-size: clamp(3.5rem, 20vw, 6rem); }
-      .hero-panel { padding: 18px; }
-      .section { padding: 68px 0; }
-      .section-heading { grid-template-columns: 1fr; gap: 12px; }
-      .grid.two, .grid.three, .grid.four { grid-template-columns: 1fr; }
-      .architecture { grid-template-columns: 1fr; padding: 16px; }
-      .architecture-detail { min-height: 250px; }
-      .case-study { grid-template-columns: 1fr; }
-      .case-tabs { grid-auto-flow: column; grid-auto-columns: minmax(200px, 1fr); align-content: initial; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line); scroll-snap-type: x mandatory; }
-      .case-tab { scroll-snap-align: start; }
-      .case-tab:hover { transform: translateY(-2px); }
-      .case-visual { min-height: 480px; padding: 24px 18px; }
-      .report-footer { flex-direction: column; }
-      .pointer-glow { display: none; }
-      .theme-options { grid-template-columns: 1fr; }
-      .theme-preview { min-height: 170px; }
+      .scroll-progress {
+        left: 0;
+      }
+
+      .menu-button {
+        display: inline-flex;
+      }
+
+      .sidebar {
+        width: min(88vw, 320px);
+        transform: translateX(-105%);
+        transition: transform 220ms ease;
+        box-shadow: var(--shadow);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      main {
+        margin-left: 0;
+      }
+
+      .content {
+        width: min(100% - 32px, 680px);
+      }
+
+      .hero h1 {
+        font-size: clamp(3.5rem, 20vw, 6rem);
+      }
+
+      .hero-panel {
+        padding: 18px;
+      }
+
+      .section {
+        padding: 68px 0;
+      }
+
+      .section-heading {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .grid.two,
+      .grid.three,
+      .grid.four {
+        grid-template-columns: 1fr;
+      }
+
+      .architecture {
+        grid-template-columns: 1fr;
+        padding: 16px;
+      }
+
+      .architecture-detail {
+        min-height: 250px;
+      }
+
+      .case-study {
+        grid-template-columns: 1fr;
+      }
+
+      .case-tabs {
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(200px, 1fr);
+        align-content: initial;
+        overflow-x: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+        scroll-snap-type: x mandatory;
+      }
+
+      .case-tab {
+        scroll-snap-align: start;
+      }
+
+      .case-tab:hover {
+        transform: translateY(-2px);
+      }
+
+      .case-visual {
+        min-height: 480px;
+        padding: 24px 18px;
+      }
+
+      .report-footer {
+        flex-direction: column;
+      }
+
+      .pointer-glow {
+        display: none;
+      }
+
+      .theme-options {
+        grid-template-columns: 1fr;
+      }
+
+      .theme-preview {
+        min-height: 170px;
+      }
     }
 
     @media (max-width: 480px) {
-      .status-row { gap: 8px; }
-      .status-row span { font-size: 0.68rem; }
-      .status-row strong { font-size: 0.8rem; }
-      .mini-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      .mini-stat { padding: 8px 6px; }
-      .architecture-map { grid-template-columns: 1fr; }
-      .architecture-node, .architecture-node:nth-of-type(3), .architecture-node:nth-of-type(4), .architecture-node:nth-of-type(5) { grid-column: 1; width: 100%; }
-      .architecture-connector { width: 1px; height: 22px; justify-self: center; }
-      .architecture-connector::after { top: -5px; left: -2px; animation-name: signal-vertical; }
-      @keyframes signal-vertical { to { top: 100%; } }
-      .projection-map { grid-template-columns: 1fr; }
-      .projection-source { grid-column: 1; }
-      .route-row { grid-template-columns: 62px 1fr; }
-      .route-row span:last-child { grid-column: 2; }
-      .schema-fields { grid-template-columns: 1fr; }
-      .schema-field, .schema-field:nth-child(even) { border-right: 0; }
+      .status-row {
+        gap: 8px;
+      }
+
+      .status-row span {
+        font-size: 0.68rem;
+      }
+
+      .status-row strong {
+        font-size: 0.8rem;
+      }
+
+      .mini-stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .mini-stat {
+        padding: 8px 6px;
+      }
+
+      .architecture-map {
+        grid-template-columns: 1fr;
+      }
+
+      .architecture-node,
+      .architecture-node:nth-of-type(3),
+      .architecture-node:nth-of-type(4),
+      .architecture-node:nth-of-type(5) {
+        grid-column: 1;
+        width: 100%;
+      }
+
+      .architecture-connector {
+        width: 1px;
+        height: 22px;
+        justify-self: center;
+      }
+
+      .architecture-connector::after {
+        top: -5px;
+        left: -2px;
+        animation-name: signal-vertical;
+      }
+
+      @keyframes signal-vertical {
+        to {
+          top: 100%;
+        }
+      }
+
+      .projection-map {
+        grid-template-columns: 1fr;
+      }
+
+      .projection-source {
+        grid-column: 1;
+      }
+
+      .route-row {
+        grid-template-columns: 62px 1fr;
+      }
+
+      .route-row span:last-child {
+        grid-column: 2;
+      }
+
+      .schema-fields {
+        grid-template-columns: 1fr;
+      }
+
+      .schema-field,
+      .schema-field:nth-child(even) {
+        border-right: 0;
+      }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
-      .reveal-ready { opacity: 1; transform: none; }
-      .pointer-glow { display: none; }
+
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+
+      .reveal-ready {
+        opacity: 1;
+        transform: none;
+      }
+
+      .pointer-glow {
+        display: none;
+      }
     }
 
     @media print {
-      @page { margin: 16mm; }
-      :root, :root[data-theme="light"], :root[data-theme="sunrise"], :root[data-theme="led"] { color-scheme: light; --bg: #fff; --surface: #fff; --surface-solid: #fff; --surface-2: #f3f3f3; --text: #111; --muted: #444; --line: #ccc; }
-      body { background: #fff; font-size: 10.5pt; }
-      .sidebar, .menu-button, .ambient, .actions, .theme-control, .theme-dialog, .scroll-progress, .pointer-glow, .back-to-top { display: none !important; }
-      main { margin: 0; }
-      .content { width: auto; }
-      .hero { min-height: 240mm; grid-template-columns: 1fr; page-break-after: always; }
-      .hero h1 { font-size: 72pt; }
-      .hero-panel { box-shadow: none; }
-      .section { padding: 14mm 0; break-before: page; }
-      .card, .table-wrap, .architecture, .gallery-item, .quote { break-inside: avoid; box-shadow: none; }
-      .preview-tabs, .case-tabs { display: none; }
-      .case-study, .architecture { display: block; border: 0; }
-      .case-visual, .architecture-detail { display: block; padding: 8mm 0; background: none; }
-      .case-panel, .case-panel[hidden], .architecture-panel, .architecture-panel[hidden] { display: block !important; margin-bottom: 10mm; animation: none; }
-      .architecture-map { display: none; }
-      a { text-decoration: none; }
-      .reveal-ready { opacity: 1 !important; transform: none !important; }
+      @page {
+        margin: 16mm;
+      }
+
+      :root,
+      :root[data-theme="light"],
+      :root[data-theme="sunrise"],
+      :root[data-theme="led"] {
+        color-scheme: light;
+        --bg: #fff;
+        --surface: #fff;
+        --surface-solid: #fff;
+        --surface-2: #f3f3f3;
+        --text: #111;
+        --muted: #444;
+        --line: #ccc;
+      }
+
+      body {
+        background: #fff;
+        font-size: 10.5pt;
+      }
+
+      .sidebar,
+      .menu-button,
+      .ambient,
+      .actions,
+      .theme-control,
+      .theme-dialog,
+      .scroll-progress,
+      .pointer-glow,
+      .back-to-top {
+        display: none !important;
+      }
+
+      main {
+        margin: 0;
+      }
+
+      .content {
+        width: auto;
+      }
+
+      .hero {
+        min-height: 240mm;
+        grid-template-columns: 1fr;
+        page-break-after: always;
+      }
+
+      .hero h1 {
+        font-size: 72pt;
+      }
+
+      .hero-panel {
+        box-shadow: none;
+      }
+
+      .section {
+        padding: 14mm 0;
+        break-before: page;
+      }
+
+      .card,
+      .table-wrap,
+      .architecture,
+      .gallery-item,
+      .quote {
+        break-inside: avoid;
+        box-shadow: none;
+      }
+
+      .preview-tabs,
+      .case-tabs {
+        display: none;
+      }
+
+      .case-study,
+      .architecture {
+        display: block;
+        border: 0;
+      }
+
+      .case-visual,
+      .architecture-detail {
+        display: block;
+        padding: 8mm 0;
+        background: none;
+      }
+
+      .case-panel,
+      .case-panel[hidden],
+      .architecture-panel,
+      .architecture-panel[hidden] {
+        display: block !important;
+        margin-bottom: 10mm;
+        animation: none;
+      }
+
+      .architecture-map {
+        display: none;
+      }
+
+      a {
+        text-decoration: none;
+      }
+
+      .reveal-ready {
+        opacity: 1 !important;
+        transform: none !important;
+      }
     }
   </style>
 </head>
+
 <body>
   <a class="skip-link" href="#main-content">Skip to report</a>
   <div class="scroll-progress" aria-hidden="true"><span></span></div>
@@ -730,7 +2126,8 @@
   <div class="ambient one"></div>
   <div class="ambient two"></div>
 
-  <button class="menu-button" type="button" aria-label="Open report navigation" aria-expanded="false" aria-controls="report-sidebar">Menu</button>
+  <button class="menu-button" type="button" aria-label="Open report navigation" aria-expanded="false"
+    aria-controls="report-sidebar">Menu</button>
 
   <aside class="sidebar" id="report-sidebar" aria-label="Report navigation">
     <div class="brand"><span class="brand-mark">P</span><span>Planora Report</span></div>
@@ -752,8 +2149,11 @@
       </ol>
     </nav>
     <div class="sidebar-footer">
-      <div class="reading-status" aria-hidden="true"><span>Report progress</span><strong id="progress-label">0%</strong><div class="reading-status-track"><span></span></div></div>
-      <button class="icon-button theme-control" type="button" id="theme-toggle" aria-label="Open theme chooser" aria-haspopup="dialog" aria-controls="theme-dialog">Choose theme</button>
+      <div class="reading-status" aria-hidden="true"><span>Report progress</span><strong id="progress-label">0%</strong>
+        <div class="reading-status-track"><span></span></div>
+      </div>
+      <button class="icon-button theme-control" type="button" id="theme-toggle" aria-label="Open theme chooser"
+        aria-haspopup="dialog" aria-controls="theme-dialog">Choose theme</button>
       <span class="status-pill">Functional MVP</span>
     </div>
   </aside>
@@ -764,7 +2164,9 @@
         <div class="hero-copy-block">
           <p class="eyebrow">Interactive project report / 2026</p>
           <h1>Project <span class="gradient-text">Planora</span></h1>
-          <p class="hero-copy">A calm, PostgreSQL-backed calendar with folder-like categories, safe Trash recovery, and private smart suggestions for organizing tasks, deadlines, and projects.</p>
+          <p class="hero-copy">A calm, PostgreSQL-backed planner with visual calendars, folder-like categories, complete
+            project workspaces, safe Trash recovery, and project-specific AI that keeps every proposed write under human
+            control.</p>
           <div class="actions">
             <a class="button primary" href="#overview">Explore the work</a>
             <a class="button" href="#testing">View evidence</a>
@@ -772,208 +2174,693 @@
         </div>
         <div class="hero-panel" aria-label="Interactive model of the three Planora views">
           <div class="product-window">
-            <div class="window-bar" aria-hidden="true"><span class="window-dot"></span><span class="window-dot"></span><span class="window-dot"></span><span class="window-title">Planora / Today</span><span class="window-badge">UI model</span></div>
+            <div class="window-bar" aria-hidden="true"><span class="window-dot"></span><span
+                class="window-dot"></span><span class="window-dot"></span><span class="window-title">Planora /
+                Today</span><span class="window-badge">UI model</span></div>
             <div class="preview-tabs" role="tablist" aria-label="Preview a Planora view">
-              <button class="preview-tab" id="preview-tab-dashboard" type="button" role="tab" aria-selected="true" aria-controls="preview-dashboard">Dashboard</button>
-              <button class="preview-tab" id="preview-tab-calendar" type="button" role="tab" aria-selected="false" aria-controls="preview-calendar" tabindex="-1">Calendar</button>
-              <button class="preview-tab" id="preview-tab-list" type="button" role="tab" aria-selected="false" aria-controls="preview-list" tabindex="-1">List</button>
+              <button class="preview-tab" id="preview-tab-dashboard" type="button" role="tab" aria-selected="true"
+                aria-controls="preview-dashboard">Dashboard</button>
+              <button class="preview-tab" id="preview-tab-calendar" type="button" role="tab" aria-selected="false"
+                aria-controls="preview-calendar" tabindex="-1">Calendar</button>
+              <button class="preview-tab" id="preview-tab-list" type="button" role="tab" aria-selected="false"
+                aria-controls="preview-list" tabindex="-1">List</button>
             </div>
             <div class="preview-stage">
               <div class="preview-pane" id="preview-dashboard" role="tabpanel" aria-labelledby="preview-tab-dashboard">
                 <div class="mini-heading"><strong>Good afternoon</strong><span>6 demo items</span></div>
-                <div class="mini-stats"><div class="mini-stat urgent"><strong>1</strong><span>Overdue</span></div><div class="mini-stat"><strong>3</strong><span>Next 7 days</span></div><div class="mini-stat"><strong>1</strong><span>Completed</span></div></div>
-                <div class="mini-task"><button class="demo-check" type="button" aria-label="Mark Weekly planning complete" aria-pressed="false">✓</button><div class="mini-task-copy"><strong>Weekly planning</strong><span>Planning · Low</span></div><span class="mini-due">Tomorrow</span></div>
-                <div class="mini-task"><button class="demo-check" type="button" aria-label="Mark Submit research proposal complete" aria-pressed="false">✓</button><div class="mini-task-copy"><strong>Submit research proposal</strong><span>University · High</span></div><span class="mini-due">In 2 days</span></div>
+                <div class="mini-stats">
+                  <div class="mini-stat urgent"><strong>1</strong><span>Overdue</span></div>
+                  <div class="mini-stat"><strong>3</strong><span>Next 7 days</span></div>
+                  <div class="mini-stat"><strong>1</strong><span>Completed</span></div>
+                </div>
+                <div class="mini-task"><button class="demo-check" type="button"
+                    aria-label="Mark Weekly planning complete" aria-pressed="false">✓</button>
+                  <div class="mini-task-copy"><strong>Weekly planning</strong><span>Planning · Low</span></div><span
+                    class="mini-due">Tomorrow</span>
+                </div>
+                <div class="mini-task"><button class="demo-check" type="button"
+                    aria-label="Mark Submit research proposal complete" aria-pressed="false">✓</button>
+                  <div class="mini-task-copy"><strong>Submit research proposal</strong><span>University · High</span>
+                  </div><span class="mini-due">In 2 days</span>
+                </div>
               </div>
-              <div class="preview-pane" id="preview-calendar" role="tabpanel" aria-labelledby="preview-tab-calendar" hidden>
+              <div class="preview-pane" id="preview-calendar" role="tabpanel" aria-labelledby="preview-tab-calendar"
+                hidden>
                 <div class="mini-heading"><strong>August 2026</strong><span>Select a day</span></div>
                 <div class="mini-calendar" aria-label="Demonstration calendar">
-                  <span class="mini-day-label">M</span><span class="mini-day-label">T</span><span class="mini-day-label">W</span><span class="mini-day-label">T</span><span class="mini-day-label">F</span><span class="mini-day-label">S</span><span class="mini-day-label">S</span>
-                  <button class="mini-day" type="button">24</button><button class="mini-day" type="button">25</button><button class="mini-day has-item" type="button" aria-selected="true">26</button><button class="mini-day" type="button">27</button><button class="mini-day has-item" type="button">28</button><button class="mini-day" type="button">29</button><button class="mini-day" type="button">30</button>
-                  <button class="mini-day" type="button">31</button><button class="mini-day" type="button">1</button><button class="mini-day has-item" type="button">2</button><button class="mini-day" type="button">3</button><button class="mini-day" type="button">4</button><button class="mini-day" type="button">5</button><button class="mini-day has-item" type="button">6</button>
+                  <span class="mini-day-label">M</span><span class="mini-day-label">T</span><span
+                    class="mini-day-label">W</span><span class="mini-day-label">T</span><span
+                    class="mini-day-label">F</span><span class="mini-day-label">S</span><span
+                    class="mini-day-label">S</span>
+                  <button class="mini-day" type="button">24</button><button class="mini-day"
+                    type="button">25</button><button class="mini-day has-item" type="button"
+                    aria-selected="true">26</button><button class="mini-day" type="button">27</button><button
+                    class="mini-day has-item" type="button">28</button><button class="mini-day"
+                    type="button">29</button><button class="mini-day" type="button">30</button>
+                  <button class="mini-day" type="button">31</button><button class="mini-day"
+                    type="button">1</button><button class="mini-day has-item" type="button">2</button><button
+                    class="mini-day" type="button">3</button><button class="mini-day" type="button">4</button><button
+                    class="mini-day" type="button">5</button><button class="mini-day has-item" type="button">6</button>
                 </div>
               </div>
               <div class="preview-pane" id="preview-list" role="tabpanel" aria-labelledby="preview-tab-list" hidden>
                 <div class="mini-heading"><strong>Tasks &amp; deadlines</strong><span>Search + filter</span></div>
-                <div class="mini-filter" aria-hidden="true"><span>✓ University</span><span>✓ Personal</span><span>Work</span></div>
-                <div class="mini-task"><button class="demo-check" type="button" aria-label="Mark Renew library books complete" aria-pressed="false">✓</button><div class="mini-task-copy"><strong>Renew library books</strong><span>Deadline · Personal</span></div><span class="mini-due">Overdue</span></div>
-                <div class="mini-task"><button class="demo-check" type="button" aria-label="Reopen Complete reading notes" aria-pressed="true">✓</button><div class="mini-task-copy"><strong>Complete reading notes</strong><span>Task · University</span></div><span class="mini-due">Done</span></div>
-                <div class="mini-task"><button class="demo-check" type="button" aria-label="Mark Prepare presentation slides complete" aria-pressed="false">✓</button><div class="mini-task-copy"><strong>Prepare presentation slides</strong><span>Task · University</span></div><span class="mini-due">Upcoming</span></div>
+                <div class="mini-filter" aria-hidden="true"><span>✓ University</span><span>✓
+                    Personal</span><span>Work</span></div>
+                <div class="mini-task"><button class="demo-check" type="button"
+                    aria-label="Mark Renew library books complete" aria-pressed="false">✓</button>
+                  <div class="mini-task-copy"><strong>Renew library books</strong><span>Deadline · Personal</span></div>
+                  <span class="mini-due">Overdue</span>
+                </div>
+                <div class="mini-task"><button class="demo-check" type="button"
+                    aria-label="Reopen Complete reading notes" aria-pressed="true">✓</button>
+                  <div class="mini-task-copy"><strong>Complete reading notes</strong><span>Task · University</span>
+                  </div><span class="mini-due">Done</span>
+                </div>
+                <div class="mini-task"><button class="demo-check" type="button"
+                    aria-label="Mark Prepare presentation slides complete" aria-pressed="false">✓</button>
+                  <div class="mini-task-copy"><strong>Prepare presentation slides</strong><span>Task · University</span>
+                  </div><span class="mini-due">Upcoming</span>
+                </div>
               </div>
             </div>
           </div>
           <div class="status-row">
             <div><span>Phase</span><strong>MVP</strong></div>
             <div><span>Build</span><strong>Passing</strong></div>
-            <div><span>Report</span><strong>v0.6</strong></div>
+            <div><span>Report</span><strong>v0.7</strong></div>
           </div>
         </div>
       </header>
 
       <section class="section" id="overview">
-        <div class="section-heading"><span class="section-number">01 / OVERVIEW</span><div><h2>Planning without the technical friction.</h2><p class="lead">Planora brings a dashboard, day/week/month calendar, task/deadline list, and nested category system together in one responsive interface backed by PostgreSQL.</p></div></div>
+        <div class="section-heading"><span class="section-number">01 / OVERVIEW</span>
+          <div>
+            <h2>Planning without the technical friction.</h2>
+            <p class="lead">Planora brings a dashboard, day/week/month calendar, task/deadline list, nested categories,
+              and full project workspaces together in one responsive PostgreSQL-backed interface.</p>
+          </div>
+        </div>
         <div class="grid four">
           <div class="card metric"><strong>1</strong><span>Primary user type</span></div>
-          <div class="card metric"><strong>3</strong><span>Core product views</span></div>
-          <div class="card metric"><strong>10</strong><span>Compiled API routes</span></div>
+          <div class="card metric"><strong>4</strong><span>Core product views</span></div>
+          <div class="card metric"><strong>22</strong><span>Compiled API routes</span></div>
           <div class="card metric"><strong>6</strong><span>Seeded demo items</span></div>
         </div>
         <div class="grid two" style="margin-top: 18px;">
-          <article class="card"><span class="placeholder-label">Executive summary</span><h3>One source of truth for the days ahead</h3><p>The MVP relates tasks, deadlines, projects, categories, and planner settings in PostgreSQL, then derives calendar placement, independent per-view category filters, inherited categories, and urgency summaries from that data. Destructive actions use recoverable soft deletion.</p></article>
-          <article class="card"><span class="placeholder-label">Current state</span><h3>Working vertical slice</h3><p>The optimized Next.js build passes. Local PostgreSQL provisioning and schema creation are automated, while live database smoke testing remains to be completed on a machine with Docker or PostgreSQL available.</p></article>
+          <article class="card"><span class="placeholder-label">Executive summary</span>
+            <h3>One source of truth for plans and projects</h3>
+            <p>The MVP relates tasks, deadlines, projects, members, documents, files, categories, AI conversations, and
+              settings, then derives calendar placement, assignment, inherited categories, and urgency summaries. AI
+              proposals stay outside persistence until explicitly confirmed; destructive planner actions use recoverable
+              soft deletion.</p>
+          </article>
+          <article class="card"><span class="placeholder-label">Current state</span>
+            <h3>Working vertical slice</h3>
+            <p>The optimized Next.js build passes. Local PostgreSQL provisioning and schema creation are automated,
+              while live database smoke testing remains to be completed on a machine with Docker or PostgreSQL
+              available.</p>
+          </article>
         </div>
       </section>
 
       <section class="section" id="problem">
-        <div class="section-heading"><span class="section-number">02 / PROBLEM</span><div><h2>Important dates disappear into scattered lists.</h2><p class="lead">People need a simple visual answer to three questions: what is due, when is it due, and what needs attention now?</p></div></div>
+        <div class="section-heading"><span class="section-number">02 / PROBLEM</span>
+          <div>
+            <h2>Important dates disappear into scattered lists.</h2>
+            <p class="lead">People need a simple visual answer to three questions: what is due, when is it due, and what
+              needs attention now?</p>
+          </div>
+        </div>
         <div class="grid three">
-          <article class="card"><div class="card-icon">01</div><h3>Primary user</h3><p>A student or everyday planner who wants a calendar but should not need database, coding, or configuration knowledge.</p></article>
-          <article class="card"><div class="card-icon">02</div><h3>Core friction</h3><p>Separate task lists and calendars make urgency harder to see, while technical installation steps can make otherwise simple tools inaccessible.</p></article>
-          <article class="card"><div class="card-icon">03</div><h3>MVP boundary</h3><p>Single-user local planning is in scope. Accounts, sharing, reminders, recurring events, external sync, and production hosting are not yet included.</p></article>
+          <article class="card">
+            <div class="card-icon">01</div>
+            <h3>Primary user</h3>
+            <p>A student or everyday planner who wants a calendar but should not need database, coding, or configuration
+              knowledge.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon">02</div>
+            <h3>Core friction</h3>
+            <p>Separate task lists and calendars make urgency harder to see, while technical installation steps can make
+              otherwise simple tools inaccessible.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon">03</div>
+            <h3>MVP boundary</h3>
+            <p>Single-user local planning is in scope. Accounts, sharing, reminders, recurring events, external sync,
+              and production hosting are not yet included.</p>
+          </article>
         </div>
       </section>
 
       <section class="section" id="objectives">
-        <div class="section-heading"><span class="section-number">03 / OBJECTIVES</span><div><h2>Translate intent into measurable outcomes.</h2><p class="lead">Each objective should later connect to a requirement, implementation decision, test, and evaluation result.</p></div></div>
+        <div class="section-heading"><span class="section-number">03 / OBJECTIVES</span>
+          <div>
+            <h2>Translate intent into measurable outcomes.</h2>
+            <p class="lead">Each objective should later connect to a requirement, implementation decision, test, and
+              evaluation result.</p>
+          </div>
+        </div>
         <div class="timeline">
-          <div class="timeline-item"><span class="timeline-dot">A</span><article class="card"><span class="placeholder-label">Overall aim</span><h3>Make near-term commitments obvious and manageable</h3><p>Combine task capture, calendar context, and automatic urgency summaries in an interface that asks little of the user.</p></article></div>
-          <div class="timeline-item"><span class="timeline-dot">O1</span><article class="card"><span class="placeholder-label">Objective</span><h3>Deliver the three-view workflow</h3><p>Dashboard, calendar, and task/deadline list must all reflect the same saved PostgreSQL records.</p></article></div>
-          <div class="timeline-item"><span class="timeline-dot">O2</span><article class="card"><span class="placeholder-label">Objective</span><h3>Automate first-time data setup</h3><p>One repeatable terminal command must create the schema, indexes, configuration, and useful demo records without manual table work.</p></article></div>
-          <div class="timeline-item"><span class="timeline-dot">O3</span><article class="card"><span class="placeholder-label">Objective</span><h3>Make organization safe and adaptable</h3><p>Nested folders, project inheritance, category suggestions, impact previews, and Trash must help users organize or reverse changes without technical intervention.</p></article></div>
+          <div class="timeline-item"><span class="timeline-dot">A</span>
+            <article class="card"><span class="placeholder-label">Overall aim</span>
+              <h3>Make near-term commitments obvious and manageable</h3>
+              <p>Combine task capture, calendar context, and automatic urgency summaries in an interface that asks
+                little of the user.</p>
+            </article>
+          </div>
+          <div class="timeline-item"><span class="timeline-dot">O1</span>
+            <article class="card"><span class="placeholder-label">Objective</span>
+              <h3>Deliver the three-view workflow</h3>
+              <p>Dashboard, calendar, and task/deadline list must all reflect the same saved PostgreSQL records.</p>
+            </article>
+          </div>
+          <div class="timeline-item"><span class="timeline-dot">O2</span>
+            <article class="card"><span class="placeholder-label">Objective</span>
+              <h3>Automate first-time data setup</h3>
+              <p>One repeatable terminal command must create the schema, indexes, configuration, and useful demo records
+                without manual table work.</p>
+            </article>
+          </div>
+          <div class="timeline-item"><span class="timeline-dot">O3</span>
+            <article class="card"><span class="placeholder-label">Objective</span>
+              <h3>Make organization safe and adaptable</h3>
+              <p>Nested folders, complete project workspaces, category suggestions, impact previews, Trash, and
+                review-before-write AI must help users organize or reverse changes without technical intervention.</p>
+            </article>
+          </div>
         </div>
       </section>
 
       <section class="section" id="requirements">
-        <div class="section-heading"><span class="section-number">04 / REQUIREMENTS</span><div><h2>Define what success must do.</h2><p class="lead">The traceability table will connect every requirement to priority, implementation, and acceptance evidence.</p></div></div>
+        <div class="section-heading"><span class="section-number">04 / REQUIREMENTS</span>
+          <div>
+            <h2>Define what success must do.</h2>
+            <p class="lead">The traceability table will connect every requirement to priority, implementation, and
+              acceptance evidence.</p>
+          </div>
+        </div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>ID</th><th>Requirement</th><th>Priority</th><th>Evidence</th><th>Status</th></tr></thead>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Requirement</th>
+                <th>Priority</th>
+                <th>Evidence</th>
+                <th>Status</th>
+              </tr>
+            </thead>
             <tbody>
-              <tr><td>FR-01</td><td>Create and edit tasks with start/end intervals and deadlines with due times, plus status, priority, category, optional project, and notes.</td><td>Must</td><td>Create/edit form and POST/PATCH routes</td><td><span class="status-pill">Built</span></td></tr>
-              <tr><td>FR-02</td><td>Show the same stored items in dashboard, day/week/month calendar modes, and a filterable list.</td><td>Must</td><td>Three responsive tabs and period-aware calendar controls</td><td><span class="status-pill">Built</span></td></tr>
-              <tr><td>FR-03</td><td>Complete or reopen work and automatically identify overdue and near-due items.</td><td>Must</td><td>PATCH route and derived summaries</td><td><span class="status-pill">Built</span></td></tr>
-              <tr><td>FR-04</td><td>Create, rename, recolor, move, hide/show, filter, and delete nested categories within a configurable depth.</td><td>Must</td><td>Independent tab checkboxes, manager, settings, and APIs</td><td><span class="status-pill">Built</span></td></tr>
-              <tr><td>FR-05</td><td>Assign one category to work, inherit project categories, and use a configurable default when omitted.</td><td>Must</td><td>Relational model and effective-category query</td><td><span class="status-pill">Built</span></td></tr>
-              <tr><td>FR-06</td><td>Warn about cascade impact, move affected records to Trash, and restore them together.</td><td>Must</td><td>Impact preview and shared Trash batches</td><td><span class="status-pill">Built</span></td></tr>
-              <tr><td>FR-07</td><td>Suggest no more than three categories from task title and description.</td><td>Should</td><td>Private local suggestion endpoint</td><td><span class="status-pill">Built</span></td></tr>
-              <tr><td>FR-08</td><td>Offer persistent device-level appearance, default Calendar mode, and reduced-motion preferences.</td><td>Should</td><td>Top-right Settings dialog and validated browser storage</td><td><span class="status-pill">Built</span></td></tr>
-              <tr><td>NFR-01</td><td>Create database structures and demo data without manual database administration.</td><td>Must</td><td>Idempotent setup script</td><td><span class="status-pill">Built</span></td></tr>
+              <tr>
+                <td>FR-01</td>
+                <td>Create and edit tasks with start/end intervals and deadlines with due times, plus status, priority,
+                  category, optional project, and notes.</td>
+                <td>Must</td>
+                <td>Create/edit form and POST/PATCH routes</td>
+                <td><span class="status-pill">Built</span></td>
+              </tr>
+              <tr>
+                <td>FR-02</td>
+                <td>Show the same stored items in dashboard, day/week/month calendar modes, and a filterable list.</td>
+                <td>Must</td>
+                <td>Three responsive tabs and period-aware calendar controls</td>
+                <td><span class="status-pill">Built</span></td>
+              </tr>
+              <tr>
+                <td>FR-03</td>
+                <td>Complete or reopen work and automatically identify overdue and near-due items.</td>
+                <td>Must</td>
+                <td>PATCH route and derived summaries</td>
+                <td><span class="status-pill">Built</span></td>
+              </tr>
+              <tr>
+                <td>FR-04</td>
+                <td>Create, rename, recolor, move, hide/show, filter, and delete nested categories within a configurable
+                  depth.</td>
+                <td>Must</td>
+                <td>Independent tab checkboxes, manager, settings, and APIs</td>
+                <td><span class="status-pill">Built</span></td>
+              </tr>
+              <tr>
+                <td>FR-05</td>
+                <td>Assign one category to work, inherit project categories, and use a configurable default when
+                  omitted.</td>
+                <td>Must</td>
+                <td>Relational model and effective-category query</td>
+                <td><span class="status-pill">Built</span></td>
+              </tr>
+              <tr>
+                <td>FR-06</td>
+                <td>Warn about cascade impact, move affected records to Trash, and restore them together.</td>
+                <td>Must</td>
+                <td>Impact preview and shared Trash batches</td>
+                <td><span class="status-pill">Built</span></td>
+              </tr>
+              <tr>
+                <td>FR-07</td>
+                <td>Suggest no more than three categories from task title and description.</td>
+                <td>Should</td>
+                <td>Private local suggestion endpoint</td>
+                <td><span class="status-pill">Built</span></td>
+              </tr>
+              <tr>
+                <td>FR-08</td>
+                <td>Offer persistent device-level appearance, default Calendar mode, and reduced-motion preferences.
+                </td>
+                <td>Should</td>
+                <td>Top-right Settings dialog and validated browser storage</td>
+                <td><span class="status-pill">Built</span></td>
+              </tr>
+              <tr>
+                <td>FR-09</td>
+                <td>Create complete project workspaces with information, progress, members, upcoming work, and
+                  responsive sub-tabs.</td>
+                <td>Must</td>
+                <td>Three-area Project workspace, vertical sub-tabs, persistent AI rail, and Overview</td>
+                <td><span class="status-pill">Built</span></td>
+              </tr>
+              <tr>
+                <td>FR-10</td>
+                <td>Create, rename, manually save, and delete rich-text document tabs; link and preview local project
+                  attachments.</td>
+                <td>Must</td>
+                <td>Centered creation and unsaved-warning dialogs, sanitized Documents, and local Files routes/UI</td>
+                <td><span class="status-pill">Built</span></td>
+              </tr>
+              <tr>
+                <td>FR-11</td>
+                <td>Assign multiple project members to existing task/deadline records.</td>
+                <td>Must</td>
+                <td>Assignment junction table, validation, and project work form</td>
+                <td><span class="status-pill">Built</span></td>
+              </tr>
+              <tr>
+                <td>FR-12</td>
+                <td>Provide ordered, responsive project-only AI through configurable OpenRouter or DeepSeek,
+                  built-in/custom tools, and mandatory review before generated creates or document edits.</td>
+                <td>Must</td>
+                <td>Server provider abstraction, progressively streamed display-safe chat, Settings, scoped context,
+                  and version-checked document comparison/review</td>
+                <td><span class="status-pill">Built</span></td>
+              </tr>
+              <tr>
+                <td>NFR-01</td>
+                <td>Create database structures and demo data without manual database administration.</td>
+                <td>Must</td>
+                <td>Idempotent setup script</td>
+                <td><span class="status-pill">Built</span></td>
+              </tr>
             </tbody>
           </table>
         </div>
       </section>
 
       <section class="section" id="research">
-        <div class="section-heading"><span class="section-number">05 / RESEARCH</span><div><h2>Use evidence to shape the solution.</h2><p class="lead">Background research should compare alternatives and directly explain why particular product or technical decisions were made.</p></div></div>
+        <div class="section-heading"><span class="section-number">05 / RESEARCH</span>
+          <div>
+            <h2>Use evidence to shape the solution.</h2>
+            <p class="lead">Background research should compare alternatives and directly explain why particular product
+              or technical decisions were made.</p>
+          </div>
+        </div>
         <div class="grid three">
-          <article class="card placeholder"><div class="card-icon">A</div><span class="placeholder-label">TBD</span><h3>User research</h3><p>Interviews, surveys, observation, personas, or other evidence establishing real user needs.</p></article>
-          <article class="card placeholder"><div class="card-icon">B</div><span class="placeholder-label">TBD</span><h3>Market review</h3><p>Competing solutions, gaps, useful patterns, and opportunities for differentiation.</p></article>
-          <article class="card placeholder"><div class="card-icon">C</div><span class="placeholder-label">TBD</span><h3>Technical research</h3><p>Candidate technologies, tradeoffs, standards, security guidance, and source-backed decisions.</p></article>
+          <article class="card placeholder">
+            <div class="card-icon">A</div><span class="placeholder-label">TBD</span>
+            <h3>User research</h3>
+            <p>Interviews, surveys, observation, personas, or other evidence establishing real user needs.</p>
+          </article>
+          <article class="card placeholder">
+            <div class="card-icon">B</div><span class="placeholder-label">TBD</span>
+            <h3>Market review</h3>
+            <p>Competing solutions, gaps, useful patterns, and opportunities for differentiation.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon">C</div><span class="placeholder-label">Technical research</span>
+            <h3>One server boundary, two compatible providers</h3>
+            <p>Official OpenRouter and DeepSeek documentation both describe OpenAI-compatible chat-completion requests.
+              Planora uses one server abstraction, keeps keys out of client responses, and adds an application-level
+              review gate before any AI proposal reaches validated persistence APIs.</p>
+          </article>
         </div>
       </section>
 
       <section class="section" id="methodology">
-        <div class="section-heading"><span class="section-number">06 / METHODOLOGY</span><div><h2>Show how the work moved forward.</h2><p class="lead">The development story will combine milestones, iteration, decisions, risks, and changes in direction.</p></div></div>
+        <div class="section-heading"><span class="section-number">06 / METHODOLOGY</span>
+          <div>
+            <h2>Show how the work moved forward.</h2>
+            <p class="lead">The development story will combine milestones, iteration, decisions, risks, and changes in
+              direction.</p>
+          </div>
+        </div>
         <div class="timeline">
-          <div class="timeline-item"><span class="timeline-dot">01</span><article class="card"><h3>Foundation</h3><p>Documentation responsibilities and the report experience were established before application development.</p></article></div>
-          <div class="timeline-item"><span class="timeline-dot">02</span><article class="card"><h3>Scope definition</h3><p>The product was bounded to three views, one shared item model, and beginner-safe terminal setup based on the initial stakeholder brief.</p></article></div>
-          <div class="timeline-item"><span class="timeline-dot">03</span><article class="card"><h3>Vertical-slice build</h3><p>The responsive interface, validated Route Handlers, relational PostgreSQL migration, category tree, local suggestion engine, relative-date seed data, and batch recovery states were built together.</p></article></div>
-          <div class="timeline-item"><span class="timeline-dot">04</span><article class="card"><h3>Static verification</h3><p>Dependencies installed without reported vulnerabilities, ESLint completed, and the optimized Next.js build compiled all application and API routes.</p></article></div>
+          <div class="timeline-item"><span class="timeline-dot">01</span>
+            <article class="card">
+              <h3>Foundation</h3>
+              <p>Documentation responsibilities and the report experience were established before application
+                development.</p>
+            </article>
+          </div>
+          <div class="timeline-item"><span class="timeline-dot">02</span>
+            <article class="card">
+              <h3>Scope definition and expansion</h3>
+              <p>The initial brief established three planner projections and beginner-safe setup; later iterations
+                preserved that shared model while adding nested categories, display settings, and a complete project
+                workspace.</p>
+            </article>
+          </div>
+          <div class="timeline-item"><span class="timeline-dot">03</span>
+            <article class="card">
+              <h3>Vertical-slice build</h3>
+              <p>The responsive planner, validated Route Handlers, relational migrations, category tree, complete
+                project sub-tabs, provider abstraction, local file boundary, relative-date seed data, and recovery
+                states were built together.</p>
+            </article>
+          </div>
+          <div class="timeline-item"><span class="timeline-dot">04</span>
+            <article class="card">
+              <h3>Static verification</h3>
+              <p>Dependencies installed without reported vulnerabilities, 33 unit checks passed, ESLint completed
+                cleanly, and the optimized Next.js build compiled all application and 22 API routes.</p>
+            </article>
+          </div>
         </div>
       </section>
 
       <section class="section" id="design">
-        <div class="section-heading"><span class="section-number">07 / DESIGN</span><div><h2>Make the system understandable at a glance.</h2><p class="lead">Architecture, information flows, interface decisions, and prototypes belong here as visual evidence with concise explanation.</p></div></div>
+        <div class="section-heading"><span class="section-number">07 / DESIGN</span>
+          <div>
+            <h2>Make the system understandable at a glance.</h2>
+            <p class="lead">Architecture, information flows, interface decisions, and prototypes belong here as visual
+              evidence with concise explanation.</p>
+          </div>
+        </div>
         <div class="architecture" aria-label="Explore the Planora system architecture">
           <div class="architecture-map" role="tablist" aria-label="System layers">
-            <button class="architecture-node" id="architecture-tab-interface" type="button" role="tab" aria-selected="true" aria-controls="architecture-interface"><strong>Browser interface</strong><span>Three projections + independent filters</span></button>
+            <button class="architecture-node" id="architecture-tab-interface" type="button" role="tab"
+              aria-selected="true" aria-controls="architecture-interface"><strong>Browser
+                interface</strong><span>Planner projections + project workspace</span></button>
             <span class="architecture-connector" aria-hidden="true"></span>
-            <button class="architecture-node" id="architecture-tab-api" type="button" role="tab" aria-selected="false" aria-controls="architecture-api" tabindex="-1"><strong>Route Handlers</strong><span>GET, POST, PATCH, DELETE</span></button>
-            <button class="architecture-node" id="architecture-tab-boundary" type="button" role="tab" aria-selected="false" aria-controls="architecture-boundary" tabindex="-1"><strong>Validation + SQL</strong><span>Constrained, parameterized boundary</span></button>
+            <button class="architecture-node" id="architecture-tab-api" type="button" role="tab" aria-selected="false"
+              aria-controls="architecture-api" tabindex="-1"><strong>Route Handlers</strong><span>GET, POST, PATCH,
+                DELETE</span></button>
+            <button class="architecture-node" id="architecture-tab-boundary" type="button" role="tab"
+              aria-selected="false" aria-controls="architecture-boundary" tabindex="-1"><strong>Validation +
+                providers</strong><span>SQL, local files, and server-only AI</span></button>
             <span class="architecture-connector" aria-hidden="true"></span>
-            <button class="architecture-node" id="architecture-tab-database" type="button" role="tab" aria-selected="false" aria-controls="architecture-database" tabindex="-1"><strong>PostgreSQL</strong><span>Tree, relations, Trash batches</span></button>
-            <button class="architecture-node" id="architecture-tab-setup" type="button" role="tab" aria-selected="false" aria-controls="architecture-setup" tabindex="-1"><strong>Setup path</strong><span>Docker, schema, migration, seed</span></button>
+            <button class="architecture-node" id="architecture-tab-database" type="button" role="tab"
+              aria-selected="false" aria-controls="architecture-database"
+              tabindex="-1"><strong>PostgreSQL</strong><span>Tree, relations, Trash batches</span></button>
+            <button class="architecture-node" id="architecture-tab-setup" type="button" role="tab" aria-selected="false"
+              aria-controls="architecture-setup" tabindex="-1"><strong>Setup path</strong><span>Docker, schema,
+                migration, seed</span></button>
           </div>
           <div class="architecture-detail" aria-live="polite">
-            <div class="architecture-panel" id="architecture-interface" role="tabpanel" aria-labelledby="architecture-tab-interface"><p class="eyebrow">01 / Experience</p><h3>One collection, three questions</h3><p>The dashboard asks what is urgent, the calendar asks when work lands, and the list supports search and action. Calendar provides Day, Week, and Month ranges beside a height-limited, collapsible category tree; each projection keeps its own Canvas-style checkbox selection. A top-right Settings dialog persists theme, default-view, and motion preferences on the device.</p><div class="tech-tags"><span>React 19</span><span>Period views</span><span>Per-view filters</span><span>Persistent themes</span><span>Responsive UI</span></div></div>
-            <div class="architecture-panel" id="architecture-api" role="tabpanel" aria-labelledby="architecture-tab-api" hidden><p class="eyebrow">02 / Interface</p><h3>An explicit JSON API</h3><p>Next.js Route Handlers manage items, categories, projects, settings, suggestions, cascade previews, and atomic Trash restoration.</p><div class="tech-tags"><span>Next.js 16</span><span>JSON</span><span>HTTP status</span></div></div>
-            <div class="architecture-panel" id="architecture-boundary" role="tabpanel" aria-labelledby="architecture-tab-boundary" hidden><p class="eyebrow">03 / Safety</p><h3>Validate before persistence</h3><p>Allowed kinds, priorities, statuses, dates, and identifiers are checked before parameterized SQL reaches the shared PostgreSQL connection pool.</p><div class="tech-tags"><span>Validation</span><span>pg pool</span><span>Parameterized SQL</span></div></div>
-            <div class="architecture-panel" id="architecture-database" role="tabpanel" aria-labelledby="architecture-tab-database" hidden><p class="eyebrow">04 / Persistence</p><h3>Durable, constrained relations</h3><p>PostgreSQL stores the self-referencing category tree, singleton settings, projects, and planner items. Shared Trash batch IDs make category cascades recoverable as one operation.</p><div class="tech-tags"><span>PostgreSQL 17</span><span>Recursive CTE</span><span>Soft delete</span></div></div>
-            <div class="architecture-panel" id="architecture-setup" role="tabpanel" aria-labelledby="architecture-tab-setup" hidden><p class="eyebrow">05 / Provisioning</p><h3>Repeatable local setup</h3><p>The diagnostic setup path prepares environment configuration, waits for Docker health, applies migrations, and adds relative-date examples only when the planner is empty.</p><div class="tech-tags"><span>Docker Compose</span><span>IPv4-safe</span><span>Idempotent</span></div></div>
+            <div class="architecture-panel" id="architecture-interface" role="tabpanel"
+              aria-labelledby="architecture-tab-interface">
+              <p class="eyebrow">01 / Experience</p>
+              <h3>Plans and project context in one place</h3>
+              <p>The dashboard asks what is urgent, the calendar asks when work lands, and the list supports search and
+                action. A responsive, NotebookLM-inspired Project workspace keeps Overview, Documents, Files, Tasks
+                &amp; Deadlines, and Members in a left navigation rail, the active work surface in the center, and
+                project-scoped AI chat and skills persistently available on the right. Settings combines device display
+                preferences with database-backed provider/model selection.
+              </p>
+              <div class="tech-tags"><span>React 19</span><span>Period views</span><span>Three-area
+                  workspace</span><span>Review UI</span><span>Responsive</span></div>
+            </div>
+            <div class="architecture-panel" id="architecture-api" role="tabpanel" aria-labelledby="architecture-tab-api"
+              hidden>
+              <p class="eyebrow">02 / Interface</p>
+              <h3>Explicit JSON and streamed events</h3>
+              <p>Next.js Route Handlers manage items, categories, full project workspaces, members, sanitized documents,
+                local attachments, AI chat/tools, settings, cascade previews, and atomic Trash restoration. Project chat
+                converts provider events into display-safe NDJSON answer fragments, followed by one persisted completion
+                and proposal-review event.</p>
+              <div class="tech-tags"><span>Next.js 16</span><span>JSON</span><span>NDJSON stream</span><span>22
+                  routes</span></div>
+            </div>
+            <div class="architecture-panel" id="architecture-boundary" role="tabpanel"
+              aria-labelledby="architecture-tab-boundary" hidden>
+              <p class="eyebrow">03 / Safety</p>
+              <h3>Validate before persistence or disclosure</h3>
+              <p>Allowed fields and identifiers are checked before parameterized SQL; rich text is sanitized, local
+                paths are generated and contained, provider keys remain server-only, and AI-proposed writes wait for
+                explicit human confirmation through ordinary APIs. Existing-document proposals are limited to the
+                active project, compare current and proposed text, and fail safely if the document changed meanwhile.</p>
+              <div class="tech-tags"><span>sanitize-html</span><span>pg
+                  pool</span><span>OpenRouter</span><span>DeepSeek</span></div>
+            </div>
+            <div class="architecture-panel" id="architecture-database" role="tabpanel"
+              aria-labelledby="architecture-tab-database" hidden>
+              <p class="eyebrow">04 / Persistence</p>
+              <h3>Durable, constrained relations</h3>
+              <p>PostgreSQL stores category trees, settings, projects, members, many-to-many assignments, documents,
+                attachment metadata, AI history/tools, and planner items. Shared Trash batch IDs make planner cascades
+                recoverable as one operation.</p>
+              <div class="tech-tags"><span>PostgreSQL 17</span><span>Junction table</span><span>Soft delete</span></div>
+            </div>
+            <div class="architecture-panel" id="architecture-setup" role="tabpanel"
+              aria-labelledby="architecture-tab-setup" hidden>
+              <p class="eyebrow">05 / Provisioning</p>
+              <h3>Repeatable local setup</h3>
+              <p>The diagnostic setup path prepares environment configuration, waits for Docker health, applies
+                migrations, and adds relative-date examples only when the planner is empty.</p>
+              <div class="tech-tags"><span>Docker Compose</span><span>IPv4-safe</span><span>Idempotent</span></div>
+            </div>
           </div>
         </div>
       </section>
 
       <section class="section" id="implementation">
-        <div class="section-heading"><span class="section-number">08 / IMPLEMENTATION</span><div><h2>One model, three useful perspectives.</h2><p class="lead">The browser receives one ordered collection; each view transforms it for a different planning question while mutations return to the same validated API.</p></div></div>
+        <div class="section-heading"><span class="section-number">08 / IMPLEMENTATION</span>
+          <div>
+            <h2>One model, many useful contexts.</h2>
+            <p class="lead">Planner views transform one ordered collection, while each project composes relational data,
+              safe local attachments, documents, and scoped AI behind the same validated server boundary.</p>
+          </div>
+        </div>
         <div class="case-study" aria-label="Explore Planora implementation layers">
           <div class="case-tabs" role="tablist" aria-label="Implementation layers">
-            <button class="case-tab" id="case-tab-projections" type="button" role="tab" aria-selected="true" aria-controls="case-projections"><strong>Product projections</strong><span>How one dataset powers three views</span></button>
-            <button class="case-tab" id="case-tab-routes" type="button" role="tab" aria-selected="false" aria-controls="case-routes" tabindex="-1"><strong>API surface</strong><span>Validated planning and folder operations</span></button>
-            <button class="case-tab" id="case-tab-schema" type="button" role="tab" aria-selected="false" aria-controls="case-schema" tabindex="-1"><strong>Data model</strong><span>Tree, inheritance, and recovery</span></button>
+            <button class="case-tab" id="case-tab-projections" type="button" role="tab" aria-selected="true"
+              aria-controls="case-projections"><strong>Product projections</strong><span>How one dataset powers three
+                views</span></button>
+            <button class="case-tab" id="case-tab-routes" type="button" role="tab" aria-selected="false"
+              aria-controls="case-routes" tabindex="-1"><strong>API surface</strong><span>Validated planning and folder
+                operations</span></button>
+            <button class="case-tab" id="case-tab-schema" type="button" role="tab" aria-selected="false"
+              aria-controls="case-schema" tabindex="-1"><strong>Data model</strong><span>Tree, inheritance, and
+                recovery</span></button>
           </div>
           <div class="case-visual">
             <div class="case-panel" id="case-projections" role="tabpanel" aria-labelledby="case-tab-projections">
-              <div class="case-caption"><p class="eyebrow">UI transformation</p><h3>Capture once. Understand three ways.</h3><p>Views share the ordered collection while retaining separate category selections, so changing Calendar visibility does not unexpectedly alter Dashboard or List.</p></div>
-              <div class="projection-map"><div class="projection-source"><strong>Shared item collection</strong></div><div class="projection-node"><strong>Dashboard</strong><span>Own category checks</span></div><div class="projection-node"><strong>Calendar</strong><span>Own category checks</span></div><div class="projection-node"><strong>List</strong><span>Own category checks</span></div></div>
+              <div class="case-caption">
+                <p class="eyebrow">UI transformation</p>
+                <h3>Capture once. Understand three ways.</h3>
+                <p>Views share the ordered collection while retaining separate category selections, so changing Calendar
+                  visibility does not unexpectedly alter Dashboard or List.</p>
+              </div>
+              <div class="projection-map">
+                <div class="projection-source"><strong>Shared item collection</strong></div>
+                <div class="projection-node"><strong>Dashboard</strong><span>Own category checks</span></div>
+                <div class="projection-node"><strong>Calendar</strong><span>Own category checks</span></div>
+                <div class="projection-node"><strong>List</strong><span>Own category checks</span></div>
+              </div>
             </div>
             <div class="case-panel" id="case-routes" role="tabpanel" aria-labelledby="case-tab-routes" hidden>
-              <div class="case-caption"><p class="eyebrow">HTTP boundary</p><h3>Focused APIs, complete category flow.</h3><p>Each route has one legible responsibility, with validated input, meaningful JSON errors, and parameterized SQL.</p></div>
-              <div class="route-list"><div class="route-row"><span class="route-method">GET/POST</span><code>/api/categories</code><span>Tree + create</span></div><div class="route-row"><span class="route-method">PATCH/DELETE</span><code>/api/categories/:id</code><span>Edit + impact-confirmed Trash</span></div><div class="route-row"><span class="route-method">POST</span><code>/api/categories/suggest</code><span>Up to three local suggestions</span></div><div class="route-row"><span class="route-method">POST</span><code>/api/trash/:batch/restore</code><span>Atomic recovery</span></div></div>
+              <div class="case-caption">
+                <p class="eyebrow">HTTP boundary</p>
+                <h3>Focused APIs, complete workspace flow.</h3>
+                <p>Each route has one legible responsibility, with validated input, meaningful JSON errors,
+                  parameterized SQL, and server-only provider/file access.</p>
+              </div>
+              <div class="route-list">
+                <div class="route-row"><span
+                    class="route-method">GET/PATCH</span><code>/api/projects/:id</code><span>Complete workspace</span>
+                </div>
+                <div class="route-row"><span
+                    class="route-method">POST</span><code>/api/projects/:id/ai/chat</code><span>Scoped answer +
+                    proposals</span></div>
+                <div class="route-row"><span
+                    class="route-method">POST/GET</span><code>/api/projects/:id/files</code><span>Local link +
+                    preview</span></div>
+                <div class="route-row"><span
+                    class="route-method">GET/PATCH</span><code>/api/settings/ai</code><span>Provider/model, never
+                    keys</span></div>
+              </div>
             </div>
             <div class="case-panel" id="case-schema" role="tabpanel" aria-labelledby="case-tab-schema" hidden>
-              <div class="case-caption"><p class="eyebrow">PostgreSQL model</p><h3>Constraints carry intent into storage.</h3><p>Categories reference their parent, projects own a category, items own a fallback category, and effective reads inherit the project's category.</p></div>
-              <div class="schema-card"><div class="schema-title"><strong>planner_items</strong><code>PostgreSQL 17</code></div><div class="schema-fields"><div class="schema-field"><span>id</span><span>uuid</span></div><div class="schema-field"><span>title / description</span><span>text / nullable</span></div><div class="schema-field"><span>kind</span><span>task | deadline</span></div><div class="schema-field"><span>start_at / end_at</span><span>task interval</span></div><div class="schema-field"><span>due_at</span><span>deadline only</span></div><div class="schema-field"><span>priority / status</span><span>constraints</span></div><div class="schema-field"><span>category_id / project_id</span><span>uuid / nullable</span></div><div class="schema-field"><span>created_at / updated_at</span><span>timestamptz</span></div></div></div>
+              <div class="case-caption">
+                <p class="eyebrow">PostgreSQL model</p>
+                <h3>Constraints carry intent into storage.</h3>
+                <p>Categories reference parents, projects own categories and workspaces, assignments join multiple
+                  members to planner items, and effective reads inherit the project's category.</p>
+              </div>
+              <div class="schema-card">
+                <div class="schema-title"><strong>planner_items</strong><code>PostgreSQL 17</code></div>
+                <div class="schema-fields">
+                  <div class="schema-field"><span>id</span><span>uuid</span></div>
+                  <div class="schema-field"><span>title / description</span><span>text / nullable</span></div>
+                  <div class="schema-field"><span>kind</span><span>task | deadline</span></div>
+                  <div class="schema-field"><span>start_at / end_at</span><span>task interval</span></div>
+                  <div class="schema-field"><span>due_at</span><span>deadline only</span></div>
+                  <div class="schema-field"><span>priority / status</span><span>constraints</span></div>
+                  <div class="schema-field"><span>category_id / project_id</span><span>uuid / nullable</span></div>
+                  <div class="schema-field"><span>created_at / updated_at</span><span>timestamptz</span></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       <section class="section" id="testing">
-        <div class="section-heading"><span class="section-number">09 / TESTING</span><div><h2>Replace confidence with evidence.</h2><p class="lead">Test coverage, scenarios, defects, usability findings, and performance measurements should demonstrate whether requirements were met.</p></div></div>
+        <div class="section-heading"><span class="section-number">09 / TESTING</span>
+          <div>
+            <h2>Replace confidence with evidence.</h2>
+            <p class="lead">Test coverage, scenarios, defects, usability findings, and performance measurements should
+              demonstrate whether requirements were met.</p>
+          </div>
+        </div>
         <div class="grid four" style="margin-bottom: 18px;">
-          <div class="card metric"><strong>15</strong><span>Unit checks executed</span></div>
-          <div class="card metric"><strong>15</strong><span>Unit checks passed</span></div>
-          <div class="card metric"><strong>1</strong><span>Lint warnings resolved</span></div>
+          <div class="card metric"><strong>33</strong><span>Unit checks executed</span></div>
+          <div class="card metric"><strong>33</strong><span>Unit checks passed</span></div>
+          <div class="card metric"><strong>0</strong><span>Lint errors or warnings</span></div>
           <div class="card metric"><strong>0</strong><span>Known build errors</span></div>
         </div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Test</th><th>Requirement</th><th>Method</th><th>Expected</th><th>Actual</th><th>Status</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Test</th>
+                <th>Requirement</th>
+                <th>Method</th>
+                <th>Expected</th>
+                <th>Actual</th>
+                <th>Status</th>
+              </tr>
+            </thead>
             <tbody>
-              <tr><td>T-00</td><td>NFR-01, FR-01, FR-02, FR-04, FR-07, FR-08</td><td><code>npm test</code></td><td>URL, category tree, calendar ranges, preferences, validation, migration ordering, and kind-specific API models are deterministic and safe</td><td>6 URL/env, 5 category, 2 calendar, 5 item-model, 1 migration-order, and 2 preference tests passed</td><td><span class="status-pill">Pass</span></td></tr>
-              <tr><td>T-01</td><td>NFR-01</td><td><code>npm run lint</code></td><td>No errors or warnings</td><td>Clean after configuration fix</td><td><span class="status-pill">Pass</span></td></tr>
-              <tr><td>T-02</td><td>FR-01–08</td><td><code>npm run build</code></td><td>Responsive UI and API compile</td><td>10 API routes built successfully</td><td><span class="status-pill">Pass</span></td></tr>
-              <tr><td>T-03</td><td>FR-01–07</td><td>Live PostgreSQL smoke test</td><td>Migration, CRUD, cascade, and restore persist</td><td>Environment lacks Docker/PostgreSQL</td><td><span class="status-pill">TBD</span></td></tr>
+              <tr>
+                <td>T-00</td>
+                <td>NFR-01, FR-01–12</td>
+                <td><code>npm test</code></td>
+                <td>URL, category/calendar logic, preferences, models, migrations, project fields, rich-text sanitation,
+                  AI configuration/results and reviewed document targets, assignees, and file paths/types are
+                  deterministic and safe</td>
+                <td>33 unit checks passed across nine test files, including fragmented provider-stream decoding</td>
+                <td><span class="status-pill">Pass</span></td>
+              </tr>
+              <tr>
+                <td>T-01</td>
+                <td>NFR-01</td>
+                <td><code>npm run lint</code></td>
+                <td>No errors or warnings</td>
+                <td>Clean after configuration fix</td>
+                <td><span class="status-pill">Pass</span></td>
+              </tr>
+              <tr>
+                <td>T-02</td>
+                <td>FR-01–12</td>
+                <td><code>npm run build</code></td>
+                <td>Responsive UI and API compile</td>
+                <td>22 API routes built successfully</td>
+                <td><span class="status-pill">Pass</span></td>
+              </tr>
+              <tr>
+                <td>T-03</td>
+                <td>FR-01–12</td>
+                <td>Live PostgreSQL and provider smoke tests</td>
+                <td>Migration, CRUD, files, AI request/review, cascade, and restore persist</td>
+                <td>Current environment lacks a running PostgreSQL instance and real provider keys</td>
+                <td><span class="status-pill">TBD</span></td>
+              </tr>
             </tbody>
           </table>
         </div>
       </section>
 
       <section class="section" id="results">
-        <div class="section-heading"><span class="section-number">10 / RESULTS</span><div><h2>Evaluate outcomes, not effort.</h2><p class="lead">Results will be measured against the original objectives, supported by quantitative evidence and user feedback where available.</p></div></div>
-        <blockquote class="quote">The MVP compiles as one coherent planning flow: schedule task intervals or deadline due times, inspect them at day, week, or month scale, organize through nested folders, inherit project context, personalize the display, and understand the same commitment through urgency, time, or list context—with deletion remaining recoverable.<small>Result supported by twenty-one unit checks, clean lint, and the optimized route build; live persistence validation remains pending.</small></blockquote>
+        <div class="section-heading"><span class="section-number">10 / RESULTS</span>
+          <div>
+            <h2>Evaluate outcomes, not effort.</h2>
+            <p class="lead">Results will be measured against the original objectives, supported by quantitative evidence
+              and user feedback where available.</p>
+          </div>
+        </div>
+        <blockquote class="quote">The MVP compiles as one coherent planning and project flow: schedule work, inspect it
+          at day, week, or month scale, organize nested folders, coordinate project members, save documents and files,
+          and use project-only AI without surrendering control of persistence.<small>Result supported by 33 unit checks,
+            clean lint, and an optimized build of 22 API routes; live persistence and provider validation remain
+            pending.</small></blockquote>
       </section>
 
       <section class="section" id="reflection">
-        <div class="section-heading"><span class="section-number">11 / REFLECTION</span><div><h2>Be clear about limits and learning.</h2><p class="lead">A strong report distinguishes what was achieved, what remains limited, what changed during development, and what should happen next.</p></div></div>
+        <div class="section-heading"><span class="section-number">11 / REFLECTION</span>
+          <div>
+            <h2>Be clear about limits and learning.</h2>
+            <p class="lead">A strong report distinguishes what was achieved, what remains limited, what changed during
+              development, and what should happen next.</p>
+          </div>
+        </div>
         <div class="grid three">
-          <article class="card"><span class="placeholder-label">Limitations</span><h3>Local single-user MVP</h3><p>No accounts, reminders, recurring items, full project-management screen, hosted language model, external sync, production deployment, formal accessibility audit, or live database test evidence yet.</p></article>
-          <article class="card"><span class="placeholder-label">Learning</span><h3>Setup is part of the user experience</h3><p>For a non-technical audience, database creation cannot be a hidden prerequisite. Safe reruns, clear errors, relative demo dates, and copyable commands are product features.</p></article>
-          <article class="card"><span class="placeholder-label">Next priorities</span><h3>Validate before expanding</h3><p>Run live migration, CRUD, interval-calendar, and browser accessibility tests first, then add reminders based on user feedback rather than broadening scope immediately.</p></article>
+          <article class="card"><span class="placeholder-label">Limitations</span>
+            <h3>Local single-user MVP</h3>
+            <p>No accounts, reminders, recurrence, collaborative editing, external sync, production deployment, formal
+              accessibility audit, or live database/provider evidence yet. Attachments require separate local backup,
+              and AI reads text formats but not PDF/image contents.</p>
+          </article>
+          <article class="card"><span class="placeholder-label">Learning</span>
+            <h3>Setup is part of the user experience</h3>
+            <p>For a non-technical audience, database creation cannot be a hidden prerequisite. Safe reruns, clear
+              errors, relative demo dates, and copyable commands are product features.</p>
+          </article>
+          <article class="card"><span class="placeholder-label">Next priorities</span>
+            <h3>Validate before expanding</h3>
+            <p>Run live migration, CRUD, interval-calendar, and browser accessibility tests first, then add reminders
+              based on user feedback rather than broadening scope immediately.</p>
+          </article>
         </div>
       </section>
 
       <section class="section" id="references">
-        <div class="section-heading"><span class="section-number">12 / REFERENCES</span><div><h2>Sources, appendices, and supporting evidence.</h2><p class="lead">Every academic or technical claim must link to a credible source using the citation style required by the course.</p></div></div>
+        <div class="section-heading"><span class="section-number">12 / REFERENCES</span>
+          <div>
+            <h2>Sources, appendices, and supporting evidence.</h2>
+            <p class="lead">Every academic or technical claim must link to a credible source using the citation style
+              required by the course.</p>
+          </div>
+        </div>
         <ol class="references">
-          <li><span><a href="https://nextjs.org/docs/app" rel="noreferrer">Next.js documentation — App Router</a>, used for the interface and Route Handler JSON API.</span></li>
-          <li><span><a href="https://www.postgresql.org/docs/17/index.html" rel="noreferrer">PostgreSQL 17 documentation</a>, covering the constraints, timestamps, UUID generation, and indexes used by the data model.</span></li>
-          <li><span><a href="https://tailwindcss.com/docs/installation/using-postcss" rel="noreferrer">Tailwind CSS documentation — PostCSS installation</a>, used for build-time styling integration.</span></li>
+          <li><span><a href="https://nextjs.org/docs/app" rel="noreferrer">Next.js documentation — App Router</a>, used
+              for the interface and Route Handler JSON API.</span></li>
+          <li><span><a href="https://www.postgresql.org/docs/17/index.html" rel="noreferrer">PostgreSQL 17
+                documentation</a>, covering the constraints, timestamps, UUID generation, and indexes used by the data
+              model.</span></li>
+          <li><span><a href="https://tailwindcss.com/docs/installation/using-postcss" rel="noreferrer">Tailwind CSS
+                documentation — PostCSS installation</a>, used for build-time styling integration.</span></li>
+          <li><span><a href="https://openrouter.ai/docs/quickstart" rel="noreferrer">OpenRouter documentation —
+                Quickstart</a>, used for the default server-side chat-completion provider.</span></li>
+          <li><span><a href="https://api-docs.deepseek.com/" rel="noreferrer">DeepSeek API documentation</a>, used for
+              the OpenAI-compatible alternative provider and model configuration.</span></li>
+          <li><span><a
+                href="https://blog.google/innovation-and-ai/models-and-research/google-labs/notebooklm-new-features-december-2024/"
+                rel="noreferrer">Google — NotebookLM gets a new look, audio interactivity and a premium version</a>,
+              used as the interaction reference for the adaptable three-area Project workspace.</span></li>
         </ol>
         <div class="grid two" style="margin-top: 18px;">
-          <article class="card"><span class="placeholder-label">Appendix A</span><h3>Installation and operation</h3><p>README.md contains copyable Ubuntu and Windows terminal commands for dependencies, health-aware Docker PostgreSQL startup, IPv4-safe schema creation, seeding, stopping, verification, and error-specific troubleshooting.</p></article>
-          <article class="card placeholder"><span class="placeholder-label">Appendix B / TBD</span><h3>Extended evidence</h3><p>Product screenshots, formal user feedback, browser results, accessibility audit results, and live persistence evidence are still required.</p></article>
+          <article class="card"><span class="placeholder-label">Appendix A</span>
+            <h3>Installation and operation</h3>
+            <p>README.md contains copyable Ubuntu and Windows terminal commands for dependencies, health-aware Docker
+              PostgreSQL startup, IPv4-safe schema creation, seeding, stopping, verification, and error-specific
+              troubleshooting.</p>
+          </article>
+          <article class="card placeholder"><span class="placeholder-label">Appendix B / TBD</span>
+            <h3>Extended evidence</h3>
+            <p>Product screenshots, formal user feedback, browser results, accessibility audit results, and live
+              persistence evidence are still required.</p>
+          </article>
         </div>
       </section>
 
@@ -986,27 +2873,53 @@
 
   <button class="back-to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
 
-  <dialog class="theme-dialog" id="theme-dialog" aria-labelledby="theme-dialog-title" aria-describedby="theme-dialog-description">
+  <dialog class="theme-dialog" id="theme-dialog" aria-labelledby="theme-dialog-title"
+    aria-describedby="theme-dialog-description">
     <div class="theme-dialog-shell">
       <div class="theme-dialog-header">
-        <div><p class="eyebrow">Appearance</p><h2 id="theme-dialog-title">Choose your atmosphere.</h2><p id="theme-dialog-description">Preview the report’s opening page in each palette, then choose the one that feels right.</p></div>
+        <div>
+          <p class="eyebrow">Appearance</p>
+          <h2 id="theme-dialog-title">Choose your atmosphere.</h2>
+          <p id="theme-dialog-description">Preview the report’s opening page in each palette, then choose the one that
+            feels right.</p>
+        </div>
         <button class="theme-close" type="button" aria-label="Close theme chooser">✕</button>
       </div>
       <div class="theme-options" aria-label="Available color themes">
         <button class="theme-option" type="button" data-theme-option="dark" aria-pressed="false">
-          <span class="theme-preview" data-preview-theme="dark" aria-hidden="true"><span class="theme-preview-bar"><i></i><i></i><i></i><span>Planora Report</span></span><span class="theme-preview-hero"><span><span class="theme-preview-kicker">INTERACTIVE REPORT</span><strong class="theme-preview-title">Project <em>Planora</em></strong><span class="theme-preview-line"></span></span><span class="theme-preview-panel"><span></span><span></span><span></span></span></span></span>
+          <span class="theme-preview" data-preview-theme="dark" aria-hidden="true"><span
+              class="theme-preview-bar"><i></i><i></i><i></i><span>Planora Report</span></span><span
+              class="theme-preview-hero"><span><span class="theme-preview-kicker">INTERACTIVE REPORT</span><strong
+                  class="theme-preview-title">Project <em>Planora</em></strong><span
+                  class="theme-preview-line"></span></span><span
+                class="theme-preview-panel"><span></span><span></span><span></span></span></span></span>
           <span class="theme-option-copy"><strong>Dark</strong><span>Focused · immersive</span></span>
         </button>
         <button class="theme-option" type="button" data-theme-option="light" aria-pressed="false">
-          <span class="theme-preview" data-preview-theme="light" aria-hidden="true"><span class="theme-preview-bar"><i></i><i></i><i></i><span>Planora Report</span></span><span class="theme-preview-hero"><span><span class="theme-preview-kicker">INTERACTIVE REPORT</span><strong class="theme-preview-title">Project <em>Planora</em></strong><span class="theme-preview-line"></span></span><span class="theme-preview-panel"><span></span><span></span><span></span></span></span></span>
+          <span class="theme-preview" data-preview-theme="light" aria-hidden="true"><span
+              class="theme-preview-bar"><i></i><i></i><i></i><span>Planora Report</span></span><span
+              class="theme-preview-hero"><span><span class="theme-preview-kicker">INTERACTIVE REPORT</span><strong
+                  class="theme-preview-title">Project <em>Planora</em></strong><span
+                  class="theme-preview-line"></span></span><span
+                class="theme-preview-panel"><span></span><span></span><span></span></span></span></span>
           <span class="theme-option-copy"><strong>Light</strong><span>Clear · editorial</span></span>
         </button>
         <button class="theme-option" type="button" data-theme-option="sunrise" aria-pressed="false">
-          <span class="theme-preview" data-preview-theme="sunrise" aria-hidden="true"><span class="theme-preview-bar"><i></i><i></i><i></i><span>Planora Report</span></span><span class="theme-preview-hero"><span><span class="theme-preview-kicker">INTERACTIVE REPORT</span><strong class="theme-preview-title">Project <em>Planora</em></strong><span class="theme-preview-line"></span></span><span class="theme-preview-panel"><span></span><span></span><span></span></span></span></span>
+          <span class="theme-preview" data-preview-theme="sunrise" aria-hidden="true"><span
+              class="theme-preview-bar"><i></i><i></i><i></i><span>Planora Report</span></span><span
+              class="theme-preview-hero"><span><span class="theme-preview-kicker">INTERACTIVE REPORT</span><strong
+                  class="theme-preview-title">Project <em>Planora</em></strong><span
+                  class="theme-preview-line"></span></span><span
+                class="theme-preview-panel"><span></span><span></span><span></span></span></span></span>
           <span class="theme-option-copy"><strong>Sunrise</strong><span>Warm · expressive</span></span>
         </button>
         <button class="theme-option" type="button" data-theme-option="led" aria-pressed="false">
-          <span class="theme-preview" data-preview-theme="led" aria-hidden="true"><span class="theme-preview-bar"><i></i><i></i><i></i><span>Planora Report</span></span><span class="theme-preview-hero"><span><span class="theme-preview-kicker">INTERACTIVE REPORT</span><strong class="theme-preview-title">Project <em>Planora</em></strong><span class="theme-preview-line"></span></span><span class="theme-preview-panel"><span></span><span></span><span></span></span></span></span>
+          <span class="theme-preview" data-preview-theme="led" aria-hidden="true"><span
+              class="theme-preview-bar"><i></i><i></i><i></i><span>Planora Report</span></span><span
+              class="theme-preview-hero"><span><span class="theme-preview-kicker">INTERACTIVE REPORT</span><strong
+                  class="theme-preview-title">Project <em>Planora</em></strong><span
+                  class="theme-preview-line"></span></span><span
+                class="theme-preview-panel"><span></span><span></span><span></span></span></span></span>
           <span class="theme-option-copy"><strong>LED</strong><span>Contrast · electric</span></span>
         </button>
       </div>
@@ -1058,7 +2971,7 @@
     const applyTheme = (themeId) => {
       const updateTheme = () => {
         root.dataset.theme = themeId;
-        try { localStorage.setItem('planora-report-theme', themeId); } catch (error) {}
+        try { localStorage.setItem('planora-report-theme', themeId); } catch (error) { }
         syncThemeButton();
       };
       if (document.startViewTransition && !reducedMotion.matches) document.startViewTransition(updateTheme);
@@ -1263,4 +3176,5 @@
     }
   </script>
 </body>
+
 </html>

@@ -1,15 +1,16 @@
 # Planora
 
-Planora is a calm, beginner-friendly calendar for keeping tasks and deadlines in one place. It has three views:
+Planora is a calm, beginner-friendly workspace for keeping tasks, deadlines, and projects in one place. Its main views are:
 
 - **Dashboard** — shows overdue work, today’s items, the next seven days, and completed work.
 - **Calendar** — switches between Day, Week, and Month schedules; navigate by the selected period or select a day to add something there. Its right-side category filter scrolls vertically, and categories with nested folders have arrows for expanding or collapsing their children.
 - **Tasks & deadlines** — searches, filters, completes, and removes saved items.
-- **Settings** — use the gear in the top-right to choose Paper, Ocean, or Night appearance, select the default Calendar mode, and reduce motion. These preferences are saved in the current browser.
+- **Projects** — gives each project its own overview, documents, local files, assigned work, members, and project-aware AI workspace.
+- **Settings** — use the gear in the top-right to choose appearance and Calendar preferences, then choose an AI provider and model. Display preferences are saved in the browser; AI selection is saved in PostgreSQL.
 
 Categories work like folders. They can be nested, renamed, recolored, moved, hidden, filtered, and recovered from Trash. Every task or deadline has a category; work linked to a project displays the project's category. Planora uses a configurable default when none is supplied and can privately suggest up to three categories from the title, description, and similar saved items.
 
-Data is stored in PostgreSQL. The setup command creates every table, applies ordered migrations, and adds five starter categories, one example project, and six date-relative demo items automatically, so no one needs to create database tables by hand.
+Structured data is stored in PostgreSQL. Project attachments stay in the local `storage/projects` folder and are linked from PostgreSQL. The setup command creates every table, applies ordered migrations, and adds five starter categories, a populated example project, and six date-relative demo items automatically, so no one needs to create database tables by hand.
 
 ## First-time setup (Ubuntu)
 
@@ -141,9 +142,28 @@ The Ubuntu `npm run db:setup` and Windows `npm.cmd run db:setup` commands create
 
 ```dotenv
 DATABASE_URL=postgresql://planora:planora@127.0.0.1:5432/planora
+OPENROUTER_API_KEY=
+OPENROUTER_MODEL=openrouter/free
+DEEPSEEK_API_KEY=
+DEEPSEEK_MODEL=deepseek-v4-flash
+AI_PROVIDER=openrouter
 ```
 
-For an existing PostgreSQL server, copy `.env.example` to `.env.local`, change `DATABASE_URL`, and run the database setup command. Never commit real database passwords.
+For an existing PostgreSQL server, copy `.env.example` to `.env.local`, change `DATABASE_URL`, and run the database setup command. To use project AI, paste a key for the chosen provider into `.env.local`, then restart `npm run dev`. API keys are read only by server Route Handlers and are never returned to the browser. OpenRouter and `openrouter/free` are the defaults; Settings can switch to DeepSeek and `deepseek-v4-flash`, or another valid model identifier. Never commit real database passwords or AI keys.
+
+## Using project workspaces
+
+- Create a project from the **Projects** tab and set its category, type, date range, status, and progress.
+- On wide screens, the project workspace keeps its selector and non-AI sub-tabs on the left, the selected content in the center, and project AI chat and skills on the right. On smaller screens, the same areas reflow into a readable stacked layout.
+- **Overview** summarizes project information, members, progress, and upcoming work.
+- **Documents** provides rich-text tabs. A centered Planora dialog asks for the name of each new document. Changes save only when you select **Save** or press `Ctrl+S`; a matching centered warning lets you keep editing or discard changes before internal navigation. Closing or refreshing the browser uses the browser's required native warning.
+- **Files** accepts local attachments up to 10 MB. Images, PDFs, and supported text files can preview in the browser. Project AI can read plain text, Markdown, CSV, JSON, XML, and HTML content; other formats contribute metadata only.
+- **Tasks & Deadlines** creates work through the existing item model and links it through `projectId`. One item can be assigned to multiple project members.
+- **Members** stores a name and optional project role.
+- **Project AI** remains available in the right rail while you work in any project sub-tab. It sends only the selected project's information, members, documents, work, file metadata, supported text-file content, and recent project chat to the configured provider. Messages appear immediately in conversation order, an animated reply bubble shows while the provider is thinking, and answer text then appears progressively in small streamed pieces without reloading the project workspace. Planora hides the provider's structured JSON envelope and replaces malformed incomplete output—including previously stored broken replies—with a clear retry message. Built-in skills create proposals, break work into tasks, and summarize files; custom prompt buttons can be added or deleted.
+- AI-created tasks, deadlines, and documents—and AI edits to existing documents—always appear in a review panel first. Document edits show current and proposed text, reject stale versions, and write nothing until **Approve and apply** is selected. AI document edits replace the reviewed document content but cannot delete documents.
+
+Attachments are intentionally local and ignored by Git. Back up both PostgreSQL and `storage/projects` if project files need to move to another computer.
 
 ## Using categories
 
@@ -152,7 +172,7 @@ For an existing PostgreSQL server, copy `.env.example` to `.env.local`, change `
 - Category deletion first shows the exact number of affected folders, projects, and tasks/deadlines. Confirmed deletion moves the entire group to Trash; **Restore** recovers its batch together.
 - Individual task/deadline deletion also moves the item to Trash.
 - In the add-item form, **Suggest category** returns up to three visible matches. Suggestions run locally in Planora and do not send task text to an external AI service.
-- If an item belongs to a project, its category selector is disabled because it inherits the project's category. Existing projects can be listed or created through the project JSON API; a full project-management screen is future work.
+- If an item belongs to a project, its category selector is disabled because it inherits the project's category. Create and manage complete project workspaces from the Projects tab.
 
 ## Task and deadline fields
 
@@ -219,10 +239,11 @@ npm.cmd run build
 
 ```text
 app/                  Next.js pages and JSON API routes
-components/           Planner views, item form, and responsive category manager
+components/           Planner views, project workspace, item form, and category manager
 database/schema.sql   Baseline PostgreSQL schema
-database/migrations/  Ordered category/project/settings/Trash migrations
-lib/                  Database connection, validation, tree logic, and suggestions
+database/migrations/  Ordered category/project/workspace/settings/Trash migrations
+lib/                  Database, validation, AI providers, file safety, calendar, and categories
+storage/projects/     Local project attachments (contents ignored by Git)
 scripts/              Database setup and Python fixture utility
 tests/                Node unit tests
 report.html           Submission-ready project report website
