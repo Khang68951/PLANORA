@@ -15,10 +15,11 @@ These instructions apply to every agent working anywhere in this repository.
 
 1. Read this `AGENTS.md` file completely.
 2. Read `PROJECT_OVERVIEW.md` completely before planning or editing code.
-3. Inspect the relevant source, configuration, and tests. Documentation provides context, but the current code determines actual behavior.
-4. Read `README.md` when the task affects installation, usage, commands, or other developer-facing information.
-5. Read `report.html` when the task affects reportable project content or the assignment submission.
-6. If documentation and code disagree, call out the mismatch and include the necessary documentation correction in the task.
+3. Before making any file edit, create and switch to a new, descriptively named Git branch dedicated to the current update. Do not edit on `main`, `master`, or a branch reused from an earlier update. Read-only tasks do not require a new branch. If branch creation is blocked, stop and ask the user rather than editing first.
+4. Inspect the relevant source, configuration, and tests. Documentation provides context, but the current code determines actual behavior.
+5. Read `README.md` when the task affects installation, usage, commands, or other developer-facing information.
+6. Read `report.html` when the task affects reportable project content or the assignment submission.
+7. If documentation and code disagree, call out the mismatch and include the necessary documentation correction in the task.
 
 Do not begin implementation until these context checks are complete.
 
