@@ -4,20 +4,25 @@ import { isUuid } from "@/lib/categories";
 import { getPool, query } from "@/lib/db";
 import { itemJoins, itemSelect, toItemModel, validateItem } from "@/lib/items";
 import { replaceItemAssignees, validateAssigneeIds } from "@/lib/projects";
+import { errorResponse, readJson } from "@/lib/http";
 
 export async function PATCH(request, context) {
   const client = await getPool().connect();
   try {
     const { id } = await context.params;
     if (!isUuid(id)) return NextResponse.json({ error: "Invalid item." }, { status: 400 });
-    const body = await request.json();
+    const body = await readJson(request);
     const allowed = ["title", "description", "kind", "startAt", "endAt", "dueAt", "categoryId", "projectId", "priority", "status", "assigneeIds"];
     if (!allowed.some((key) => Object.hasOwn(body, key))) return NextResponse.json({ error: "No changes were provided." }, { status: 400 });
     await client.query("BEGIN");
     const current = (await client.query(`SELECT title, description, kind, start_at AS "startAt", end_at AS "endAt", due_at AS "dueAt", category_id AS "categoryId", project_id AS "projectId", priority, status,
-      COALESCE((SELECT json_agg(member_id) FROM planner_item_assignees WHERE item_id = planner_items.id), '[]'::json) AS "assigneeIds"
-      FROM planner_items WHERE id = $1 AND deleted_at IS NULL`, [id])).rows[0];
+      COALESCE((SELECT json_agg(member_id) FROM planner_item_assignees WHERE item_id = planner_items.id), '[]'::json) AS "assigneeIds",
+      updated_at AS "updatedAt" FROM planner_items WHERE id = $1 AND deleted_at IS NULL FOR UPDATE`, [id])).rows[0];
     if (!current) { await client.query("ROLLBACK"); return NextResponse.json({ error: "That item no longer exists." }, { status: 404 }); }
+    if (body.expectedUpdatedAt && new Date(body.expectedUpdatedAt).getTime() !== new Date(current.updatedAt).getTime()) {
+      await client.query("ROLLBACK");
+      return NextResponse.json({ error: "This item changed elsewhere. Reload it before saving.", code: "STALE_WRITE" }, { status: 409 });
+    }
     const candidate = { ...current, ...Object.fromEntries(allowed.filter((key) => Object.hasOwn(body, key)).map((key) => [key, body[key]])) };
     if (candidate.kind === "task") candidate.dueAt = null;
     if (candidate.kind === "deadline") { candidate.startAt = null; candidate.endAt = null; }
@@ -34,7 +39,7 @@ export async function PATCH(request, context) {
     const result = await client.query(`SELECT ${itemSelect} ${itemJoins} WHERE item.id = $1`, [id]);
     await client.query("COMMIT");
     return NextResponse.json({ item: toItemModel(result.rows[0]) });
-  } catch (error) { await client.query("ROLLBACK").catch(() => {}); console.error("PATCH /api/items/:id", error); return NextResponse.json({ error: "The item could not be updated." }, { status: 500 }); }
+  } catch (error) { await client.query("ROLLBACK").catch(() => {}); return errorResponse(error, "The item could not be updated."); }
   finally { client.release(); }
 }
 

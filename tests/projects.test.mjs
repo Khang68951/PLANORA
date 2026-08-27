@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { sanitizeDocumentHtml, validateAssigneeIds, validateDocument, validateMember, validateProject } from "../lib/projects.js";
+import { projectCreateCandidate, sanitizeDocumentHtml, validateAssigneeIds, validateDocument, validateMember, validateProject } from "../lib/projects.js";
 
 const categoryId = "11111111-1111-4111-8111-111111111111";
 const memberId = "22222222-2222-4222-8222-222222222222";
@@ -11,6 +11,14 @@ test("full project fields accept a valid project", () => {
     type: "academic", startDate: "2026-08-01", deadline: "2026-09-01",
     status: "active", progress: 45,
   }), {});
+});
+
+test("new projects receive their internal compatibility category from the server", () => {
+  const candidate = projectCreateCandidate({ name: "New project", categoryId: "client-value" }, categoryId);
+  assert.equal(candidate.categoryId, categoryId);
+  assert.equal(candidate.type, "other");
+  assert.equal(candidate.status, "active");
+  assert.equal(candidate.progress, 0);
 });
 
 test("project validation rejects invalid enums, progress, and date order", () => {

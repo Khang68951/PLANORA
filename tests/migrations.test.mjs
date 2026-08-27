@@ -37,3 +37,12 @@ test("Gemini provider migration expands the stored provider constraint", async (
   assert.match(migration, /DROP CONSTRAINT IF EXISTS planner_settings_ai_provider_check/);
   assert.match(migration, /IN \('openrouter', 'deepseek', 'gemini'\)/);
 });
+
+test("AI run migration groups commands and adds query-backed active item indexes", async () => {
+  const sql = await readFile(new URL("../database/migrations/006_ai_runs_and_query_indexes.sql", import.meta.url), "utf8");
+  assert.match(sql, /CREATE TABLE IF NOT EXISTS project_ai_runs/i);
+  assert.match(sql, /ADD COLUMN IF NOT EXISTS run_id UUID/i);
+  assert.match(sql, /project_ai_runs_project_page_idx/i);
+  assert.match(sql, /planner_items_active_schedule_idx/i);
+  assert.match(sql, /WHERE deleted_at IS NULL/i);
+});

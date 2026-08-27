@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -16,18 +16,23 @@ import {
   Menu,
   Pencil,
   Plus,
-  Search,
+  RotateCcw,
   Settings as SettingsIcon,
   Sparkles,
+  TriangleAlert,
   Trash2,
   Users,
   X,
 } from "lucide-react";
 import CategoryPanel from "./CategoryPanel";
 import ProjectWorkspace, { UnsavedDocumentDialog } from "./ProjectWorkspace";
+import TasksView from "./planner/TasksView";
+import { useItemMutations } from "@/hooks/useItemMutations";
+import { usePlannerData } from "@/hooks/usePlannerData";
 import { descendantsOf, visibleCategoryTree } from "@/lib/categories";
-import { calendarDays, filterItemsByProjects, NO_PROJECT_FILTER, shiftCalendarCursor, startOfDay } from "@/lib/calendar";
+import { calendarDays, filterItemsByCategories, filterItemsByProjects, NO_PROJECT_FILTER, shiftCalendarCursor, startOfDay } from "@/lib/calendar";
 import { DEFAULT_APP_PREFERENCES, normalizeAppPreferences } from "@/lib/preferences";
+import { groupTrashEntries, permanentDeleteWarning } from "@/lib/trash";
 
 const PREFERENCES_KEY = "planora-app-preferences";
 
@@ -51,7 +56,7 @@ const sameDay = (a, b) => startOfDay(a).getTime() === startOfDay(b).getTime();
 const scheduleStart = (item) => new Date(item.kind === "task" ? item.startAt : item.dueAt);
 const scheduleEnd = (item) => new Date(item.kind === "task" ? item.endAt : item.dueAt);
 const isPast = (item) => item.status !== "completed" && scheduleEnd(item) < new Date();
-const colorFor = (item) => item.categoryColor || "#5e6c70";
+const colorFor = (item) => item.projectId ? "#60758f" : item.categoryColor || "#5e6c70";
 const dateKey = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 const occursOnDay = (item, day) => scheduleStart(item) < new Date(day.getFullYear(), day.getMonth(), day.getDate() + 1) && scheduleEnd(item) >= startOfDay(day);
 
@@ -108,7 +113,7 @@ function CategoryFilter({ categories, selected, onChange, viewLabel, collapsible
     <fieldset className="category-filter-panel">
       <legend className="sr-only">Filter {viewLabel} by category</legend>
       <div className="category-filter-heading">
-        <div><strong>Categories shown in {viewLabel}</strong><span>{selectedIds.size} of {allIds.length} selected</span></div>
+        <div><strong>Standalone categories in {viewLabel}</strong><span>{selectedIds.size} of {allIds.length} selected</span></div>
         <div><button type="button" onClick={() => onChange(null)}>Show all</button><button type="button" onClick={() => onChange([])}>Hide all</button></div>
       </div>
       {ordered.length ? <div className="category-checkboxes">
@@ -148,7 +153,7 @@ function ProjectFilter({ projects, selected, onChange }) {
       <div className="category-checkboxes">
         <label className="category-check all-categories"><input type="checkbox" checked={allSelected} onChange={() => onChange(allSelected ? [] : null)} /><span className="category-check-box"><Check size={11} /></span><strong>All projects</strong></label>
         <label className="category-check"><input type="checkbox" checked={selectedIds.has(NO_PROJECT_FILTER)} onChange={() => toggle(NO_PROJECT_FILTER)} /><span className="category-check-box"><Check size={11} /></span><span className="project-filter-swatch" /><span>No project</span></label>
-        {projects.map((project) => <label className="category-check" key={project.id}><input type="checkbox" checked={selectedIds.has(project.id)} onChange={() => toggle(project.id)} /><span className="category-check-box"><Check size={11} /></span><span className="category-swatch" style={{ background: project.categoryColor }} /><span>{project.name}</span></label>)}
+        {projects.map((project) => <label className="category-check" key={project.id}><input type="checkbox" checked={selectedIds.has(project.id)} onChange={() => toggle(project.id)} /><span className="category-check-box"><Check size={11} /></span><span className="project-filter-marker" /><span>{project.name}</span></label>)}
       </div>
     </fieldset>
   );
@@ -176,7 +181,7 @@ function ItemRow({ item, onToggle, onDelete, onEdit, compact = false, showPic = 
         <div className="item-meta">
           <span className={overdue ? "overdue" : ""}><Clock3 size={13} /> {relativeDue(item)}</span>
           <span>{item.kind === "task" ? `${scheduleStart(item).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}–${scheduleEnd(item).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}` : scheduleEnd(item).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}</span>
-          <span>{item.categoryName}</span>
+          {!item.projectId ? <span>{item.categoryName}</span> : null}
           {item.projectTitle ? <span>Project: {item.projectTitle}</span> : null}
           {showPic && item.assignees?.length ? <span className="item-pic"><Users size={13} /><strong>PIC:</strong> {item.assignees.map((member) => member.name).join(", ")}</span> : null}
         </div>
@@ -186,7 +191,7 @@ function ItemRow({ item, onToggle, onDelete, onEdit, compact = false, showPic = 
   );
 }
 
-function Dashboard({ items, categories, categoryFilter, onCategoryFilter, onNavigate, onToggle, onDelete, onEdit, onAdd }) {
+function Dashboard({ items, onNavigate, onToggle, onDelete, onEdit, onAdd }) {
   const active = items.filter((item) => item.status !== "completed");
   const overdue = active.filter(isPast);
   const today = active.filter((item) => occursOnDay(item, new Date()));
@@ -206,8 +211,6 @@ function Dashboard({ items, categories, categoryFilter, onCategoryFilter, onNavi
         </div>
         <button className="primary-button" type="button" onClick={() => onAdd()}><Plus size={18} /> Add item</button>
       </section>
-
-      <CategoryFilter categories={categories} selected={categoryFilter} onChange={onCategoryFilter} viewLabel="Dashboard" />
 
       <section className="stat-grid" aria-label="Plan summary">
         <button className="stat-card today-card" onClick={() => onNavigate("items")}>
@@ -289,21 +292,54 @@ function CalendarView({ items, categories, projects, categoryFilter, onCategoryF
                 const muted = mode === "month" && day.getMonth() !== cursor.getMonth();
                 const limit = mode === "week" ? 8 : 3;
                 return (
-                  <button key={dateKey(day)} className={`day-cell ${muted ? "muted" : ""} ${sameDay(day, new Date()) ? "today" : ""}`} type="button" onClick={() => onAdd(day)}>
+                  <div
+                    key={dateKey(day)}
+                    className={`day-cell ${muted ? "muted" : ""} ${sameDay(day, new Date()) ? "today" : ""}`}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Add an item on ${day.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}`}
+                    onClick={() => onAdd(day)}
+                    onKeyDown={(event) => {
+                      if (event.target !== event.currentTarget || (event.key !== "Enter" && event.key !== " ")) return;
+                      event.preventDefault();
+                      onAdd(day);
+                    }}
+                  >
                     <span className="day-number">{day.getDate()}</span>
                     <span className="day-items">
-                      {itemsForDay.slice(0, limit).map((item) => <span className={`calendar-item ${item.status === "completed" ? "is-complete" : ""}`} key={item.id} style={{ "--item-color": colorFor(item) }}>{item.title}</span>)}
+                      {itemsForDay.slice(0, limit).map((item) => (
+                        <button
+                          className={`calendar-item ${item.status === "completed" ? "is-complete" : ""}`}
+                          type="button"
+                          key={item.id}
+                          style={{ "--item-color": colorFor(item) }}
+                          title={`Open ${item.kind}: ${item.title}`}
+                          aria-label={`Open ${item.kind} ${item.title}`}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            onEdit(item);
+                          }}
+                        >
+                          {item.title}
+                        </button>
+                      ))}
                       {itemsForDay.length > limit ? <span className="more-items">+{itemsForDay.length - limit} more</span> : null}
                     </span>
-                  </button>
+                  </div>
                 );
               })}
             </div>
           </div>}
         </div>
         <aside className="calendar-side-column" aria-label="Calendar controls and upcoming items">
-          <div className="calendar-category-filter"><CategoryFilter categories={categories} selected={categoryFilter} onChange={onCategoryFilter} viewLabel="Calendar" collapsible /></div>
-          <div className="calendar-project-filter"><ProjectFilter projects={projects} selected={projectFilter} onChange={onProjectFilter} /></div>
+          <details className="calendar-filter-disclosure" open>
+            <summary>Categories <span>Filter calendar</span></summary>
+            <div className="calendar-category-filter"><CategoryFilter categories={categories} selected={categoryFilter} onChange={onCategoryFilter} viewLabel="Calendar" collapsible /></div>
+          </details>
+          <details className="calendar-filter-disclosure">
+            <summary>Projects <span>Filter calendar</span></summary>
+            <div className="calendar-project-filter"><ProjectFilter projects={projects} selected={projectFilter} onChange={onProjectFilter} /></div>
+          </details>
           <section className="panel calendar-aside">
             <div className="panel-heading"><div><p className="eyebrow">Next up</p><h2>Coming soon</h2></div></div>
             <div className="mini-list">
@@ -311,34 +347,6 @@ function CalendarView({ items, categories, projects, categoryFilter, onCategoryF
             </div>
           </section>
         </aside>
-      </section>
-    </div>
-  );
-}
-
-function ItemsView({ items, categories, categoryFilter, onCategoryFilter, onAdd, onToggle, onDelete, onEdit }) {
-  const [filter, setFilter] = useState("all");
-  const [query, setQuery] = useState("");
-  const visible = items.filter((item) => {
-    const matchesFilter = filter === "all" || filter === "overdue" && isPast(item) || item.kind === filter || item.status === filter;
-    return matchesFilter && `${item.title} ${item.description || ""} ${item.categoryName} ${item.projectTitle || ""}`.toLowerCase().includes(query.toLowerCase());
-  });
-
-  return (
-    <div className="view-stack">
-      <section className="page-heading">
-        <div><p className="eyebrow">Everything in one place</p><h1>Tasks & deadlines</h1><p className="lead">Stay clear on what to do and when it matters.</p></div>
-        <button className="primary-button" type="button" onClick={() => onAdd()}><Plus size={18} /> Add item</button>
-      </section>
-      <CategoryFilter categories={categories} selected={categoryFilter} onChange={onCategoryFilter} viewLabel="Tasks & deadlines" />
-      <section className="panel list-panel">
-        <div className="list-tools">
-          <div className="filter-tabs" role="group" aria-label="Filter items">
-            {["all", "task", "deadline", "overdue", "completed"].map((value) => <button key={value} className={filter === value ? "active" : ""} type="button" onClick={() => setFilter(value)}>{value === "all" ? "All" : `${value[0].toUpperCase()}${value.slice(1)}`}</button>)}
-          </div>
-          <label className="search-box"><Search size={17} /><span className="sr-only">Search items</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search" /></label>
-        </div>
-        {visible.length ? <div className="item-list">{visible.map((item) => <ItemRow showPic key={item.id} item={item} onToggle={onToggle} onDelete={onDelete} onEdit={onEdit} />)}</div> : <EmptyState title="No items found" message="Try another filter or add something new." />}
       </section>
     </div>
   );
@@ -392,7 +400,7 @@ function ItemModal({ initialDate, item, onClose, onSave, saving, categories, pro
       : { dueAt: firstDate.toISOString() };
     if (form.kind === "task" && new Date(temporal.endAt) <= new Date(temporal.startAt)) return setError("Task end must be after its start.");
     try {
-      await onSave({ title: form.title, description: form.description || null, kind: form.kind, ...temporal, categoryId: form.categoryId, projectId: form.projectId || null, priority: form.priority, status: form.status });
+      await onSave({ title: form.title, description: form.description || null, kind: form.kind, ...temporal, categoryId: selectedProject?.categoryId || form.categoryId, projectId: form.projectId || null, priority: form.priority, status: form.status });
     } catch (saveError) {
       setError(saveError.message);
     }
@@ -419,11 +427,11 @@ function ItemModal({ initialDate, item, onClose, onSave, saving, categories, pro
           </div>}
           <div className="form-grid">
             <label className="field"><span>Project <small>optional</small></span><select value={form.projectId} onChange={(event) => setForm({ ...form, projectId: event.target.value })}><option value="">No project</option>{projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}</select></label>
-            <label className="field"><span>Category</span><select required disabled={Boolean(selectedProject)} value={selectedProject?.categoryId || form.categoryId} onChange={(event) => setForm({ ...form, categoryId: event.target.value })}>{categories.filter((category) => !category.is_hidden || category.id === form.categoryId).map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select>{selectedProject ? <small>Inherited from {selectedProject.name}</small> : null}</label>
+            {!selectedProject ? <label className="field"><span>Category</span><select required value={form.categoryId} onChange={(event) => setForm({ ...form, categoryId: event.target.value })}>{categories.filter((category) => !category.is_hidden || category.id === form.categoryId).map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label> : null}
             <label className="field"><span>Priority</span><select value={form.priority} onChange={(event) => setForm({ ...form, priority: event.target.value })}><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></label>
             <label className="field"><span>Status</span><select value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value })}><option value="pending">Pending</option><option value="completed">Completed</option></select></label>
           </div>
-          <div className="suggestion-row"><button className="secondary-button" type="button" disabled={suggesting} onClick={suggestCategory}><Sparkles size={15} /> {suggesting ? "Suggesting…" : "Suggest category"}</button>{suggestions.map((category) => <button type="button" className="suggestion-chip" key={category.id} onClick={() => setForm({ ...form, projectId: "", categoryId: category.id })}><span style={{ background: category.color }} />{category.name}</button>)}</div>
+          {!selectedProject ? <div className="suggestion-row"><button className="secondary-button" type="button" disabled={suggesting} onClick={suggestCategory}><Sparkles size={15} /> {suggesting ? "Suggesting…" : "Suggest category"}</button>{suggestions.map((category) => <button type="button" className="suggestion-chip" key={category.id} onClick={() => setForm({ ...form, categoryId: category.id })}><span style={{ background: category.color }} />{category.name}</button>)}</div> : null}
           {error ? <p className="form-error">{error}</p> : null}
           <div className="modal-actions"><button className="secondary-button" type="button" onClick={onClose}>Cancel</button><button className="primary-button" disabled={saving} type="submit">{saving ? "Saving…" : item ? "Save changes" : "Add to Planora"}</button></div>
         </form>
@@ -432,7 +440,7 @@ function ItemModal({ initialDate, item, onClose, onSave, saving, categories, pro
   );
 }
 
-function AppSettingsModal({ preferences, onClose, onSave }) {
+function AppSettingsModal({ preferences, categories, categorySettings, onCategoriesChanged, onClose, onSave }) {
   const [draft, setDraft] = useState(preferences);
   const [ai, setAi] = useState(null);
   const [providers, setProviders] = useState(null);
@@ -476,6 +484,10 @@ function AppSettingsModal({ preferences, onClose, onSave }) {
           <label htmlFor="reduced-motion"><strong>Reduce motion</strong><span>Turns off decorative movement and transitions.</span></label>
           <label className="settings-switch"><input id="reduced-motion" type="checkbox" checked={draft.reducedMotion} onChange={(event) => setDraft({ ...draft, reducedMotion: event.target.checked })} /><span /></label>
         </div>
+        <div className="settings-section settings-row">
+          <div><strong>Categories</strong><span>Create, recolor, nest, or safely remove classifications.</span></div>
+          <CategoryPanel categories={categories} settings={categorySettings} onChanged={onCategoriesChanged} />
+        </div>
         <div className="settings-section">
           <div><strong>Project AI provider</strong><span>API keys stay on the server and are never sent to this browser.</span></div>
           {ai && providers ? <div className="ai-settings-grid"><label className="field"><span>Configured model</span><select value={`${ai.provider}/${ai.model}`} onChange={(event) => { const selected = aiModels[Number(event.target.selectedOptions[0].dataset.index)]; if (selected) setAi({ provider: selected.provider, model: selected.model }); }}>{aiModels.map((entry, index) => <option key={`${entry.provider}/${entry.model}`} value={`${entry.provider}/${entry.model}`} data-index={index} disabled={!entry.keyConfigured}>{entry.provider} · {entry.model}{entry.keyConfigured ? "" : " (API key missing)"}</option>)}</select></label><p className={providers[ai.provider]?.keyConfigured ? "ai-key-ready" : "ai-key-missing"}>{providers[ai.provider]?.keyConfigured ? "Server API key configured" : "Server API key missing — add it to .env.local"}</p></div> : <p className="muted-copy">Loading AI settings…</p>}
@@ -488,72 +500,136 @@ function AppSettingsModal({ preferences, onClose, onSave }) {
   );
 }
 
+function TrashModal({ onClose, onRestored }) {
+  const [trash, setTrash] = useState({ categories: [], projects: [], items: [] });
+  const [loading, setLoading] = useState(true);
+  const [restoring, setRestoring] = useState("");
+  const [deleting, setDeleting] = useState("");
+  const [pendingDelete, setPendingDelete] = useState(null);
+  const [deleteError, setDeleteError] = useState("");
+  const [error, setError] = useState("");
+  const loadTrash = useCallback(async () => {
+    const response = await fetch("/api/trash", { cache: "no-store" });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Trash could not be loaded.");
+    setTrash(data);
+  }, []);
+
+  useEffect(() => {
+    // Loading the recoverable Trash inventory is the effect's purpose.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadTrash().catch((loadError) => setError(loadError.message)).finally(() => setLoading(false));
+  }, [loadTrash]);
+
+  const restore = async (batch) => {
+    setRestoring(batch); setError("");
+    try {
+      const response = await fetch(`/api/trash/${batch}/restore`, { method: "POST" });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "This Trash group could not be restored.");
+      await Promise.all([loadTrash(), onRestored()]);
+    } catch (restoreError) {
+      setError(restoreError.message);
+    } finally {
+      setRestoring("");
+    }
+  };
+  const permanentlyDelete = async () => {
+    if (!pendingDelete) return;
+    setDeleting(pendingDelete.id); setDeleteError(""); setError("");
+    try {
+      const response = await fetch(`/api/trash/${pendingDelete.id}`, { method: "DELETE" });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "This Trash group could not be permanently deleted.");
+      setPendingDelete(null);
+      await Promise.all([loadTrash(), onRestored()]);
+      if (data.warning) setError(data.warning);
+    } catch (deleteFailure) {
+      setDeleteError(deleteFailure.message);
+    } finally {
+      setDeleting("");
+    }
+  };
+  const groups = groupTrashEntries(trash);
+  const busy = Boolean(restoring || deleting);
+
+  return (
+    <>
+      <div className="modal-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && !busy && onClose()}>
+        <section className="modal trash-modal" id="trash-dialog" role="dialog" aria-modal="true" aria-labelledby="trash-title">
+          <div className="modal-heading"><div><p className="eyebrow">Recover or remove deleted work</p><h2 id="trash-title">Trash</h2><p>Restore a group, or permanently delete it when you are certain it is no longer needed.</p></div><button type="button" disabled={busy} onClick={onClose} aria-label="Close Trash"><X size={19} /></button></div>
+          {loading ? <div className="trash-loading"><span /><p>Checking Trash…</p></div> : groups.length ? <div className="trash-list">{groups.map((group) => (
+            <article className="trash-entry" key={group.id}>
+              <span className="trash-entry-icon"><Trash2 size={17} /></span>
+              <div><strong>{group.label}</strong><small>{group.summary}</small><time dateTime={group.deletedAt}>Deleted {new Date(group.deletedAt).toLocaleString()}</time></div>
+              <div className="trash-entry-actions">
+                <button className="secondary-button" type="button" disabled={busy} onClick={() => restore(group.id)}><RotateCcw size={14} /> {restoring === group.id ? "Restoring…" : "Restore"}</button>
+                <button className="danger-button" type="button" disabled={busy} onClick={() => { setDeleteError(""); setPendingDelete(group); }}><Trash2 size={14} /> Delete forever</button>
+              </div>
+            </article>
+          ))}</div> : <div className="trash-empty"><Trash2 size={28} /><h3>Trash is empty</h3><p>Deleted tasks, deadlines, projects, and categories will appear here.</p></div>}
+          {error ? <p className="form-error" role="alert">{error}</p> : null}
+        </section>
+      </div>
+      {pendingDelete ? <div className="modal-backdrop trash-confirm-backdrop" role="presentation">
+        <section className="modal trash-confirmation" role="alertdialog" aria-modal="true" aria-labelledby="permanent-delete-title" aria-describedby="permanent-delete-description">
+          <div className="unsaved-warning-icon"><TriangleAlert size={23} /></div>
+          <p className="eyebrow">Permanent deletion</p>
+          <h2 id="permanent-delete-title">Delete “{pendingDelete.label}” forever?</h2>
+          <p id="permanent-delete-description">{permanentDeleteWarning(pendingDelete)}</p>
+          {deleteError ? <p className="form-error" role="alert">{deleteError}</p> : null}
+          <div className="modal-actions">
+            <button className="secondary-button" type="button" disabled={Boolean(deleting)} onClick={() => { setPendingDelete(null); setDeleteError(""); }}>Cancel</button>
+            <button className="danger-button" type="button" disabled={Boolean(deleting)} onClick={permanentlyDelete}>{deleting ? "Deleting forever…" : "Delete forever"}</button>
+          </div>
+        </section>
+      </div> : null}
+    </>
+  );
+}
+
 export default function PlannerApp() {
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [items, setItems] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [projects, setProjects] = useState([]);
-  const [settings, setSettings] = useState(null);
-  const [categoryFilters, setCategoryFilters] = useState({ dashboard: null, calendar: null, items: null });
+  const [calendarCategoryFilter, setCalendarCategoryFilter] = useState(null);
   const [calendarProjectFilter, setCalendarProjectFilter] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [dbError, setDbError] = useState("");
   const [modalDate, setModalDate] = useState(null);
   const [editingItem, setEditingItem] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [saving, setSaving] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [cursor, setCursor] = useState(new Date());
   const [preferences, setPreferences] = useState(storedPreferences);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [trashOpen, setTrashOpen] = useState(false);
   const [projectDocumentDirty, setProjectDocumentDirty] = useState(false);
   const [pendingMainTab, setPendingMainTab] = useState(null);
+  const {
+    items,
+    setItems,
+    categories,
+    projects,
+    categorySettings: settings,
+    loading,
+    error: dbError,
+    setError: setDbError,
+    refresh: refreshWorkspace,
+  } = usePlannerData();
+  const { saving, saveItem: mutateItem, toggleItem: performToggleItem, trashItem } = useItemMutations({ items, setItems, setError: setDbError });
 
   const filterCategories = useMemo(() => {
     const hiddenIds = new Set(categories.filter((category) => category.is_hidden).flatMap((category) => [...descendantsOf(categories, category.id)]));
     return categories.filter((category) => !hiddenIds.has(category.id));
   }, [categories]);
   const sortedItems = useMemo(() => [...items].sort((a, b) => scheduleStart(a) - scheduleStart(b)), [items]);
-  const itemsForTab = (tab) => {
-    const allowed = new Set(categoryFilters[tab] === null ? filterCategories.map((category) => category.id) : categoryFilters[tab]);
-    return sortedItems.filter((item) => allowed.has(item.categoryId));
-  };
-  const updateCategoryFilter = (tab, selected) => setCategoryFilters((current) => ({ ...current, [tab]: selected }));
-  const calendarItems = filterItemsByProjects(itemsForTab("calendar"), calendarProjectFilter);
-
-  const loadWorkspace = async () => {
-    const [itemsResponse, categoriesResponse, projectsResponse] = await Promise.all([
-      fetch("/api/items", { cache: "no-store" }),
-      fetch("/api/categories", { cache: "no-store" }),
-      fetch("/api/projects", { cache: "no-store" }),
-    ]);
-    const [itemsData, categoriesData, projectsData] = await Promise.all([itemsResponse.json(), categoriesResponse.json(), projectsResponse.json()]);
-    if (!itemsResponse.ok) throw new Error(itemsData.error);
-    if (!categoriesResponse.ok) throw new Error(categoriesData.error);
-    if (!projectsResponse.ok) throw new Error(projectsData.error);
-    setItems(itemsData.items);
-    setCategories(categoriesData.categories);
-    setSettings(categoriesData.settings);
-    setProjects(projectsData.projects);
-  };
-
-  useEffect(() => {
-    // Loading the external workspace is the effect's purpose.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadWorkspace()
-      .catch((error) => setDbError(error.message))
-      .finally(() => setLoading(false));
-  }, []);
+  const calendarItemsByCategory = useMemo(
+    () => filterItemsByCategories(sortedItems, calendarCategoryFilter, filterCategories.map((category) => category.id)),
+    [calendarCategoryFilter, filterCategories, sortedItems],
+  );
+  const calendarItems = filterItemsByProjects(calendarItemsByCategory, calendarProjectFilter);
 
   useEffect(() => {
     document.documentElement.dataset.appTheme = preferences.theme;
     document.documentElement.classList.toggle("reduce-motion", preferences.reducedMotion);
   }, [preferences]);
-
-  const refreshWorkspace = async () => {
-    try { await loadWorkspace(); setDbError(""); }
-    catch (error) { setDbError(error.message); }
-  };
 
   const navigate = (tab) => { if (tab === activeTab) return setMenuOpen(false); if (activeTab === "projects" && projectDocumentDirty) { setPendingMainTab(tab); setMenuOpen(false); return; } setActiveTab(tab); setMenuOpen(false); };
   const confirmMainNavigation = () => { const tab = pendingMainTab; setPendingMainTab(null); setProjectDocumentDirty(false); if (tab) setActiveTab(tab); };
@@ -567,37 +643,18 @@ export default function PlannerApp() {
   };
 
   const saveItem = async (form) => {
-    setSaving(true);
-    try {
-      const response = await fetch(editingItem ? `/api/items/${editingItem.id}` : "/api/items", { method: editingItem ? "PATCH" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error);
-      setItems((current) => editingItem ? current.map((item) => item.id === data.item.id ? data.item : item) : [...current, data.item]);
-      setModalOpen(false);
-      setEditingItem(null);
-      setDbError("");
-    } catch (error) {
-      setDbError(error.message);
-      throw error;
-    } finally {
-      setSaving(false);
-    }
+    await mutateItem(editingItem, form);
+    setModalOpen(false);
+    setEditingItem(null);
   };
 
   const toggleItem = async (item) => {
-    const status = item.status === "completed" ? "pending" : "completed";
-    const previous = items;
-    setItems((current) => current.map((candidate) => candidate.id === item.id ? { ...candidate, status } : candidate));
-    const response = await fetch(`/api/items/${item.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status }) });
-    if (!response.ok) setItems(previous);
+    await performToggleItem(item);
   };
 
   const deleteItem = async (item) => {
     if (!window.confirm(`Move “${item.title}” to Trash?`)) return;
-    const previous = items;
-    setItems((current) => current.filter((candidate) => candidate.id !== item.id));
-    const response = await fetch(`/api/items/${item.id}`, { method: "DELETE" });
-    if (!response.ok) setItems(previous);
+    await trashItem(item).catch(() => {});
   };
 
   return (
@@ -608,7 +665,6 @@ export default function PlannerApp() {
           <p className="nav-label">Workspace</p>
           {tabs.map(({ id, label, icon: Icon }) => <button key={id} className={activeTab === id ? "active" : ""} type="button" onClick={() => navigate(id)}><Icon size={19} /><span>{label}</span></button>)}
         </nav>
-        <CategoryPanel categories={categories} settings={settings} onChanged={refreshWorkspace} />
         <div className="sidebar-foot"><span className="avatar">Y</span><div><strong>Your workspace</strong><small>Local Planora</small></div></div>
       </aside>
       {menuOpen ? <button className="sidebar-scrim" aria-label="Close menu" type="button" onClick={() => setMenuOpen(false)} /> : null}
@@ -619,20 +675,22 @@ export default function PlannerApp() {
           <div className="today-label"><span className="live-dot" />{new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</div>
           <div className="topbar-actions">
             <button className="quick-add" type="button" onClick={() => openAdd()}><Plus size={17} /><span>Quick add</span></button>
+            <button className="trash-button" type="button" onClick={() => setTrashOpen(true)} aria-label="Open Trash" aria-haspopup="dialog" aria-controls="trash-dialog" title="Trash"><Trash2 size={17} /><span>Trash</span></button>
             <button className="settings-button" type="button" onClick={() => setSettingsOpen(true)} aria-label="Open settings" aria-haspopup="dialog" aria-controls="app-settings-dialog" title="Settings"><SettingsIcon size={18} /></button>
           </div>
         </header>
         <div className="page-content">
           {dbError ? <div className="notice" role="alert"><CircleAlert size={18} /><div><strong>Database setup needed</strong><span>{dbError}</span></div></div> : null}
           {loading ? <div className="loading"><span /><p>Gathering your plans…</p></div> : null}
-          {!loading && activeTab === "dashboard" ? <Dashboard items={itemsForTab("dashboard")} categories={filterCategories} categoryFilter={categoryFilters.dashboard} onCategoryFilter={(selected) => updateCategoryFilter("dashboard", selected)} onNavigate={navigate} onToggle={toggleItem} onDelete={deleteItem} onEdit={openEdit} onAdd={openAdd} /> : null}
-          {!loading && activeTab === "calendar" ? <CalendarView key={preferences.defaultCalendarView} defaultMode={preferences.defaultCalendarView} items={calendarItems} categories={filterCategories} projects={projects} categoryFilter={categoryFilters.calendar} onCategoryFilter={(selected) => updateCategoryFilter("calendar", selected)} projectFilter={calendarProjectFilter} onProjectFilter={setCalendarProjectFilter} cursor={cursor} setCursor={setCursor} onToggle={toggleItem} onDelete={deleteItem} onEdit={openEdit} onAdd={openAdd} /> : null}
-          {!loading && activeTab === "items" ? <ItemsView items={itemsForTab("items")} categories={filterCategories} categoryFilter={categoryFilters.items} onCategoryFilter={(selected) => updateCategoryFilter("items", selected)} onToggle={toggleItem} onDelete={deleteItem} onEdit={openEdit} onAdd={openAdd} /> : null}
-          {!loading && activeTab === "projects" ? <ProjectWorkspace categories={filterCategories} projects={projects} onProjectsChanged={refreshWorkspace} onWorkspaceChanged={refreshWorkspace} onDocumentDirtyChange={setProjectDocumentDirty} /> : null}
+          {!loading && activeTab === "dashboard" ? <Dashboard items={sortedItems} onNavigate={navigate} onToggle={toggleItem} onDelete={deleteItem} onEdit={openEdit} onAdd={openAdd} /> : null}
+          {!loading && activeTab === "calendar" ? <CalendarView key={preferences.defaultCalendarView} defaultMode={preferences.defaultCalendarView} items={calendarItems} categories={filterCategories} projects={projects} categoryFilter={calendarCategoryFilter} onCategoryFilter={setCalendarCategoryFilter} projectFilter={calendarProjectFilter} onProjectFilter={setCalendarProjectFilter} cursor={cursor} setCursor={setCursor} onToggle={toggleItem} onDelete={deleteItem} onEdit={openEdit} onAdd={openAdd} /> : null}
+          {!loading && activeTab === "items" ? <TasksView items={sortedItems} categories={filterCategories} projects={projects} onToggle={toggleItem} onDelete={deleteItem} onEdit={openEdit} onAdd={openAdd} /> : null}
+          {!loading && activeTab === "projects" ? <ProjectWorkspace projects={projects} onProjectsChanged={refreshWorkspace} onWorkspaceChanged={refreshWorkspace} onDocumentDirtyChange={setProjectDocumentDirty} /> : null}
         </div>
       </main>
       {modalOpen ? <ItemModal initialDate={modalDate} item={editingItem} onClose={() => { setModalOpen(false); setEditingItem(null); }} onSave={saveItem} saving={saving} categories={categories} projects={projects} settings={settings} /> : null}
-      {settingsOpen ? <AppSettingsModal preferences={preferences} onClose={() => setSettingsOpen(false)} onSave={savePreferences} /> : null}
+      {trashOpen ? <TrashModal onClose={() => setTrashOpen(false)} onRestored={refreshWorkspace} /> : null}
+      {settingsOpen ? <AppSettingsModal preferences={preferences} categories={categories} categorySettings={settings} onCategoriesChanged={refreshWorkspace} onClose={() => setSettingsOpen(false)} onSave={savePreferences} /> : null}
       {pendingMainTab ? <UnsavedDocumentDialog onCancel={() => setPendingMainTab(null)} onDiscard={confirmMainNavigation} /> : null}
     </div>
   );

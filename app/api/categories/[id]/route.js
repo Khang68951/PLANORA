@@ -2,6 +2,8 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { descendantsOf, isUuid, validateCategory } from "@/lib/categories";
 import { getPool, query } from "@/lib/db";
+import { reassignCategoryAndTrash } from "@/lib/category-deletion";
+import { errorResponse, readOptionalJson, RequestValidationError } from "@/lib/http";
 
 async function activeCategories() {
   return (await query("SELECT id, parent_id FROM categories WHERE deleted_at IS NULL")).rows;
@@ -68,10 +70,7 @@ async function impactFor(id) {
        (SELECT COUNT(*) FROM tree)::int AS categories,
        (SELECT COUNT(*) FROM projects WHERE category_id IN (SELECT id FROM tree) AND deleted_at IS NULL)::int AS projects,
        (SELECT COUNT(*) FROM planner_items
-          WHERE deleted_at IS NULL AND (
-            category_id IN (SELECT id FROM tree) OR
-            project_id IN (SELECT id FROM projects WHERE category_id IN (SELECT id FROM tree) AND deleted_at IS NULL)
-          ))::int AS items,
+          WHERE deleted_at IS NULL AND project_id IS NULL AND category_id IN (SELECT id FROM tree))::int AS items,
        EXISTS(SELECT 1 FROM planner_settings WHERE default_category_id IN (SELECT id FROM tree)) AS contains_default`,
     [id],
   )).rows[0];
@@ -81,38 +80,27 @@ export async function DELETE(request, context) {
   const { id } = await context.params;
   if (!isUuid(id)) return NextResponse.json({ error: "Invalid category." }, { status: 400 });
   try {
-    const body = await request.json().catch(() => ({}));
+    const body = await readOptionalJson(request);
     if (body.replacement_category_id && !isUuid(body.replacement_category_id)) return NextResponse.json({ error: "Choose a valid replacement category." }, { status: 400 });
     const impact = await impactFor(id);
     if (!impact.categories) return NextResponse.json({ error: "Category not found." }, { status: 404 });
     if (!body.confirm) return NextResponse.json({ impact }, { status: 409 });
-    if (impact.contains_default && !body.replacement_category_id) return NextResponse.json({ error: "Choose a new default category before moving this folder to Trash.", impact }, { status: 400 });
-
     const tree = await activeCategories();
     const ids = [...descendantsOf(tree, id)];
-    if (body.replacement_category_id && ids.includes(body.replacement_category_id)) return NextResponse.json({ error: "The replacement default must be outside the deleted folder." }, { status: 400 });
-    if (body.replacement_category_id) {
-      const replacement = await query("SELECT 1 FROM categories WHERE id = $1 AND deleted_at IS NULL", [body.replacement_category_id]);
-      if (!replacement.rowCount) return NextResponse.json({ error: "Choose an active replacement category." }, { status: 400 });
-    }
+    const configuredDefault = (await query("SELECT default_category_id FROM planner_settings WHERE id = 1")).rows[0]?.default_category_id;
+    const replacementCategoryId = body.replacement_category_id || (ids.includes(configuredDefault) ? null : configuredDefault);
+    if (!replacementCategoryId) return NextResponse.json({ error: "Choose a replacement category so existing work stays organized.", impact }, { status: 400 });
+    if (ids.includes(replacementCategoryId)) return NextResponse.json({ error: "The replacement category must be outside the folder being deleted." }, { status: 400 });
+    const replacement = await query("SELECT 1 FROM categories WHERE id = $1 AND deleted_at IS NULL", [replacementCategoryId]);
+    if (!replacement.rowCount) return NextResponse.json({ error: "Choose an active replacement category." }, { status: 400 });
     const batch = randomUUID();
     const client = await getPool().connect();
     try {
-      await client.query("BEGIN");
-      if (impact.contains_default) await client.query("UPDATE planner_settings SET default_category_id = $1, updated_at = NOW() WHERE id = 1", [body.replacement_category_id]);
-      await client.query(`UPDATE planner_items SET deleted_at = NOW(), trash_batch_id = $1
-        WHERE deleted_at IS NULL AND (category_id = ANY($2::uuid[]) OR project_id IN (
-          SELECT id FROM projects WHERE category_id = ANY($2::uuid[]) AND deleted_at IS NULL
-        ))`, [batch, ids]);
-      await client.query("UPDATE projects SET deleted_at = NOW(), trash_batch_id = $1 WHERE category_id = ANY($2::uuid[]) AND deleted_at IS NULL", [batch, ids]);
-      await client.query("UPDATE categories SET deleted_at = NOW(), trash_batch_id = $1 WHERE id = ANY($2::uuid[]) AND deleted_at IS NULL", [batch, ids]);
-      await client.query("COMMIT");
-    } catch (error) {
-      await client.query("ROLLBACK");
-      throw error;
+      await reassignCategoryAndTrash({ client, categoryIds: ids, replacementCategoryId, trashBatchId: batch, replaceDefault: impact.contains_default });
     } finally { client.release(); }
-    return NextResponse.json({ trashed: true, impact, batch });
+    return NextResponse.json({ trashed: true, impact, batch, replacement_category_id: replacementCategoryId });
   } catch (error) {
+    if (error instanceof RequestValidationError) return errorResponse(error);
     console.error("DELETE /api/categories/:id", error);
     return NextResponse.json({ error: "The category could not be moved to Trash." }, { status: 500 });
   }

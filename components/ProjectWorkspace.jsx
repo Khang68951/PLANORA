@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Bot,
   Check,
+  CircleAlert,
   File,
   FilePlus2,
   FileText,
@@ -21,6 +22,7 @@ import {
 } from "lucide-react";
 import { buildDocumentDiff } from "@/lib/document-diff";
 import { insertDocumentHtml, removeDocumentHtml } from "@/lib/document-insertion";
+import AIApprovalReview from "./project/AIApprovalReview";
 
 const workspaceTabs = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
@@ -29,10 +31,21 @@ const workspaceTabs = [
   { id: "tasks", label: "Tasks & Deadlines", icon: ListChecks },
   { id: "members", label: "Members", icon: Users },
 ];
+const projectTabResources = {
+  overview: ["members", "items"],
+  documents: ["documents"],
+  files: ["files"],
+  tasks: ["items", "members"],
+  members: ["members"],
+};
+const projectResourceUrl = (projectId, tab) => {
+  const include = [...new Set(["messages", "runs", ...(projectTabResources[tab] || [])])];
+  return `/api/projects/${projectId}?include=${include.join(",")}`;
+};
+const emptyWorkspaceResources = { members: [], documents: [], files: [], items: [], messages: [], tools: [], runs: [], commands: [] };
 const emptyProject = {
   name: "",
   description: "",
-  categoryId: "",
   type: "other",
   startDate: "",
   deadline: "",
@@ -76,13 +89,15 @@ const readChatStream = async (response, onEvent) => {
   }
 };
 
-function ProjectForm({ categories, initial = emptyProject, onSave, onCancel }) {
+function ProjectForm({ initial = emptyProject, onSave, onCancel }) {
   const [form, setForm] = useState({
-    ...emptyProject,
-    ...initial,
+    name: initial.name || "",
+    description: initial.description || "",
+    type: initial.type || "other",
     startDate: initial.startDate || "",
     deadline: initial.deadline || "",
-    categoryId: initial.categoryId || categories[0]?.id || "",
+    status: initial.status || "active",
+    progress: initial.progress ?? 0,
   });
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -125,19 +140,6 @@ function ProjectForm({ categories, initial = emptyProject, onSave, onCancel }) {
         />
       </label>
       <div className="form-grid">
-        <label className="field">
-          <span>Category</span>
-          <select
-            value={form.categoryId}
-            onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
-          >
-            {categories.map((category) => (
-              <option value={category.id} key={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-        </label>
         <label className="field">
           <span>Type</span>
           <select
@@ -212,7 +214,7 @@ function ProjectForm({ categories, initial = emptyProject, onSave, onCancel }) {
   );
 }
 
-function Overview({ data, categories, reload }) {
+function Overview({ data, reload }) {
   const [editing, setEditing] = useState(false);
   const { project, members, items } = data;
   const upcoming = items
@@ -222,7 +224,6 @@ function Overview({ data, categories, reload }) {
     return (
       <section className="project-section panel">
         <ProjectForm
-          categories={categories}
           initial={project}
           onCancel={() => setEditing(false)}
           onSave={async (form) => {
@@ -301,7 +302,7 @@ function Overview({ data, categories, reload }) {
         {upcoming.length ? (
           upcoming.map((item) => (
             <div className="project-item-line" key={item.id}>
-              <span style={{ background: project.categoryColor }} />
+              <span className="project-work-marker" />
               <div>
                 <strong>{item.title}</strong>
                 <small>
@@ -639,15 +640,33 @@ function Documents({
   const [createName, setCreateName] = useState("Untitled document");
   const [createError, setCreateError] = useState("");
   const [creating, setCreating] = useState(false);
-  const reviewDocument = reviewCommand
+  const [loadedDocuments, setLoadedDocuments] = useState(() => new Map(documents.filter((document) => document.contentHtml !== undefined).map((document) => [document.id, document])));
+  const [documentLoading, setDocumentLoading] = useState(false);
+  const [documentError, setDocumentError] = useState("");
+  const reviewDocumentMetadata = reviewCommand
     ? documents.find(
         (document) => document.id === reviewCommand.arguments.documentId,
       )
     : null;
-  const selected =
-    reviewDocument ||
-    documents.find((document) => document.id === selectedId) ||
-    documents[0];
+  const selectedMetadata = reviewDocumentMetadata || documents.find((document) => document.id === selectedId) || documents[0];
+  const selected = selectedMetadata ? loadedDocuments.get(selectedMetadata.id) : null;
+  useEffect(() => {
+    if (!selectedMetadata) return;
+    const loaded = loadedDocuments.get(selectedMetadata.id);
+    if (loaded && new Date(loaded.updatedAt).getTime() === new Date(selectedMetadata.updatedAt).getTime()) return;
+    let cancelled = false;
+    // Fetching the selected document body is the effect's purpose.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDocumentLoading(true);
+    setDocumentError("");
+    api(`/api/projects/${projectId}/documents/${selectedMetadata.id}`, { cache: "no-store" })
+      .then((result) => {
+        if (!cancelled) setLoadedDocuments((current) => new Map(current).set(result.document.id, result.document));
+      })
+      .catch((error) => { if (!cancelled) setDocumentError(error.message); })
+      .finally(() => { if (!cancelled) setDocumentLoading(false); });
+    return () => { cancelled = true; };
+  }, [loadedDocuments, projectId, selectedMetadata]);
   const updateDirty = (value) => onDirtyChange(value);
   const choose = (id) =>
     requestDiscard(() => {
@@ -710,7 +729,7 @@ function Documents({
           </button>
           {documents.map((document) => (
             <button
-              className={document.id === selected?.id ? "active" : ""}
+              className={document.id === selectedMetadata?.id ? "active" : ""}
               key={document.id}
               disabled={Boolean(
                 reviewCommand &&
@@ -729,11 +748,11 @@ function Documents({
           ))}
         </aside>
         <div className="document-editor-shell">
-          {reviewCommand && reviewDocument ? (
+          {documentLoading ? <div className="loading"><span /><p>Loading document…</p></div> : documentError ? <div className="notice" role="alert"><CircleAlert size={18} /><div><strong>Document unavailable</strong><span>{documentError}</span></div></div> : reviewCommand && selected ? (
             <DocumentAIReview
               key={reviewCommand.id}
               projectId={projectId}
-              document={reviewDocument}
+              document={selected}
               command={reviewCommand}
               reload={reload}
               onComplete={completeReview}
@@ -1104,11 +1123,7 @@ function ProjectTasks({ data, reload }) {
               <div className="project-item-details">
                 <strong>{item.title}</strong>
                 <small>
-                  <span className="project-item-category">
-                    <i style={{ background: item.categoryColor || project.categoryColor }} />
-                    {item.categoryName || project.categoryName}
-                  </span>
-                  {" · "}{item.kind} · PIC: {" "}
+                  {item.kind} · PIC: {" "}
                   {item.assignees?.map((member) => member.name).join(", ") ||
                     "None"}
                 </small>
@@ -1144,10 +1159,6 @@ function ProjectTasks({ data, reload }) {
       </section>
       <section className="project-section panel">
         <h2>Add work</h2>
-        <p className="project-work-category">
-          Category: <i style={{ background: project.categoryColor }} />
-          <strong>{project.categoryName}</strong>
-        </p>
         <form onSubmit={add}>
           <label className="field">
             <span>Title</span>
@@ -1237,6 +1248,8 @@ function AIWorkspace({ data, reload, onReviewDocument, reviewingCommandId }) {
   const [commandWorking, setCommandWorking] = useState("");
   const [error, setError] = useState("");
   const [commandUpdates, setCommandUpdates] = useState([]);
+  const [runUpdates, setRunUpdates] = useState([]);
+  const [reviewRun, setReviewRun] = useState(null);
   const [mode, setMode] = useState(project.aiCommandMode || "approve_changes");
   const [pendingMode, setPendingMode] = useState("");
   const [aiConfig, setAiConfig] = useState(null);
@@ -1246,6 +1259,7 @@ function AIWorkspace({ data, reload, onReviewDocument, reviewingCommandId }) {
   const composerRef = useRef(null);
   const commandTimers = useRef(new Set());
   const openedDocumentCommands = useRef(new Set());
+  const requestController = useRef(null);
   const busy = thinking || Boolean(commandWorking);
   const answerStreaming = chatMessages.some((message) => message.streaming);
   const workflowStages = ["route", "context", "provider", "validate", "review"];
@@ -1284,6 +1298,17 @@ function AIWorkspace({ data, reload, onReviewDocument, reviewingCommandId }) {
       ),
     ];
   }, [commandUpdates, data.commands]);
+  const runs = useMemo(() => {
+    const persistedRuns = data.runs || [];
+    return [
+      ...runUpdates,
+      ...persistedRuns.filter((run) => !runUpdates.some((update) => update.id === run.id)),
+    ];
+  }, [data.runs, runUpdates]);
+  const upsertRun = (next) => {
+    setRunUpdates((current) => [next, ...current.filter((run) => run.id !== next.id)].slice(0, 20));
+    setReviewRun((current) => current?.id === next.id ? next : current);
+  };
   useEffect(() => {
     if (chatRef.current)
       chatRef.current.scrollTop = chatRef.current.scrollHeight;
@@ -1296,6 +1321,7 @@ function AIWorkspace({ data, reload, onReviewDocument, reviewingCommandId }) {
     composer.style.overflowY = composer.scrollHeight > 180 ? "auto" : "hidden";
   }, [text]);
   useEffect(() => () => {
+    requestController.current?.abort();
     for (const timer of commandTimers.current) window.clearTimeout(timer);
     commandTimers.current.clear();
   }, []);
@@ -1328,12 +1354,13 @@ function AIWorkspace({ data, reload, onReviewDocument, reviewingCommandId }) {
     ]);
     if (fromComposer) setText("");
     setThinking(true);
+    requestController.current = new AbortController();
     setWorkflow({ stage: "route", label: "Organizing your request", scopes: [] });
     setError("");
     try {
       const response = await fetch(
         `/api/projects/${project.id}/ai/chat`,
-        json("POST", { message: outgoing }),
+        { ...json("POST", { message: outgoing }), signal: requestController.current.signal },
       );
       await readChatStream(response, (event) => {
         if (event.type === "error")
@@ -1392,6 +1419,7 @@ function AIWorkspace({ data, reload, onReviewDocument, reviewingCommandId }) {
             ...(event.messages || []),
           ]);
           for (const command of event.commands || []) finishStreamedCommand(command);
+          if (event.run) upsertRun(event.run);
           changedProjectData = (event.commands || []).some(
             (command) => command.status === "applied" && command.safety !== "read",
           );
@@ -1415,6 +1443,7 @@ function AIWorkspace({ data, reload, onReviewDocument, reviewingCommandId }) {
       setWorkflow({ stage: "error", label: "Workflow stopped — review the error", scopes: [] });
       setError(sendError.message);
     } finally {
+      requestController.current = null;
       setThinking(false);
     }
   };
@@ -1428,6 +1457,10 @@ function AIWorkspace({ data, reload, onReviewDocument, reviewingCommandId }) {
         json("PATCH", { action }),
       );
       upsertCommand(result.command);
+      if (command.runId) {
+        const runResult = await api(`/api/projects/${project.id}/ai/runs/${command.runId}`, { cache: "no-store" });
+        upsertRun(runResult.run);
+      }
       await reload();
     } catch (actionError) {
       upsertCommand({
@@ -1435,6 +1468,20 @@ function AIWorkspace({ data, reload, onReviewDocument, reviewingCommandId }) {
         status: "failed",
         error: actionError.message,
       });
+      setError(actionError.message);
+    } finally {
+      setCommandWorking("");
+    }
+  };
+  const runAction = async (run, action) => {
+    setCommandWorking(run.id);
+    setError("");
+    try {
+      const result = await api(`/api/projects/${project.id}/ai/runs/${run.id}`, json("PATCH", { action, expectedUpdatedAt: run.updatedAt }));
+      upsertRun(result.run);
+      for (const command of result.run.commands) upsertCommand(command);
+      await reload();
+    } catch (actionError) {
       setError(actionError.message);
     } finally {
       setCommandWorking("");
@@ -1479,25 +1526,7 @@ function AIWorkspace({ data, reload, onReviewDocument, reviewingCommandId }) {
       setCommandWorking("");
     }
   };
-  const activeCommands = commands
-    .filter((command) => ["pending", "running"].includes(command.status))
-    .slice(0, 6);
-  const commandLabel = (command) => {
-    const document = data.documents?.find((item) => item.id === command.arguments.documentId);
-    const file = data.files?.find((item) => item.id === command.arguments.fileId);
-    const work = data.items?.find((item) => item.id === command.arguments.workId);
-    const member = data.members?.find((item) => item.id === command.arguments.memberId);
-    const target = document?.title || file?.name || work?.title || member?.name || command.arguments.title || command.arguments.name || project.name;
-    if (command.safety === "read") return `Reading ${target}`;
-    if (command.name.endsWith(".create")) return `Creating ${target}`;
-    if (command.name === "documents.insert") return `Adding text to ${target}`;
-    if (command.name === "documents.remove") return `Removing text from ${target}`;
-    if (command.name === "documents.rename") return `Renaming ${target}`;
-    if (command.name === "documents.update") return `Editing ${target}`;
-    if (command.name === "work.assign") return `Assigning members to ${target}`;
-    if (command.name.endsWith(".trash") || command.name === "members.remove") return `Deleting ${target}`;
-    return `Updating ${target}`;
-  };
+  const activeRuns = runs.filter((run) => ["planning", "pending", "running", "partial"].includes(run.status) && run.commands.some((command) => ["pending", "running"].includes(command.status)));
   useEffect(() => {
     if (reviewingCommandId) return;
     const pendingDocumentEdit = commands.find(
@@ -1566,68 +1595,18 @@ function AIWorkspace({ data, reload, onReviewDocument, reviewingCommandId }) {
                 </span>
               </article>
             ) : null}
-            {activeCommands.map((command) => {
-                const isDocumentUpdate = [
-                  "documents.update",
-                  "documents.insert",
-                  "documents.remove",
-                ].includes(command.name);
-                return (
-                  <article
-                    className={`ai-inline-command ${command.status}`}
-                    key={command.id}
-                    role="status"
-                  >
-                    <div className="ai-inline-command-copy">
-                      <span className="ai-command-spinner" aria-hidden="true" />
-                      <div>
-                        <strong>{commandLabel(command)}</strong>
-                        <small>
-                          {command.status === "running"
-                            ? "Working…"
-                            : isDocumentUpdate
-                              ? "Review the highlighted change in Documents"
-                              : "Waiting for your approval"}
-                        </small>
-                      </div>
-                    </div>
-                    {command.status === "pending" ? (
-                      <div className="ai-inline-command-actions">
-                        <button
-                          className="secondary-button"
-                          disabled={commandWorking === command.id}
-                          onClick={() => commandAction(command, "discard")}
-                        >
-                          Reject
-                        </button>
-                        {isDocumentUpdate ? (
-                          <button
-                            className="primary-button"
-                            disabled={reviewingCommandId === command.id}
-                            onClick={() => onReviewDocument(command)}
-                          >
-                            {reviewingCommandId === command.id
-                              ? "Reviewing"
-                              : "Review change"}
-                          </button>
-                        ) : (
-                          <button
-                            className="primary-button"
-                            disabled={commandWorking === command.id}
-                            onClick={() => commandAction(command, "approve")}
-                          >
-                            {commandWorking === command.id
-                              ? "Applying…"
-                              : command.safety === "read"
-                                ? "Allow"
-                                : "Approve"}
-                          </button>
-                        )}
-                      </div>
-                    ) : null}
-                  </article>
-                );
-              })}
+            {activeRuns.map((run) => (
+              <article className={`ai-run-summary status-${run.status}`} key={run.id} role="status">
+                <div>
+                  <strong>{run.summary}</strong>
+                  <small>{run.progress.applied} applied · {run.progress.decided} of {run.progress.total} decided</small>
+                </div>
+                <div className="ai-run-summary-actions">
+                  <button className="secondary-button" type="button" onClick={() => setReviewRun(run)}>Review changes</button>
+                  <button className="primary-button" type="button" disabled={commandWorking === run.id || !run.commands.some((command) => command.status === "pending" && !["documents.update", "documents.insert", "documents.remove"].includes(command.name))} onClick={() => runAction(run, "approve_all")}>Approve eligible</button>
+                </div>
+              </article>
+            ))}
           </div>
           <div className="chat-compose">
             <textarea
@@ -1674,8 +1653,8 @@ function AIWorkspace({ data, reload, onReviewDocument, reviewingCommandId }) {
                   </select>
                 </label>
               </div>
-              <button className="primary-button" disabled={busy || !text.trim()} onClick={() => send()}>
-                {thinking ? "Thinking…" : "Send"}
+              <button className="primary-button" disabled={!thinking && (busy || !text.trim())} onClick={() => thinking ? requestController.current?.abort() : send()}>
+                {thinking ? "Stop" : "Send"}
               </button>
             </div>
           </div>
@@ -1686,6 +1665,14 @@ function AIWorkspace({ data, reload, onReviewDocument, reviewingCommandId }) {
           ) : null}
         </section>
       </div>
+      <AIApprovalReview
+        run={reviewRun}
+        workingId={commandWorking}
+        onClose={() => setReviewRun(null)}
+        onRunAction={runAction}
+        onCommandAction={commandAction}
+        onReviewDocument={onReviewDocument}
+      />
       {pendingMode === "auto" ? (
         <div className="modal-backdrop" role="presentation">
           <section
@@ -1729,7 +1716,6 @@ function AIWorkspace({ data, reload, onReviewDocument, reviewingCommandId }) {
 }
 
 export default function ProjectWorkspace({
-  categories,
   projects,
   onProjectsChanged,
   onWorkspaceChanged,
@@ -1744,6 +1730,7 @@ export default function ProjectWorkspace({
   const [documentDirty, setDocumentDirty] = useState(false);
   const [documentReviewCommand, setDocumentReviewCommand] = useState(null);
   const [pendingDiscardAction, setPendingDiscardAction] = useState(null);
+  const loadedProjectId = data?.project?.id || "";
   const effectiveSelectedId = projects.some(
     (project) => project.id === selectedId,
   )
@@ -1753,22 +1740,19 @@ export default function ProjectWorkspace({
     if (!effectiveSelectedId) return;
     setError("");
     try {
-      setData(
-        await api(`/api/projects/${effectiveSelectedId}`, {
-          cache: "no-store",
-        }),
-      );
+      const result = await api(projectResourceUrl(effectiveSelectedId, activeTab), { cache: "no-store" });
+      setData((current) => current?.project?.id === result.project.id ? { ...current, ...result } : { ...emptyWorkspaceResources, ...result });
     } catch (loadError) {
       setError(loadError.message);
     }
-  }, [effectiveSelectedId]);
+  }, [activeTab, effectiveSelectedId]);
   const reloadWorkspace = useCallback(async () => {
     await Promise.all([load(), onWorkspaceChanged?.()]);
   }, [load, onWorkspaceChanged]);
   useEffect(() => {
     if (!effectiveSelectedId) return;
     let cancelled = false;
-    fetch(`/api/projects/${effectiveSelectedId}`, { cache: "no-store" })
+    fetch(projectResourceUrl(effectiveSelectedId, "overview"), { cache: "no-store" })
       .then(async (response) => {
         const result = await response.json();
         if (!response.ok) throw new Error(result.error || "Request failed.");
@@ -1776,7 +1760,7 @@ export default function ProjectWorkspace({
       })
       .then((result) => {
         if (!cancelled) {
-          setData(result);
+          setData({ ...emptyWorkspaceResources, ...result });
           setError("");
           setLoading(false);
         }
@@ -1791,6 +1775,12 @@ export default function ProjectWorkspace({
       cancelled = true;
     };
   }, [effectiveSelectedId]);
+  useEffect(() => {
+    if (!effectiveSelectedId || loadedProjectId !== effectiveSelectedId) return;
+    // Loading the newly selected tab's resources is the effect's purpose.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void load();
+  }, [activeTab, effectiveSelectedId, load, loadedProjectId]);
   const create = async (form) => {
     const result = await api("/api/projects", json("POST", form));
     setCreating(false);
@@ -1848,7 +1838,8 @@ export default function ProjectWorkspace({
     });
   };
   return (
-    <div className="project-page">
+    <>
+      <div className="project-page">
       {!effectiveSelectedId ? (
         <section className="page-heading project-page-heading">
           <div>
@@ -1859,7 +1850,7 @@ export default function ProjectWorkspace({
               project AI that belong together.
             </p>
           </div>
-          <button className="primary-button" onClick={() => setCreating(true)}>
+          <button className="primary-button" type="button" onClick={() => setCreating(true)}>
             <Plus size={17} /> New project
           </button>
         </section>
@@ -1875,9 +1866,8 @@ export default function ProjectWorkspace({
             <div className="project-closed-list">
               {projects.map((project) => (
                 <button type="button" key={project.id} onClick={() => switchProject(project.id)}>
-                  <span style={{ background: project.categoryColor }} />
+                  <FolderKanban size={17} aria-hidden="true" />
                   <strong>{project.name}</strong>
-                  <small>{project.categoryName}</small>
                 </button>
               ))}
             </div>
@@ -1915,13 +1905,10 @@ export default function ProjectWorkspace({
                   ))}
                 </select>
                 <div className="project-switcher-summary">
-                  <span style={{ background: data.project.categoryColor }} />
+                  <FolderKanban size={16} aria-hidden="true" />
                   <p>
                     <strong>{data.project.name}</strong>
-                    <small>
-                      {data.project.categoryName} · {data.project.progress}%
-                      complete
-                    </small>
+                    <small>{data.project.progress}% complete</small>
                   </p>
                 </div>
               </div>
@@ -1946,7 +1933,6 @@ export default function ProjectWorkspace({
                 <div>
                   <span className="project-type">{data.project.type}</span>
                   <h2>{data.project.name}</h2>
-                  <p>{data.project.categoryName}</p>
                 </div>
                 <div className="project-header-progress">
                   <strong>{data.project.progress}%</strong>
@@ -1955,7 +1941,7 @@ export default function ProjectWorkspace({
               </header>
               <div className="project-content-pane">
                 {activeTab === "overview" ? (
-                  <Overview data={data} categories={categories} reload={reloadWorkspace} />
+                  <Overview data={data} reload={reloadWorkspace} />
                 ) : null}
                 {activeTab === "documents" ? (
                   <Documents
@@ -2009,11 +1995,12 @@ export default function ProjectWorkspace({
             Create a project to group its people, plans, documents, files, and
             AI context.
           </p>
-          <button className="primary-button" onClick={() => setCreating(true)}>
+          <button className="primary-button" type="button" onClick={() => setCreating(true)}>
             Create project
           </button>
         </div>
       )}
+      </div>
       {creating ? (
         <div className="modal-backdrop">
           <section
@@ -2027,12 +2014,11 @@ export default function ProjectWorkspace({
                 <p className="eyebrow">New workspace</p>
                 <h2 id="new-project-title">Create project</h2>
               </div>
-              <button onClick={() => setCreating(false)}>
+              <button type="button" onClick={() => setCreating(false)}>
                 <X size={18} />
               </button>
             </div>
             <ProjectForm
-              categories={categories}
               onSave={create}
               onCancel={() => setCreating(false)}
             />
@@ -2045,6 +2031,6 @@ export default function ProjectWorkspace({
           onDiscard={confirmDiscard}
         />
       ) : null}
-    </div>
+    </>
   );
 }
