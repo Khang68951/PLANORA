@@ -8,3 +8,5 @@ coverage/
 *.log
 __pycache__/
 *.pyc
+storage/projects/*
+!storage/projects/.gitkeep

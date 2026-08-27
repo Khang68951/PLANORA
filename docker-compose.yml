@@ -8,7 +8,7 @@ services:
       POSTGRES_USER: planora
       POSTGRES_PASSWORD: planora
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - planora-data:/var/lib/postgresql/data
     healthcheck:
@@ -16,6 +16,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+      start_period: 10s
 
 volumes:
   planora-data:
