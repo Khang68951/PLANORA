@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { calendarDays, filterItemsByProjects, NO_PROJECT_FILTER, shiftCalendarCursor, startOfWeek } from "../lib/calendar.js";
+import { calendarDays, filterItemsByCategories, filterItemsByProjects, NO_PROJECT_FILTER, shiftCalendarCursor, startOfWeek } from "../lib/calendar.js";
 
 test("calendar modes produce one day, one Sunday-first week, or a six-week month grid", () => {
   const cursor = new Date(2026, 7, 26, 15, 30);
@@ -30,4 +30,14 @@ test("calendar project filtering includes selected projects and unassigned work 
   assert.deepEqual(filterItemsByProjects(items, ["alpha"]).map((item) => item.id), ["alpha-work"]);
   assert.deepEqual(filterItemsByProjects(items, [NO_PROJECT_FILTER, "beta"]).map((item) => item.id), ["unassigned", "beta-work"]);
   assert.deepEqual(filterItemsByProjects(items, []), []);
+});
+
+test("calendar category filtering applies only to standalone work", () => {
+  const items = [
+    { id: "standalone-a", categoryId: "a", projectId: null },
+    { id: "standalone-b", categoryId: "b", projectId: null },
+    { id: "project-work", categoryId: "a", projectId: "project-a" },
+  ];
+  assert.deepEqual(filterItemsByCategories(items, ["b"]).map((item) => item.id), ["standalone-b", "project-work"]);
+  assert.deepEqual(filterItemsByCategories(items, [], ["a", "b"]).map((item) => item.id), ["project-work"]);
 });

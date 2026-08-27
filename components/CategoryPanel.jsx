@@ -1,16 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { FolderCog, Plus, RotateCcw, Trash2, X } from "lucide-react";
+import { useState } from "react";
+import { FolderCog, Plus, Trash2, X } from "lucide-react";
 import { descendantsOf } from "@/lib/categories";
 
-export default function CategoryPanel({ categories, settings, onChanged }) {
+export default function CategoryPanel({ categories, settings, onChanged, label = "Manage categories" }) {
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState("");
   const [form, setForm] = useState({ name: "", color: "#5e6c70", parent_id: "", is_hidden: false });
   const [impact, setImpact] = useState(null);
   const [replacement, setReplacement] = useState("");
-  const [trash, setTrash] = useState({ categories: [], projects: [], items: [] });
   const [message, setMessage] = useState("");
 
   const choose = (id) => {
@@ -19,16 +18,6 @@ export default function CategoryPanel({ categories, settings, onChanged }) {
     setForm(category ? { name: category.name, color: category.color, parent_id: category.parent_id || "", is_hidden: category.is_hidden } : { name: "", color: "#5e6c70", parent_id: "", is_hidden: false });
     setImpact(null); setMessage("");
   };
-
-  const loadTrash = useCallback(async () => {
-    const response = await fetch("/api/trash", { cache: "no-store" });
-    if (response.ok) setTrash(await response.json());
-  }, []);
-  useEffect(() => {
-    // Loading an external resource when the dialog opens is the effect's purpose.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (open) void loadTrash();
-  }, [open, loadTrash]);
 
   const save = async (event) => {
     event.preventDefault(); setMessage("");
@@ -44,7 +33,11 @@ export default function CategoryPanel({ categories, settings, onChanged }) {
   const previewDelete = async () => {
     const response = await fetch(`/api/categories/${editingId}`, { method: "DELETE" });
     const data = await response.json();
-    if (response.status === 409) { setImpact(data.impact); setReplacement(""); }
+    if (response.status === 409) {
+      setImpact(data.impact);
+      const deletedIds = descendantsOf(categories, editingId);
+      setReplacement(deletedIds.has(settings?.default_category_id) ? "" : settings?.default_category_id || "");
+    }
     else setMessage(data.error || "Could not calculate the impact.");
   };
 
@@ -52,7 +45,7 @@ export default function CategoryPanel({ categories, settings, onChanged }) {
     const response = await fetch(`/api/categories/${editingId}`, { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ confirm: true, replacement_category_id: replacement || null }) });
     const data = await response.json();
     if (!response.ok) return setMessage(data.error);
-    setImpact(null); choose(""); await Promise.all([onChanged(), loadTrash()]);
+    setImpact(null); choose(""); await onChanged();
   };
 
   const updateSettings = async (changes) => {
@@ -62,19 +55,9 @@ export default function CategoryPanel({ categories, settings, onChanged }) {
     await onChanged();
   };
 
-  const restore = async (batch) => {
-    const response = await fetch(`/api/trash/${batch}/restore`, { method: "POST" });
-    if (!response.ok) return setMessage((await response.json()).error);
-    await Promise.all([onChanged(), loadTrash()]);
-  };
-
   return (
     <>
-      <section className="category-sidebar">
-        <div className="category-sidebar-heading"><span>Categories</span></div>
-        <button className="category-manage-button" type="button" onClick={() => setOpen(true)}><FolderCog size={15} /><span>Manage categories</span></button>
-        <p className="category-sidebar-help">Choose which categories appear inside each workspace tab.</p>
-      </section>
+      <button className="category-manage-button" type="button" onClick={() => setOpen(true)}><FolderCog size={15} /><span>{label}</span></button>
 
       {open ? <div className="modal-backdrop" onMouseDown={(event) => event.target === event.currentTarget && setOpen(false)}>
         <section className="modal category-manager" role="dialog" aria-modal="true" aria-labelledby="category-manager-title">
@@ -90,8 +73,7 @@ export default function CategoryPanel({ categories, settings, onChanged }) {
             </form>
           </div>
           <div className="category-settings"><label>Default category<select value={settings?.default_category_id || ""} onChange={(event) => updateSettings({ default_category_id: event.target.value })}>{categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label><label>Maximum nesting depth<input type="number" min="1" max="8" value={settings?.max_category_depth || 4} onChange={(event) => updateSettings({ max_category_depth: Number(event.target.value) })} /></label></div>
-          <div className="trash-section"><h3>Trash</h3>{[...trash.categories, ...trash.projects, ...trash.items].length ? [...new Map([...trash.categories.map((entry) => ({ ...entry, type: "Category", label: entry.name })), ...trash.projects.map((entry) => ({ ...entry, type: "Project", label: entry.title })), ...trash.items.map((entry) => ({ ...entry, type: entry.kind, label: entry.title }))].map((entry) => [entry.trash_batch_id, entry])).values()].map((entry) => <div className="trash-row" key={entry.trash_batch_id}><span><span className="category-swatch" style={{ background: entry.color || "#8a9690" }} />{entry.label} <small>{entry.type}</small></span><button type="button" onClick={() => restore(entry.trash_batch_id)}><RotateCcw size={13} /> Restore</button></div>) : <p>Trash is empty.</p>}</div>
-          {impact ? <div className="impact-warning"><strong>Move this folder to Trash?</strong><p>This will move {impact.categories} categories, {impact.projects} projects, and {impact.items} tasks/deadlines. Everything can be restored together.</p>{impact.contains_default ? <label className="field"><span>Choose a replacement default first</span><select value={replacement} onChange={(event) => setReplacement(event.target.value)}><option value="">Select category</option>{categories.filter((category) => !descendantsOf(categories, editingId).has(category.id)).map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label> : null}<div><button type="button" className="secondary-button" onClick={() => setImpact(null)}>Cancel</button><button type="button" className="danger-button" onClick={confirmDelete}>Confirm Trash</button></div></div> : null}
+          {impact ? <div className="impact-warning"><strong>Move this category to Trash?</strong><p>{impact.categories} {impact.categories === 1 ? "category" : "categories"} will move to Trash. {impact.items} standalone tasks/deadlines will stay active and move to the replacement category. Project work remains organized by project.</p><label className="field"><span>Replacement category</span><select value={replacement} onChange={(event) => setReplacement(event.target.value)}><option value="">Select category</option>{categories.filter((category) => !descendantsOf(categories, editingId).has(category.id)).map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label><div><button type="button" className="secondary-button" onClick={() => setImpact(null)}>Cancel</button><button type="button" className="danger-button" disabled={!replacement} onClick={confirmDelete}>Reassign and move to Trash</button></div></div> : null}
         </section>
       </div> : null}
     </>

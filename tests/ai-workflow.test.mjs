@@ -20,9 +20,15 @@ test("AI workflow routes focused requests to only relevant commands and context"
 });
 
 test("AI workflow keeps broad questions multi-scope", () => {
-  const workflow = routeProjectAIRequest("What should I focus on next?", catalog);
+  const workflow = routeProjectAIRequest("Summarize the project documents, files, team, and tasks", catalog);
   assert.equal(workflow.intent, "multi_scope_request");
   assert.equal(workflow.allowedCommands.length, catalog.length);
+});
+
+test("pure conversation defaults to lightweight project context", () => {
+  const workflow = routeProjectAIRequest("Hello, can you help me?", catalog);
+  assert.deepEqual(workflow.scopes, ["project"]);
+  assert.deepEqual(workflow.allowedCommands.map((command) => command.name), ["project.get"]);
 });
 
 test("AI workflow separates conversational output from internal command planning", () => {

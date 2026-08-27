@@ -1074,9 +1074,9 @@
     .architecture {
       display: grid;
       grid-template-columns: minmax(0, 1.45fr) minmax(250px, 0.55fr);
-      gap: 20px;
-      min-height: 420px;
-      padding: 24px;
+      gap: 16px;
+      min-height: 350px;
+      padding: 18px;
       border: 1px dashed var(--line);
       border-radius: var(--radius-lg);
       background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.08), rgba(var(--primary-2-rgb), 0.05));
@@ -1091,8 +1091,8 @@
 
     .architecture-node {
       position: relative;
-      min-height: 94px;
-      padding: 16px;
+      min-height: 76px;
+      padding: 13px;
       border: 1px solid var(--line);
       border-radius: 16px;
       background: var(--surface-solid);
@@ -1166,7 +1166,7 @@
     .architecture-detail {
       display: grid;
       align-content: center;
-      padding: clamp(22px, 4vw, 36px);
+      padding: clamp(18px, 3vw, 26px);
       border: 1px solid var(--line);
       border-radius: 20px;
       background: var(--surface-solid);
@@ -1181,21 +1181,25 @@
     }
 
     .architecture-panel h3 {
-      margin: 0 0 10px;
-      font-size: 1.4rem;
+      margin: 0 0 8px;
+      font-size: 1.25rem;
       letter-spacing: -0.03em;
     }
 
     .architecture-panel p {
       margin: 0;
       color: var(--muted);
+      font-size: .82rem;
+      line-height: 1.55;
     }
+
+    .architecture-panel .eyebrow { margin-bottom: 7px; color: var(--primary-2); font-size: .68rem; }
 
     .tech-tags {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      margin-top: 18px;
+      margin-top: 14px;
     }
 
     .tech-tags span {
@@ -1999,7 +2003,7 @@
       }
 
       .architecture-detail {
-        min-height: 250px;
+        min-height: 210px;
       }
 
       .case-study {
@@ -2415,7 +2419,7 @@
         <div class="grid four">
           <div class="card metric"><strong>1</strong><span>Primary user type</span></div>
           <div class="card metric"><strong>4</strong><span>Core product views</span></div>
-          <div class="card metric"><strong>24</strong><span>Compiled API routes</span></div>
+          <div class="card metric"><strong>27</strong><span>Compiled API routes</span></div>
           <div class="card metric"><strong>6</strong><span>Seeded demo items</span></div>
         </div>
         <div class="grid two" style="margin-top: 18px;">
@@ -2497,9 +2501,9 @@
           <div class="timeline-item"><span class="timeline-dot">O3</span>
             <article class="card"><span class="placeholder-label">Objective</span>
               <h3>Make organization safe and adaptable</h3>
-              <p>Nested folders, complete project workspaces, category suggestions, impact previews, Trash, and
-                configurable AI command approval with an audit trail and Undo must help users organize or reverse
-                changes without technical intervention.</p>
+              <p>Lightweight category classifications, complete project workspaces, safe reassignment before category
+                Trash, a visible grouped-restore dialog, and AI approval with an audit trail and Undo help users organize
+                or reverse changes without technical intervention.</p>
             </article>
           </div>
         </div>
@@ -2549,8 +2553,9 @@
             <p class="capability-problem"><strong>Problem:</strong> mixed personal, academic, and project work makes a
               planner noisy.</p>
             <ul class="feature-list">
-              <li>Create nested, colored categories and choose a configurable default.</li>
-              <li>Tick different visible categories in Dashboard, Calendar, and List, then narrow Calendar further by project or unassigned work.</li>
+              <li>Manage colored classifications and compatible nesting from Settings, with a configurable default.</li>
+              <li>Use compact Calendar category/project controls and searchable multi-select inside the List filter drawer.</li>
+              <li>Search one toolbar, combine status/time/priority/project/PIC filters, remove chips, and choose eight sort modes.</li>
               <li>Use up to three private category suggestions from a title and description.</li>
             </ul>
             <p class="capability-outcome"><strong>Outcome:</strong> each view shows only the context needed there while
@@ -2565,7 +2570,7 @@
             <ul class="feature-list">
               <li>Track project information, status, progress, dates, and upcoming work in Overview.</li>
               <li>Add members and optional roles, then assign several people to one task or deadline.</li>
-              <li>Project work inherits its project's category, avoiding duplicate maintenance.</li>
+              <li>Projects remain separate from standalone categories, with their own Calendar and List filters.</li>
             </ul>
             <p class="capability-outcome"><strong>Outcome:</strong> the user can understand ownership, progress, and the
               next milestone from one workspace.</p>
@@ -2592,13 +2597,55 @@
               unsafe if it can change everything silently.</p>
             <ul class="feature-list">
               <li>Chat with project-specific context through Gemini, OpenRouter, or DeepSeek using server-only keys.</li>
-              <li>Use a conversational AI followed by an isolated command-planner AI with 24 allowlisted commands; active Reading or Writing status
-                appears inside chat and disappears when the command finishes.</li>
+              <li>Use routed conversation and, only for actionable requests, an isolated planner with 24 allowlisted commands; one request appears as one compact approval group.</li>
               <li>Choose Approve everything, Approve changes, or Auto; the backend builds the exact document result
                 before it appears in place with highlighted human approval.</li>
             </ul>
             <p class="capability-outcome"><strong>Outcome:</strong> AI can help create documents, plan work, update
               roles, and organize the project at the user's chosen trust level.</p>
+          </article>
+
+          <article class="card capability-card">
+            <div class="card-icon">07</div>
+            <h3>Recover from accidental removal</h3>
+            <p class="capability-problem"><strong>Problem:</strong> organizing work becomes risky when one mistaken
+              delete can remove important plans.</p>
+            <ul class="feature-list">
+              <li>Preview category-deletion impact and choose where affected standalone work should move.</li>
+              <li>Open Trash from the top bar and restore a complete related deletion batch together.</li>
+              <li>Choose Delete forever only inside Trash, then review a second popup that identifies the irreversible impact.</li>
+              <li>Permanently remove dependent project data and local attachments transactionally after explicit confirmation.</li>
+            </ul>
+            <p class="capability-outcome"><strong>Outcome:</strong> users can reorganize confidently and recover without
+              database knowledge.</p>
+          </article>
+
+          <article class="card capability-card">
+            <div class="card-icon">08</div>
+            <h3>Adapt the workspace to the user</h3>
+            <p class="capability-problem"><strong>Problem:</strong> a useful planner should not force every person into
+              one visual or interaction style.</p>
+            <ul class="feature-list">
+              <li>Choose Paper, Ocean, or Night appearance and a preferred Calendar mode.</li>
+              <li>Reduce motion and use responsive layouts across planner, project, review, and settings surfaces.</li>
+              <li>Close a project without changing it, then reopen it or create another workspace from the restored Projects page.</li>
+            </ul>
+            <p class="capability-outcome"><strong>Outcome:</strong> Planora remains calm and usable across different
+              screens and working habits.</p>
+          </article>
+
+          <article class="card capability-card">
+            <div class="card-icon">09</div>
+            <h3>Set up locally without database expertise</h3>
+            <p class="capability-problem"><strong>Problem:</strong> manual PostgreSQL installation, table creation, and
+              seed entry would block the intended non-technical user.</p>
+            <ul class="feature-list">
+              <li>Start PostgreSQL through Docker Compose with health checks and IPv4-safe local routing.</li>
+              <li>Run one idempotent setup command to create migrations, constraints, indexes, settings, and demo data.</li>
+              <li>Receive separate authentication, migration, and seed diagnostics when setup needs attention.</li>
+            </ul>
+            <p class="capability-outcome"><strong>Outcome:</strong> installation is a documented terminal workflow, not
+              a manual database-administration exercise.</p>
           </article>
         </div>
 
@@ -2616,32 +2663,32 @@
               <article class="card">
                 <h3>Plan it visually</h3>
                 <p>The record immediately appears in Dashboard, Calendar, and Tasks &amp; Deadlines. The user chooses a
-                  time scale and ticks only the categories and projects relevant to that view.</p>
+                  time scale, ticks only the relevant categories and projects, selects an entry to inspect or edit its
+                  populated fields, and selects empty day space to create new work for that date.</p>
               </article>
             </div>
             <div class="timeline-item"><span class="timeline-dot">3</span>
               <article class="card">
                 <h3>Turn it into coordinated project work</h3>
                 <p>Inside a Project, the user records progress, assigns members, drafts a document, links source files,
-                  and sees upcoming work without leaving the workspace. Project tasks display the inherited project
-                  category and immediately synchronize into Calendar and the main work list.</p>
+                  and sees upcoming work without leaving the workspace. Project tasks use project membership instead
+                  of a category label and immediately synchronize into Calendar and the main work list.</p>
               </article>
             </div>
             <div class="timeline-item"><span class="timeline-dot">4</span>
               <article class="card">
                 <h3>Ask AI to help, then keep authority</h3>
                 <p>The AI can summarize readable files, create a proposal, break a goal into work, edit a document, or
-                  update members. Planora validates the response, shows the exact sanitized document preview, then
-                  applies the project's command mode and records every command result. Compact activity stays in the
-                  conversation only while work is running or awaiting a decision; document approval remains beside the
-                  highlighted change.</p>
+                  update members. One request becomes one compact approval group; its spacious review drawer shows every
+                  command, progress, group/individual decisions, and honest partial failures. Document approval remains
+                  beside the exact highlighted change.</p>
               </article>
             </div>
             <div class="timeline-item"><span class="timeline-dot">5</span>
               <article class="card">
                 <h3>Finish or recover safely</h3>
-                <p>Completed work updates every view. Category cascades show their impact before Trash, and recoverable
-                  planner batches or destructive AI commands can be restored instead of becoming permanent mistakes.</p>
+                <p>Completed work updates every view. Category removal shows impact and transactionally reassigns active
+                  work before only classifications enter Trash; destructive AI commands remain audited and recoverable.</p>
               </article>
             </div>
           </div>
@@ -2671,7 +2718,7 @@
               <tr>
                 <td>FR-01</td>
                 <td>Create and edit tasks with start/end intervals and deadlines with due times, plus status, priority,
-                  category, optional project, and notes.</td>
+                  standalone category or project, and notes.</td>
                 <td>Must</td>
                 <td>Create/edit form and POST/PATCH routes</td>
                 <td><span class="status-pill">Built</span></td>
@@ -2700,17 +2747,17 @@
               </tr>
               <tr>
                 <td>FR-05</td>
-                <td>Assign one category to work, inherit project categories, and use a configurable default when
-                  omitted.</td>
+                <td>Assign categories to standalone work, organize project work independently, and use a configurable
+                  category default when omitted.</td>
                 <td>Must</td>
-                <td>Relational model and effective-category query</td>
+                <td>Independent category/project selectors with compatible relational storage</td>
                 <td><span class="status-pill">Built</span></td>
               </tr>
               <tr>
                 <td>FR-06</td>
-                <td>Warn about cascade impact, move affected records to Trash, and restore them together.</td>
+                <td>Warn about category impact, require a replacement, reassign active references transactionally, Trash only categories, and support confirmed permanent batch deletion.</td>
                 <td>Must</td>
-                <td>Impact preview and shared Trash batches</td>
+                <td>Impact preview, replacement selection, transactional reassignment, grouped restore, and irreversible-action confirmation before permanent deletion</td>
                 <td><span class="status-pill">Built</span></td>
               </tr>
               <tr>
@@ -2749,7 +2796,7 @@
                 <td>FR-11</td>
                 <td>Optionally choose zero, one, or many project members as PIC for task/deadline records, manually or through AI.</td>
                 <td>Must</td>
-                <td>Assignment junction table, project-work, Dashboard Priority queue, and main task/deadline PIC display, AI create/assign commands, inherited category display, shared-state refresh, and validation</td>
+                <td>Assignment junction table, project-work, Dashboard Priority queue, and main task/deadline PIC display, AI create/assign commands, shared-state refresh, and validation</td>
                 <td><span class="status-pill">Built</span></td>
               </tr>
               <tr>
@@ -2808,40 +2855,93 @@
       <section class="section" id="methodology">
         <div class="section-heading"><span class="section-number">07 / METHODOLOGY</span>
           <div>
-            <h2>Show how the work moved forward.</h2>
-            <p class="lead">The development story will combine milestones, iteration, decisions, risks, and changes in
-              direction.</p>
+            <h2>From a simple calendar idea to a complete planning workspace.</h2>
+            <p class="lead">Planora grew in deliberate layers. Each extension kept the original promise—make tasks and
+              deadlines understandable for a non-technical user—while solving the next problem revealed by the working
+              product.</p>
           </div>
         </div>
         <div class="timeline">
           <div class="timeline-item"><span class="timeline-dot">01</span>
             <article class="card">
-              <h3>Foundation</h3>
-              <p>Documentation responsibilities and the report experience were established before application
-                development.</p>
+              <p class="eyebrow">The first thought</p>
+              <h3>A Canvas-like calendar for tasks and deadlines</h3>
+              <p>The project began as a focused local planner: create or remove tasks and deadlines, see them on a
+                calendar, keep a separate list, and use a dashboard to surface work that was near due or already late.
+                PostgreSQL persistence, generated demo data, and terminal-only setup were part of the idea from the
+                beginning because the target user should never create tables manually.</p>
             </article>
           </div>
           <div class="timeline-item"><span class="timeline-dot">02</span>
             <article class="card">
-              <h3>Scope definition and expansion</h3>
-              <p>The initial brief established three planner projections and beginner-safe setup; later iterations
-                preserved that shared model while adding nested categories, display settings, and a complete project
-                workspace.</p>
+              <p class="eyebrow">MVP foundation</p>
+              <h3>One record, three useful views</h3>
+              <p>The first vertical slice connected Dashboard, Calendar, and Tasks &amp; Deadlines to the same validated
+                PostgreSQL records. Task intervals, deadline due times, status, priority, editing, completion, relative
+                demo dates, responsive states, Docker Compose, and repeatable migrations turned the concept into a
+                working product instead of three disconnected mock-ups.</p>
             </article>
           </div>
           <div class="timeline-item"><span class="timeline-dot">03</span>
             <article class="card">
-              <h3>Vertical-slice build</h3>
-              <p>The responsive planner, validated Route Handlers, relational migrations, category tree, complete
-                project sub-tabs, provider abstraction, local file boundary, AI command ledger and approval modes,
-                relative-date seed data, and recovery states were built together.</p>
+              <p class="eyebrow">Organization extension</p>
+              <h3>Categories became flexible, view-specific filters</h3>
+              <p>Folder-like nested categories added naming, color, movement, visibility, depth settings, defaults, and
+                private suggestions. Their filters moved from a global control to each relevant view: Calendar gained a
+                compact Canvas-style right rail, while the task list gained searchable combined filters and sorting.
+                Safe reassignment later replaced destructive category cascades.</p>
             </article>
           </div>
           <div class="timeline-item"><span class="timeline-dot">04</span>
             <article class="card">
-              <h3>Static verification</h3>
-              <p>Dependencies installed without reported vulnerabilities, 57 unit checks passed, ESLint completed
-                cleanly, and the optimized Next.js build compiled all application and 24 API routes.</p>
+              <p class="eyebrow">Scheduling extension</p>
+              <h3>Day, week, and month planning with personal settings</h3>
+              <p>The original month calendar expanded into Day, Week, and Month modes with period-aware navigation and
+                interval placement. Existing entries became visibly interactive and open their populated edit form,
+                while empty day space still creates new work. Theme, default calendar mode, and reduced-motion settings
+                made the experience adaptable without changing server data.</p>
+            </article>
+          </div>
+          <div class="timeline-item"><span class="timeline-dot">05</span>
+            <article class="card">
+              <p class="eyebrow">Project extension</p>
+              <h3>Projects grew into their own workspace type</h3>
+              <p>Projects were separated from standalone categories and expanded into a NotebookLM-inspired three-area
+                workspace: navigation on the left, active content in the middle, and AI on the right. Overview,
+                rich-text Documents, previewable Files, Tasks &amp; Deadlines, Members, progress, dates, and multi-person PIC
+                assignments now keep a complete body of work together and synchronize project work back to Calendar and
+                the main list.</p>
+            </article>
+          </div>
+          <div class="timeline-item"><span class="timeline-dot">06</span>
+            <article class="card">
+              <p class="eyebrow">AI extension</p>
+              <h3>Chat became a controlled project workflow</h3>
+              <p>Provider chat evolved from a direct request into routed conversation plus an isolated command planner.
+                Gemini, OpenRouter, and DeepSeek remain behind server-only keys. Scoped context, allowlisted commands,
+                three approval modes, grouped runs, streamed responses, PIC commands, exact in-document highlighting,
+                version checks, and explicit human approval let AI read and propose useful actions without direct
+                database authority.</p>
+            </article>
+          </div>
+          <div class="timeline-item"><span class="timeline-dot">07</span>
+            <article class="card">
+              <p class="eyebrow">Safety and usability extension</p>
+              <h3>Recovery, synchronization, and focused interaction</h3>
+              <p>A visible top-bar Trash with grouped restoration and confirmed permanent deletion, unsaved-document warnings, optimistic chat, auto-growing
+                composition, loading and error states, shared planner refresh, responsive overflow repairs, and a
+                non-destructive Close Project action reduced the friction found while using the growing application.
+                Project creation remains available from both an open workspace and the restored closed-project page.</p>
+            </article>
+          </div>
+          <div class="timeline-item"><span class="timeline-dot">08</span>
+            <article class="card">
+              <p class="eyebrow">Current evidence</p>
+              <h3>A verified functional MVP with clear next steps</h3>
+              <p>Eighty-four automated checks pass, ESLint completes cleanly, the optimized Next.js build compiles all
+                application code and 27 API routes, and migration 006 has been applied successfully to PostgreSQL. Live
+                provider, full browser, formal accessibility, and user-research evidence remain explicitly marked for
+                future validation rather than being claimed without proof.</p>
             </article>
           </div>
         </div>
@@ -2880,13 +2980,8 @@
               aria-labelledby="architecture-tab-interface">
               <p class="eyebrow">01 / Experience</p>
               <h3>Plans and project context in one place</h3>
-              <p>The dashboard asks what is urgent, the calendar asks when work lands, and the list supports search and
-                action. Projects shows its introductory heading before a workspace is open, then removes it to give the
-                active work more vertical room while keeping compact New and non-destructive Close actions in the selector. Closing restores the heading and project picker without changing stored data. The responsive,
-                NotebookLM-inspired workspace keeps Overview, Documents, Files, Tasks &amp; Deadlines, and Members in a
-                left navigation rail, the active work surface in the center, and project-scoped AI chat persistently
-                available on the right. Skills are temporarily hidden pending redesign. Compact composer selectors expose approval mode and only environment-configured provider/model choices.
-              </p>
+              <p>Dashboard, Calendar, and List turn one task collection into urgency, time, and detail views. Projects
+                use a responsive three-area workspace: navigation left, active work center, and contextual AI right.</p>
               <div class="tech-tags"><span>React 19</span><span>Period views</span><span>Three-area
                   workspace</span><span>Review UI</span><span>Responsive</span></div>
             </div>
@@ -2894,30 +2989,17 @@
               hidden>
               <p class="eyebrow">02 / Interface</p>
               <h3>Explicit JSON and streamed events</h3>
-              <p>Next.js Route Handlers manage items, categories, full project workspaces, members, sanitized documents,
-                local attachments, AI chat/tools, settings, cascade previews, and atomic Trash restoration. Project chat
-                routes each request through Context, Provider, Validate, and Review stages, limits the model to relevant
-                context and commands, streams one provider call as the user-facing answer, then uses a second internal
-                provider call to produce a dependency-free command plan. A new Documents-tab document and its initial
-                body become one creation command; uploaded Files remain a separate resource. Planora then converts events into
-                display-safe NDJSON. Running and pending commands become concise in-chat activity rows; terminal events
-                remove those rows without deleting the audit ledger. Tool-code envelopes stay out of chat and common
-                provider variants are normalized into the validated command registry.</p>
-              <div class="tech-tags"><span>Next.js 16</span><span>JSON</span><span>NDJSON stream</span><span>24
+              <p>Focused Route Handlers validate planner, project, file, Trash, and settings operations. Project chat
+                streams display-safe events while compact summaries open complete command review.</p>
+              <div class="tech-tags"><span>Next.js 16</span><span>JSON</span><span>NDJSON stream</span><span>27
                   routes</span></div>
             </div>
             <div class="architecture-panel" id="architecture-boundary" role="tabpanel"
               aria-labelledby="architecture-tab-boundary" hidden>
               <p class="eyebrow">03 / Safety</p>
               <h3>Validate before persistence or disclosure</h3>
-              <p>Allowed fields and identifiers are checked before parameterized SQL; rich text is sanitized, local
-                paths are generated and contained, and provider keys remain server-only. AI can use only the fixed
-                project command registry. A deterministic workflow selects relevant context and commands before the
-                two isolated provider roles: conversation first and internal command planning second. It then validates every proposal. Before approval exists, document edits are materialized against the complete current document, sanitized, and combined into one atomic preview per document. The exact stored preview appears in the target document for
-                highlighted approval. Insertions use start/end/before/after anchors; removals use exact text plus an
-                occurrence number. Invalid provider HTML escaping is repaired conservatively; a claimed review with no
-                accepted command becomes a concrete no-change error. Stale document or work edits fail safely, and destructive
-                commands use recoverable removal with Undo.</p>
+              <p>Inputs, SQL values, rich text, and file paths are constrained at the server boundary. AI receives
+                routed context and allowlisted commands; document edits become exact highlighted previews before human approval.</p>
               <div class="tech-tags"><span>sanitize-html</span><span>pg
                   pool</span><span>Gemini</span><span>OpenRouter</span><span>DeepSeek</span></div>
             </div>
@@ -2925,17 +3007,16 @@
               aria-labelledby="architecture-tab-database" hidden>
               <p class="eyebrow">04 / Persistence</p>
               <h3>Durable, constrained relations</h3>
-              <p>PostgreSQL stores category trees, settings, projects, members, many-to-many assignments, documents,
-                attachment metadata, AI history/tools/commands, and planner items. Shared Trash batch IDs make planner
-                cascades recoverable as one operation, while the AI command ledger records decisions and results.</p>
+              <p>PostgreSQL relates planner work, category trees, projects, members, documents, file metadata, and AI
+                history. Constraints, transactions, indexes, and timestamps protect consistency and recovery.</p>
               <div class="tech-tags"><span>PostgreSQL 17</span><span>Junction table</span><span>Soft delete</span></div>
             </div>
             <div class="architecture-panel" id="architecture-setup" role="tabpanel"
               aria-labelledby="architecture-tab-setup" hidden>
               <p class="eyebrow">05 / Provisioning</p>
               <h3>Repeatable local setup</h3>
-              <p>The diagnostic setup path prepares environment configuration, waits for Docker health, applies
-                migrations, and adds relative-date examples only when the planner is empty.</p>
+              <p>One diagnostic command prepares environment settings, waits for PostgreSQL, applies migrations, and
+                adds useful demo data only when needed.</p>
               <div class="tech-tags"><span>Docker Compose</span><span>IPv4-safe</span><span>Idempotent</span></div>
             </div>
           </div>
@@ -2970,14 +3051,14 @@
               <div class="case-caption">
                 <p class="eyebrow">UI transformation</p>
                 <h3>Capture once. Understand three ways.</h3>
-                <p>Views share the ordered collection while retaining separate category selections. Calendar adds its own
-                  project checks, so either Calendar filter leaves Dashboard and List unchanged.</p>
+                <p>Views share the ordered collection. Calendar keeps compact category/project checks, Dashboard stays
+                  urgency-focused, and the List persists richer combined filtering and sorting in the URL.</p>
               </div>
               <div class="projection-map">
                 <div class="projection-source"><strong>Shared item collection</strong></div>
-                <div class="projection-node"><strong>Dashboard</strong><span>Own category checks</span></div>
+                <div class="projection-node"><strong>Dashboard</strong><span>Urgency without filter clutter</span></div>
                 <div class="projection-node"><strong>Calendar</strong><span>Category + project checks</span></div>
-                <div class="projection-node"><strong>List</strong><span>Own category checks</span></div>
+                <div class="projection-node"><strong>List</strong><span>URL-backed toolbar filters</span></div>
               </div>
             </div>
             <div class="case-panel" id="case-routes" role="tabpanel" aria-labelledby="case-tab-routes" hidden>
@@ -3006,8 +3087,9 @@
               <div class="case-caption">
                 <p class="eyebrow">PostgreSQL model</p>
                 <h3>Constraints carry intent into storage.</h3>
-                <p>Categories reference parents, projects own categories and workspaces, assignments join multiple
-                  members to planner items, and effective reads inherit the project's category.</p>
+                <p>Categories reference parents for standalone classification, projects own independent workspaces,
+                  and assignments join multiple members to project-linked planner items. Compatibility category keys
+                  remain internal rather than appearing as project organization.</p>
               </div>
               <div class="schema-card">
                 <div class="schema-title"><strong>planner_items</strong><code>PostgreSQL 17</code></div>
@@ -3027,17 +3109,17 @@
               <div class="case-caption">
                 <p class="eyebrow">Controlled AI lifecycle</p>
                 <h3>The provider proposes; Planora decides what is reviewable.</h3>
-                <p>The model never writes directly to PostgreSQL. Planora routes the request, limits context and
-                  commands, requests JSON, validates and materializes the complete sanitized document, then stores one
-                  atomic preview for the user to accept or discard.</p>
+                <p>The model never writes directly to PostgreSQL. Planora routes before loading context, skips planning
+                  for conversation, validates actionable JSON, and stores one run linked to every audited command.
+                  Document text still becomes one exact sanitized comparison for the user to accept or discard.</p>
               </div>
               <div class="ai-flow" aria-label="AI document approval workflow">
                 <div class="ai-flow-step"><strong>Route</strong><span>Select relevant project scope</span></div>
                 <div class="ai-flow-step"><strong>Answer</strong><span>Conversational AI streams concise JSON</span></div>
-                <div class="ai-flow-step"><strong>Plan</strong><span>Command AI acts or asks for missing details</span></div>
+                <div class="ai-flow-step"><strong>Plan</strong><span>Only actionable requests call command AI</span></div>
                 <div class="ai-flow-step"><strong>Validate</strong><span>Normalize IDs, fields, and commands</span></div>
-                <div class="ai-flow-step"><strong>Preview</strong><span>Build and sanitize the exact result</span></div>
-                <div class="ai-flow-step"><strong>Decide</strong><span>Approve or discard before storage</span></div>
+                <div class="ai-flow-step"><strong>Group</strong><span>One run links every command and progress state</span></div>
+                <div class="ai-flow-step"><strong>Decide</strong><span>Review all; compare document text separately</span></div>
               </div>
               <div class="ai-preview-sample" aria-label="Example highlighted document change">
                 <header><strong>Project proposal</strong><span>Not saved</span></header>
@@ -3061,8 +3143,8 @@
           </div>
         </div>
         <div class="grid four" style="margin-bottom: 18px;">
-          <div class="card metric"><strong>57</strong><span>Unit checks executed</span></div>
-          <div class="card metric"><strong>57</strong><span>Unit checks passed</span></div>
+          <div class="card metric"><strong>84</strong><span>Automated checks executed</span></div>
+          <div class="card metric"><strong>84</strong><span>Automated checks passed</span></div>
           <div class="card metric"><strong>0</strong><span>Lint errors or warnings</span></div>
           <div class="card metric"><strong>0</strong><span>Known build errors</span></div>
         </div>
@@ -3087,9 +3169,9 @@
                   AI configuration/results, command modes/validation/migrations, reviewed document targets,
                   assignees, and file paths/types are
                   deterministic and safe</td>
-                <td>57 unit checks passed across thirteen test files, including Calendar project and unassigned-work filtering, environment-restricted model choices, clarification-aware command planning, AI workflow routing, provider JSON request formatting, bounded document
-                  diff highlighting, atomic preview materialization, positional insertion/removal, command normalization, command safety policy, and
-                  fragmented provider-stream decoding</td>
+                <td>84 checks passed across twenty test files, including confirmed permanent Trash deletion, server-owned project creation defaults, grouped Trash recovery, independent category/project filtering, combined task filters, every sorting mode,
+                  date boundaries, URL persistence, parameterized item queries, category reassignment rollback, grouped
+                  approvals beyond six commands, partial outcomes, workflow routing, document review, and stream decoding</td>
                 <td><span class="status-pill">Pass</span></td>
               </tr>
               <tr>
@@ -3105,15 +3187,23 @@
                 <td>FR-01–12</td>
                 <td><code>npm run build</code></td>
                 <td>Responsive UI and API compile</td>
-                <td>24 API routes built successfully</td>
+                <td>27 API routes built successfully</td>
                 <td><span class="status-pill">Pass</span></td>
               </tr>
               <tr>
                 <td>T-03</td>
                 <td>FR-01–12</td>
-                <td>Live PostgreSQL and provider smoke tests</td>
-                <td>Migration, CRUD, files, AI request/review, cascade, and restore persist</td>
-                <td>Current environment lacks a running PostgreSQL instance and real provider keys</td>
+                <td><code>npm run db:setup</code></td>
+                <td>Authenticate, apply migration 006 transactionally, and retain existing data</td>
+                <td>Authenticated as planora; migration applied; 20 existing planner items retained</td>
+                <td><span class="status-pill">Pass</span></td>
+              </tr>
+              <tr>
+                <td>T-04</td>
+                <td>NFR-04, NFR-05</td>
+                <td>Live provider and browser accessibility smoke tests</td>
+                <td>Real provider response, responsive critical flows, and assistive-browser behavior</td>
+                <td>Real provider keys and a browser automation dependency were not available for this verification</td>
                 <td><span class="status-pill">TBD</span></td>
               </tr>
             </tbody>
@@ -3132,9 +3222,9 @@
         <blockquote class="quote">The MVP compiles as one coherent planning and project flow: schedule work, inspect it
           at day, week, or month scale, organize nested folders, coordinate project members, save documents and files,
           and use project-only AI with explicit, balanced, or automatic command permissions.<small>Result supported by
-            57 unit checks, clean lint, and an optimized build of 24 API routes. The AI boundary requests structured
-            output and constructs the exact highlighted document preview before approval; live persistence and provider
-            smoke validation remain pending.</small></blockquote>
+            84 automated checks, clean lint, an optimized build of 27 API routes, and a successfully applied PostgreSQL migration. The AI boundary requests structured
+            output and constructs the exact highlighted document preview before approval; provider calls and full browser
+            accessibility validation remain pending.</small></blockquote>
       </section>
 
       <section class="section" id="reflection">
@@ -3149,7 +3239,8 @@
           <article class="card"><span class="placeholder-label">Limitations</span>
             <h3>Local single-user MVP</h3>
             <p>No accounts, reminders, recurrence, collaborative editing, external sync, production deployment, formal
-              accessibility audit, or live database/provider evidence yet. Attachments require separate local backup,
+              accessibility audit, or live provider evidence yet. Database migration setup is verified, but destructive
+              CRUD was not run against the user's existing records. Attachments require separate local backup,
               and AI reads text formats but not PDF/image contents.</p>
           </article>
           <article class="card"><span class="placeholder-label">Learning</span>
@@ -3159,8 +3250,8 @@
           </article>
           <article class="card"><span class="placeholder-label">Next priorities</span>
             <h3>Validate before expanding</h3>
-            <p>Run live migration, CRUD, interval-calendar, and browser accessibility tests first, then add reminders
-              based on user feedback rather than broadening scope immediately.</p>
+            <p>Add isolated-database API integration and browser accessibility tests, then validate grouped approval and
+              responsive filtering with users before adding reminders or broadening scope.</p>
           </article>
         </div>
       </section>
@@ -3210,7 +3301,7 @@
 
       <footer class="report-footer">
         <span>Project Planora / Interactive assignment report</span>
-        <span>Student: TBD / Course: TBD / Updated: 27 August 2026</span>
+        <span>Student: TBD / Course: TBD / Updated: 28 August 2026</span>
       </footer>
     </div>
   </main>

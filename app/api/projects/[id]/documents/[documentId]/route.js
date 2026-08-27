@@ -3,6 +3,19 @@ import { isUuid } from "@/lib/categories";
 import { query } from "@/lib/db";
 import { sanitizeDocumentHtml, validateDocument } from "@/lib/projects";
 
+export async function GET(_request, context) {
+  try {
+    const { id, documentId } = await context.params;
+    if (!isUuid(id) || !isUuid(documentId)) return NextResponse.json({ error: "Invalid document." }, { status: 400 });
+    const result = await query(`SELECT id,title,content_html AS "contentHtml",created_at AS "createdAt",updated_at AS "updatedAt"
+      FROM project_documents WHERE id=$1 AND project_id=$2 AND deleted_at IS NULL`, [documentId, id]);
+    return result.rowCount ? NextResponse.json({ document: result.rows[0] }) : NextResponse.json({ error: "Document not found." }, { status: 404 });
+  } catch (error) {
+    console.error("GET project document", error);
+    return NextResponse.json({ error: "Document could not be loaded." }, { status: 500 });
+  }
+}
+
 export async function PATCH(request, context) {
   try {
     const { id, documentId } = await context.params;

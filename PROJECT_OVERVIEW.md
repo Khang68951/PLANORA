@@ -11,9 +11,9 @@ Planora is a single-user planning application for people who may have no technic
 - Phase: functional MVP
 - Application: Next.js 16 App Router, JavaScript, React, and Tailwind CSS
 - Persistence: PostgreSQL through `pg`
-- Core behavior: task/deadline CRUD, nested categories and filters, full project workspaces, many-member assignments, rich-text documents, local attachments, a Planora-routed Gemini/OpenRouter/DeepSeek workflow with auditable commands and three approval modes, category inheritance, recoverable Trash, and local category suggestions
+- Core behavior: task/deadline CRUD, nested standalone categories, independent project filters and full project workspaces, many-member assignments, rich-text documents, local attachments, a Planora-routed Gemini/OpenRouter/DeepSeek workflow with auditable commands and three approval modes, recoverable Trash with confirmed permanent deletion, and local category suggestions
 - Setup: Docker Compose plus an idempotent, diagnostic Node.js schema/seed script
-- Verification: 57 domain unit tests, clean ESLint, and an optimized Next.js build containing 24 dynamic API routes
+- Verification: 84 domain/unit checks, clean ESLint, an optimized Next.js build containing 27 dynamic API routes, and migration 006 applied successfully to PostgreSQL
 
 ## Goals and non-goals
 
@@ -37,31 +37,31 @@ The primary user is someone who needs a visual planner but should not need compu
 
 1. Review urgent, overdue, upcoming, and completed counts on the dashboard, with assigned PIC members visible directly in the Priority queue.
 2. Switch the calendar between focused day, Sunday-first week, and six-week month modes; navigate by the active period and select a day to create an item.
-3. Create or edit a task with a start/end interval, or a deadline with one due time, plus title, optional notes, status, priority, category or category-bearing project; ask for up to three category suggestions.
-4. Independently choose the visible categories in Dashboard, Calendar, and Tasks & deadlines using Canvas-style checkboxes. Calendar also filters independently by project, including work with no project. Its sticky right rail keeps separately scrollable category and project lists on wide screens, with arrows to collapse or expand category folders that contain children; manage nested folders, colors, hidden state, the default category, and nesting depth separately.
-5. Preview the complete cascade impact before moving a category subtree to Trash, then restore the entire batch if needed.
-6. Search or filter items, see assigned PIC members on applicable rows, mark work complete, reopen it, or move it to Trash.
-7. Open the top-right Settings dialog to choose Paper, Ocean, or Night appearance, a default Calendar mode, and reduced motion; preferences persist on the current device.
-8. Create a project with category, type, dates, status, and progress, then use the left rail for Overview, Documents, Files, Tasks & Deadlines, and Members while project AI chat remains available in the right rail; the earlier AI Skills surface is temporarily hidden pending redesign.
+3. Create or edit a task with a start/end interval, or a deadline with one due time, plus title, optional notes, status, priority, and either a standalone category or project; ask for up to three category suggestions only for standalone work.
+4. Filter Calendar with compact, collapsible category and project controls in its secondary right rail. Category management lives in Settings rather than appearing as a primary workspace.
+5. Preview category-deletion impact on standalone work and choose a replacement classification before moving only the category subtree to Trash; projects remain a separate visible organization type.
+6. Use the Tasks & deadlines toolbar for search, quick kind/overdue choices, detailed status/time/priority/category/project/PIC filters, removable chips, result count, and every supported sort order. Filter state persists in the URL.
+7. Open the dedicated top-right Trash dialog to inspect grouped deleted records, restore a complete deletion batch, or permanently remove one only after a non-recoverable impact warning; open Settings to choose appearance, default Calendar mode, and reduced motion.
+8. Create a project with type, dates, status, and progress, then use the left rail for Overview, Documents, Files, Tasks & Deadlines, and Members while project AI chat remains available in the right rail; the earlier AI Skills surface is temporarily hidden pending redesign.
 9. Save sanitized rich-text documents manually or with Ctrl+S, with warnings before unsaved work is abandoned; upload and preview local project attachments.
-10. Optionally choose zero, one, or many project members as a task/deadline's PIC, manually or through validated AI commands, and ask project AI about only that project's data. Choose whether every AI command, only changing/destructive commands, or most commands require confirmation; active commands appear as compact transient rows inside chat, while AI document text edits appear automatically inside the target document and require approval. Completed rows disappear without removing their PostgreSQL audit records.
+10. Optionally choose zero, one, or many project members as a task/deadline's PIC, manually or through validated AI commands. One AI prompt creates one compact approval run in chat, while its complete command list, group decisions, progress, individual errors, and document-specific review actions use a spacious review drawer. AI document text edits still appear as highlighted comparisons in the target document and always require explicit approval.
 
 ## Architecture
 
-The browser renders the client-side planner shell in `components/PlannerApp.jsx`, project UI in `components/ProjectWorkspace.jsx`, and folder manager in `components/CategoryPanel.jsx`. It fetches JSON from Next.js Route Handlers under `app/api`. Route handlers validate user input and use parameterized SQL through the shared `pg` pool in `lib/db.js`. PostgreSQL owns structured planner data; project attachment bytes are stored beneath `storage/projects` with safe generated names and PostgreSQL metadata. Project-linked items expose and display an effective category using `COALESCE(project.category_id, item.category_id)`, so changing a project's category is inherited without rewriting its tasks. Project work mutations refresh both the local workspace and PlannerApp's shared item collection, keeping Calendar and Tasks & deadlines synchronized without a full page reload. The Projects introduction is shown whenever no project is selected; an open project removes that large heading to maximize vertical working space. A non-destructive Close action clears only client selection and returns to the heading plus a project picker, while the existing unsaved-document guard still applies. The open project UI uses a responsive three-area workspace: non-AI navigation on the left, the active work surface in the center, and project-scoped AI chat on the right. All three columns begin on the same horizontal line; on wide screens only the two side boxes follow page scrolling while the middle remains in normal flow, and narrower stacked layouts disable sticky positioning.
+The browser renders the planner shell in `components/PlannerApp.jsx`, the focused task workspace in `components/planner/TasksView.jsx`, project UI in `components/ProjectWorkspace.jsx`, the project approval drawer in `components/project/AIApprovalReview.jsx`, and category management in `components/CategoryPanel.jsx`. `usePlannerData`, `useItemMutations`, and `useTaskFilters` keep loading, mutations, and URL-backed selection logic outside presentation components; `lib/api-client.js` provides a shared structured browser API boundary. Next.js Route Handlers validate input and use parameterized SQL through `lib/db.js`. PostgreSQL owns structured planner data; project attachment bytes remain beneath `storage/projects`. Project-tab lists load only for the selected sub-tab, and full document HTML loads only after one document opens. The UI treats project membership and standalone categories as separate organization dimensions: category controls and labels are omitted for project work, and category filtering bypasses project-linked records while Project filters control them. Legacy non-null category references remain internally for schema compatibility. Shared refresh keeps Calendar and Tasks & deadlines synchronized without a page reload. The responsive project UI retains non-AI navigation left, selected content center, and project AI right. Project creation and unsaved-warning overlays render outside the transformed wide-workspace container so their fixed positioning and pointer interaction remain viewport-bound in both open and closed states.
 
 ```text
 Browser UI -> Next.js APIs -> validation/provider boundary -> PostgreSQL + local project files
                                                    \-> Gemini, OpenRouter, or DeepSeek
 ```
 
-The dashboard and calendar are projections of the same item collection returned by the API; there are no duplicated dashboard tables. Task placement uses its start/end interval (including every intersected calendar day), while deadlines use `dueAt`. Pure date helpers generate and navigate the day, week, and month ranges and apply Calendar's project selection, including the explicit no-project group. Each tab keeps its own in-memory category selection, while Calendar separately keeps project selection and category-tree expansion state, so either Calendar filter leaves Dashboard and Tasks & deadlines unchanged. Validated appearance, default-view, and motion preferences use browser-local storage because they belong to the device rather than PostgreSQL planner records. Optimistic completion and deletion keep interactions quick, with rollback when a request fails.
+The dashboard and calendar are projections of the same item collection returned by the API; there are no duplicated dashboard tables. Task placement uses its start/end interval, while deadlines use `dueAt`. Pure selectors in `lib/task-selectors.js` own date boundaries, combined filtering, relative labels, all sort modes, and URL serialization. `lib/item-query.js` mirrors scalable parameterized search/filter/sort/pagination on the server. No full-text search index is added yet because current workspaces are small and use `ILIKE`; the new partial schedule and updated-time indexes directly support implemented active-item queries. Calendar independently keeps project/category selection in compact disclosures. Validated display preferences remain browser-local. Optimistic completion and deletion roll back on request failure, and item edits use `updatedAt` stale-write checks.
 
-Project AI is server-only and workflow-controlled. `lib/ai-workflow.js` deterministically routes each request to document, file, work, member, and/or project scopes and selects only their relevant context and command catalog entries. The configured Gemini, OpenRouter, or DeepSeek provider then serves two isolated roles: the first call streams only the concise user-facing answer, and the second internal call converts the request into a complete command-only plan. The planner is forbidden from inventing IDs or creating cross-command dependencies; creating and initially writing a Documents-tab document must be one `documents.create` command, while uploaded attachments remain distinct Files resources. Safe defaults and relative dates are inferred, while genuinely missing user-controlled information returns one concise `clarificationQuestion`; recent chat history lets the next answer complete the original plan. The internal planner receives a 6,000-token allowance so a proposal plus multiple work commands is less likely to be truncated. Both calls use provider-native JSON mode. Planora then normalizes known variants, allowlist-filters, validates, audits, and applies or queues each action; neither AI role has database access. Workflow events expose Route, Context, Provider, Validate, and Review/Complete stages to the client. Provider keys and internal command output never enter client bundles or visible chat.
+Project AI is server-only and workflow-controlled. `lib/ai-workflow.js` routes each message before querying context, then selects only required document, file, work, member, and/or project scopes. Pure conversation defaults to lightweight project metadata; file bytes are read only for file requests, document bodies only for document requests, and the command-planner call is skipped when wording cannot produce a command. Gemini, OpenRouter, or DeepSeek still serve isolated conversation and internal-planner roles for actionable requests. Requests have a 90-second provider timeout, propagate cancellation, and return clear timeout, cancellation, configuration, or provider errors. Planora normalizes, allowlist-filters, validates, audits, and applies or queues actions; neither AI role receives database access.
 
 The client adds the outgoing message optimistically, displays an accessible animated thinking bubble until the first text arrives, appends streamed fragments with a cursor, and replaces temporary rows with the persisted message pair without refetching the workspace. Stable role-aware ordering keeps user messages before their paired assistant replies even when PostgreSQL gives both rows the same timestamp. The composer grows automatically from one line to a 180px limit and then scrolls internally, with no manual resize grip. The server streams a command's `running` or `pending` state before execution so the conversation can name its actual activity, such as Reading, Creating, Editing, Adding or Removing text, Assigning, Updating, or Deleting. Automatic reads briefly remain visible without controls; pending commands remain until a decision, and terminal states remove the row while the database ledger remains durable.
 
-AI output contains validated commands from a fixed server registry rather than unrestricted SQL or client-side mutations. Read commands cover project search, documents, supported text files, work, and members. Change commands cover project metadata, documents, work, PIC assignments, members, and roles. `work.create` accepts optional validated `assigneeIds` for zero, one, or many existing member PICs; `work.assign` replaces PICs on existing work, and aliases such as `picIds` are normalized before validation. Destructive commands move documents, files, work, or members out of active use and return an Undo record; permanent AI deletion is unavailable. Every command is persisted in `project_ai_commands` with its arguments, safety class, mode, status, result, and error. `approve_all` queues every command, the default `approve_changes` automatically runs reads but queues changes and destructive actions, and `auto` runs most commands after a centered warning. `documents.update`, `documents.insert`, and `documents.remove` are invariant exceptions: before a pending command is stored, the server applies it to the complete current document, sanitizes the result, and stores that exact preview. Multiple edits to one document are folded into one atomic comparison. The target document then opens automatically with a bounded highlighted diff and explicit Approve/Discard controls; approval applies the same preview that was shown. Insertion supports start, end, or the first exact before/after anchor; removal targets exact source text and a 1-based occurrence. Document and work edits carry the reviewed version so later human changes cannot be silently overwritten.
+AI output contains validated commands from a fixed registry rather than unrestricted SQL or client mutations. Every prompt is persisted once in `project_ai_runs`; its individual `project_ai_commands` reference that run instead of duplicating request text. Compact chat summaries show resource counts and progress, while a full review drawer exposes every command—without the former six-command display limit—plus individual decisions, group rejection, eligible batch approval, and per-command errors. Batch rejection is transactional; batch approval deliberately executes independently auditable commands in sequence and reports honest partial outcomes. Document changes are excluded from approve-all and retain their exact highlighted in-document comparison. Run history is paginated, stale group decisions are rejected with `updatedAt`, and every command retains its safety, mode, arguments, result, error, and audit status.
 
 ## Project map
 
@@ -70,14 +70,17 @@ AI output contains validated commands from a fixed server registry rather than u
 | `app/page.js` | Application entry point. |
 | `app/globals.css` | Tailwind import, design tokens, responsive product styling. |
 | `app/api/items/` | Item list/create/update and soft-delete endpoints. |
-| `app/api/categories/` | Category tree CRUD, impact preview, cascade Trash/restore, and suggestion endpoints. |
-| `app/api/projects/` | Full project CRUD/workspace, member, document, file, AI chat, and AI-tool endpoints. |
+| `app/api/categories/` | Category CRUD, impact preview, transactional work reassignment, category-only Trash/restore, and suggestions. |
+| `app/api/projects/` | Project CRUD, lazy workspace resources, members, documents, files, AI chat, grouped runs, and tools. |
 | `app/api/settings/categories/` | Default category and nesting-depth settings. |
 | `app/api/settings/ai/` | Provider/model selection and non-secret key-status reporting. |
-| `app/api/trash/` | Trash inventory and atomic batch restoration. |
-| `components/PlannerApp.jsx` | Dashboard, calendar, list, independent checkbox filters, item form, and client state. |
-| `components/ProjectWorkspace.jsx` | Responsive three-area project workspace, vertical sub-tabs, synchronized project work, documents, files, members, assignments, persistent AI chat with composer controls, and central highlighted AI document review. |
-| `components/CategoryPanel.jsx` | Category-management launcher, responsive manager, settings, impact warning, and Trash UI. |
+| `app/api/trash/` | Trash inventory, atomic batch restoration, and confirmed transactional permanent deletion. |
+| `components/PlannerApp.jsx` | Planner shell, Dashboard/Calendar orchestration, item form, global Trash, and Settings. |
+| `components/planner/TasksView.jsx` | Responsive task toolbar, filter surface, chips, sorting, count, and detailed rows. |
+| `components/ProjectWorkspace.jsx` | Responsive three-area project workspace and lazy sub-tab coordination. |
+| `components/project/AIApprovalReview.jsx` | Spacious grouped AI command review, progress, and group/individual decisions. |
+| `components/CategoryPanel.jsx` | Settings-owned category manager, replacement warning, defaults, and nesting. |
+| `hooks/` | Shared planner loading/mutations and URL-persisted task filtering. |
 | `lib/db.js` | Reused PostgreSQL connection pool. |
 | `lib/database-url.mjs` | Validates database URLs and normalizes local `localhost` connections to explicit IPv4. |
 | `lib/items.js` | Allowed values, input validation, and shared SQL column list. |
@@ -85,6 +88,12 @@ AI output contains validated commands from a fixed server registry rather than u
 | `lib/ai.js` | Gemini/OpenRouter/DeepSeek abstraction, effective settings, server requests, and structured-result parsing. |
 | `lib/ai-workflow.js` | Deterministic request routing, context scoping, and per-request command allowlisting before provider reasoning. |
 | `lib/ai-commands.js` | Allowlisted project AI command registry, validation, permission decisions, project-scoped execution, and recoverable undo. |
+| `lib/ai-runs.js` | Group summaries, progress, batch eligibility, and truthful aggregate statuses. |
+| `lib/ai-batch.js` | Sequential, independently auditable approval execution with explicit partial/skip outcomes. |
+| `lib/api-client.js`, `lib/http.js` | Shared browser requests plus structured server JSON parsing/errors. |
+| `lib/task-selectors.js`, `lib/item-query.js` | Pure client selectors and parameterized server list query construction. |
+| `lib/trash.js` | Groups recoverable records, builds permanent-delete warnings, and transactionally purges one Trash batch. |
+| `lib/category-deletion.js` | Transactional category reassignment and category-only Trash operation. |
 | `lib/document-diff.js` | Bounded readable-text conversion and word-level chunks for safe inline AI document comparison. |
 | `lib/document-insertion.js` | Deterministic start/end/before/after placement for reviewed AI rich-text fragments. |
 | `lib/project-files.js` | Attachment limits, safe paths/names, preview, and AI-readable type rules. |
@@ -138,34 +147,37 @@ No production environment has been configured. The included database credentials
 
 `planner_items` uses `kind` as a discriminant. Tasks require `start_at` and `end_at` with `end_at > start_at` and must not contain `due_at`; deadlines require `due_at` and must not contain task interval fields. Both share UUID `id`, title, nullable description, status, priority, assigned category, nullable project, and created/updated timestamps. The JSON API exposes these as camelCase (`startAt`, `endAt`, `dueAt`, `categoryId`, `projectId`, `createdAt`, `updatedAt`).
 
-`categories` is a self-referencing adjacency list (`parent_id`) with name, color, hidden state, soft-delete metadata, and an active sibling-name uniqueness rule. `planner_settings` holds default category, nesting depth, and optional AI provider/model overrides. `projects` owns one category plus description, type, start/deadline dates, status, progress, and AI command mode. `project_members` and `planner_item_assignees` implement many-to-many assignments. `project_documents`, `project_files`, `project_ai_messages`, `project_ai_tools`, and `project_ai_commands` belong to a project and cascade only on a permanent project deletion; moving a project to Trash retains its whole workspace for restoration. Members, documents, and file metadata have active/soft-deleted states for recoverable AI removal. Local attachment contents are not stored in PostgreSQL or Git.
+`categories` remains a compatible self-referencing adjacency list and is presented as a standalone-work classification. Deleting a subtree locks the relevant categories, maintains required legacy references with a chosen/default replacement, updates the configured default if necessary, and soft-deletes only categories in one transaction. `planner_settings` holds default category, nesting depth, and optional AI provider/model overrides. `projects` retains an internal compatibility category reference but presents description, type, dates, status, progress, and AI command mode independently. Project creation resolves that compatibility reference from the active configured default on the server; the browser form neither displays nor submits a category. `project_members` and `planner_item_assignees` implement many-to-many assignments. `project_documents`, `project_files`, `project_ai_messages`, `project_ai_tools`, `project_ai_runs`, and `project_ai_commands` belong to a project. Local attachment contents are not stored in PostgreSQL or Git.
 
-API reads use the project's category when an item is linked. Categories, projects, and items use `deleted_at` plus a shared `trash_batch_id` for atomic cascade restoration. PostgreSQL 17's built-in `gen_random_uuid()` supplies UUIDs. `schema_migrations` ensures each ordered migration runs once in a transaction.
+API reads retain compatibility category fields, but browser presentation and filtering ignore them when an item is project-linked. Categories, projects, and items use `deleted_at` plus a shared `trash_batch_id` for atomic cascade restoration. PostgreSQL 17's built-in `gen_random_uuid()` supplies UUIDs. `schema_migrations` ensures each ordered migration runs once in a transaction.
 
 ## Interfaces and integrations
 
 | Method and route | Purpose |
 | --- | --- |
-| `GET /api/items` | Return all items ordered by due date. |
+| `GET /api/items` | Paginated item search/filter/sort with validated kind, status, priority, category, project, PIC, date, and ordering parameters. |
 | `POST /api/items` | Validate and create an item. |
-| `PATCH /api/items/:id` | Merge, fully validate, and edit task/deadline fields. |
+| `PATCH /api/items/:id` | Merge, fully validate, and edit fields with optional `expectedUpdatedAt` concurrency protection. |
 | `DELETE /api/items/:id` | Move one item to Trash. |
 | `GET/POST /api/categories` | Read the active category tree/settings or create a category. |
 | `PATCH /api/categories/:id` | Rename, recolor, move, or hide/show a category. |
-| `DELETE /api/categories/:id` | Preview impact, then atomically soft-delete a confirmed subtree and affected records. |
+| `DELETE /api/categories/:id` | Preview impact, select/fall back to an active replacement, atomically reassign work/projects, then Trash only the category subtree. |
 | `POST /api/categories/suggest` | Return up to three visible category suggestions from names and saved-item examples. |
 | `GET/POST /api/projects` | List or create full project records. |
-| `GET/PATCH/DELETE /api/projects/:id` | Load/edit a workspace or move its project and items to Trash. |
+| `GET/PATCH/DELETE /api/projects/:id` | Load selected `include` resources lazily, edit a project, or move its project/items to Trash. |
 | `/api/projects/:id/members[/memberId]` | Create, edit, or remove project members and their assignments. |
 | `/api/projects/:id/documents[/documentId]` | Create, sanitize, save, rename, or delete rich-text documents. |
 | `/api/projects/:id/files[/fileId][/content]` | Upload, preview, or delete a local attachment linked to a project. |
-| `POST /api/projects/:id/ai/chat` | Stream visible answer deltas and persisted command activity, then return the ordered message pair and normalized commands in the final NDJSON event. |
+| `POST /api/projects/:id/ai/chat` | Route before context, stream visible deltas/workflow, persist one AI run plus commands, and return its compact group model in the final NDJSON event. |
 | `PATCH /api/projects/:id/ai/mode` | Save `approve_all`, `approve_changes`, or `auto` for one project. |
 | `PATCH /api/projects/:id/ai/commands/:commandId` | Approve, discard, or undo a persisted project AI command. |
+| `GET /api/projects/:id/ai/runs` | Paginate grouped prompt/approval history with full command progress. |
+| `GET/PATCH /api/projects/:id/ai/runs/:runId` | Load one approval group or approve eligible/reject pending commands with stale-review protection. |
 | `/api/projects/:id/ai/tools[/toolId]` | Create or delete custom project prompt buttons. |
 | `GET/PATCH /api/settings/ai` | Read effective provider/model and save a validated selection without exposing keys. |
 | `PATCH /api/settings/categories` | Change default category or allowed nesting depth. |
 | `GET /api/trash` | List recoverable categories, projects, and items. |
+| `DELETE /api/trash/:batch` | Permanently delete one Trash batch and project-owned data, then clean up local attachments. |
 | `POST /api/trash/:batch/restore` | Restore every record in one Trash batch. |
 
 Errors use JSON and meaningful HTTP status codes. SQL values are parameterized. Suggestions are deterministic, private, and local: token overlap against category names and up to 200 recent examples provides lightweight AI-assisted classification without sending planner text to a third party.
@@ -183,8 +195,8 @@ Errors use JSON and meaningful HTTP status codes. SQL values are parameterized. 
 | 2026-08-26 | Pin local PostgreSQL connections to IPv4 and publish Docker only on `127.0.0.1`. | Prevents Ubuntu `localhost`/IPv6 resolution from reaching a different native PostgreSQL server and avoids exposing the development database beyond the host. |
 | 2026-08-26 | Separate connection, schema, and seed diagnostics. | The previous broad catch mislabeled every schema failure as a connection failure and obscured the actionable PostgreSQL error. |
 | 2026-08-26 | Model categories as a self-referencing tree with a configurable depth limit. | It provides folder behavior while preserving simple SQL and API traversal. |
-| 2026-08-26 | Use soft deletes and shared Trash batch IDs for category cascades. | Users see impact before deletion and can atomically restore a subtree with its projects and items. |
-| 2026-08-26 | Resolve project category inheritance at read time. | Moving a project changes the effective category of all linked work without bulk item updates. |
+| 2026-08-26 | Use soft deletes and shared Trash batch IDs for the original category cascade. | Superseded on 2026-08-27 by safe reassignment so deleting a classification never removes active work. |
+| 2026-08-26 | Resolve legacy project category references at read time. | This preserves storage compatibility; the 2026-08-27 user-facing model now hides those references and organizes project work independently. |
 | 2026-08-26 | Keep category suggestions local and deterministic. | It provides useful, testable assistance with no API key, cost, network dependency, or disclosure of task text. |
 | 2026-08-26 | Keep category visibility state inside each workspace tab. | It matches calendar-style filtering and prevents a Calendar choice from unexpectedly changing Dashboard or Tasks. |
 | 2026-08-26 | Keep tasks and deadlines in one discriminated table with mutually exclusive temporal fields. | Shared metadata stays simple while PostgreSQL guarantees task intervals and deadline due times cannot be mixed. |
@@ -196,6 +208,10 @@ Errors use JSON and meaningful HTTP status codes. SQL values are parameterized. 
 | 2026-08-26 | Apply AI document replacements only after comparison, approval, and version checking. | Users can delegate additions or removals without silent overwrites, stale changes, or AI-triggered deletion. |
 | 2026-08-26 | Decode structured provider streaming on the server and expose only display-safe chat events. | Users see progressive answers without receiving provider JSON syntax or unreviewed proposal data. |
 | 2026-08-27 | Put a deterministic Planora workflow around every project-AI provider request. | Providers receive only routed context and command choices, while Planora retains validation, persistence, and approval authority. |
+| 2026-08-27 | Treat categories as classifications and reassign references before deletion. | Removing a label cannot unexpectedly remove tasks, deadlines, or projects from active work. |
+| 2026-08-27 | Group AI commands by one durable run per user prompt. | Chat stays compact while complete audit, progress, batch decisions, document exceptions, and partial failures remain visible. |
+| 2026-08-27 | Lazy-load project resources by selected sub-tab. | Opening a project no longer transfers every document body, attachment list, member, and work record at once. |
+| 2026-08-27 | Separate projects from categories in the user-facing organization model. | Category filters classify standalone work only; project membership, labels, and filters organize project work without redundant category UI. |
 
 ## Known limitations and open questions
 
@@ -203,11 +219,21 @@ Errors use JSON and meaningful HTTP status codes. SQL values are parameterized. 
 - Reminders, recurring tasks, drag-and-drop rescheduling, collaborative editing, and calendar integrations remain future work.
 - Project files are local-only and require separate backup/migration. AI reads supported text formats but does not extract image or PDF contents; those formats provide metadata and browser preview only.
 - Live provider calls were not verified because no real Gemini, OpenRouter, or DeepSeek key is committed. Provider failures surface in the project chat UI.
-- Live PostgreSQL behavior was not exercised in the current environment because PostgreSQL and Docker were unavailable; schema/application integration is build-verified but requires a runtime database smoke test.
-- Project context is assembled before the provider call, so command approval controls execution inside Planora rather than acting as a provider data-disclosure consent boundary.
+- Migration 006 and idempotent database setup were exercised against PostgreSQL at `172.22.0.2/32`; full browser CRUD and destructive category smoke tests were intentionally not run against the user's existing records.
+- Approval controls execution inside Planora rather than acting as provider-data consent. Routing now precedes context loading and minimizes disclosed scopes, but any context selected for the answer still goes to the configured provider.
 - Formal user research, accessibility audit, browser matrix, automated API tests, hosting target, student name, course details, and product screenshots remain `TBD`.
 
 ## Recent changes
+
+- 2026-08-28: Tightened the submission report's interactive Design architecture panel by reducing its vertical footprint and replacing dense layer descriptions with concise, evidence-preserving summaries.
+- 2026-08-28: Added per-batch Delete forever controls inside Trash with a styled irreversible-action confirmation, transactional dependent-record cleanup, project attachment removal, explicit cleanup warnings, and permanent-deletion tests.
+- 2026-08-27: Restored clickable project creation after Close by moving project dialog layers outside the transformed wide-workspace container; expanded the submission report with a nine-part capability map and an evidence-based eight-stage journey from the original calendar concept through the planner, project, AI, safety, and refinement extensions.
+- 2026-08-27: Fixed creating a project after closing the current workspace by removing the stale hidden category dependency from the browser form and resolving the required legacy compatibility category from the configured active default on the server.
+
+- 2026-08-27: Refactored planner data and item mutations into shared hooks/API helpers; added a feature-owned Tasks & deadlines workspace with pure tested URL filters, every requested sorting mode, responsive progressive disclosure, detailed accessible rows, and server-side query/pagination support.
+- 2026-08-27: Demoted categories to Settings and compact Calendar filtering; category deletion now transactionally reassigns active work/projects to a replacement before moving only the category subtree to Trash.
+- 2026-08-27: Added migration 006 with grouped `project_ai_runs`, command relationships, query-backed partial indexes, and consistent `updated_at` triggers; added paginated run APIs, stale group checks, group approve/reject, complete command visibility, and central review UI.
+- 2026-08-27: Routed AI messages before context loading, skipped planner calls for non-actionable conversation, restricted document/file loading by scope, added provider cancellation/timeout errors, lazy-loaded project-tab resources and opened document bodies, and grew verification from 57 to 78 checks plus 26 built API routes.
 
 - 2026-08-27: Extended the optional PIC-name display from Dashboard's Priority queue to the main Tasks & deadlines list while leaving unassigned rows unchanged.
 
@@ -225,7 +251,7 @@ Errors use JSON and meaningful HTTP status codes. SQL values are parameterized. 
 - 2026-08-26: Synchronized the assignment report with the implemented requirements, architecture, verification evidence, and known limitations.
 - 2026-08-26: Added terminal-only Ubuntu setup and daily-use instructions, and made the optional Python npm utility use Ubuntu's `python3` command.
 - 2026-08-26: Hardened local PostgreSQL authentication with explicit IPv4 routing, env migration, health waiting, startup retries, configuration-aware pool refresh, safe endpoint diagnostics, and six unit tests; removed the unnecessary `pgcrypto` setup privilege.
-- 2026-08-26: Added nested, colored, movable and hideable categories; configurable default/depth settings; subtree filters; project category inheritance with a seeded example project; impact-confirmed cascade Trash and batch restoration; private local category suggestions; transactional migrations; responsive management UI; and category-domain tests.
+- 2026-08-26: Added nested, colored, movable and hideable categories; configurable defaults/depth; inheritance, suggestions, and the original cascade Trash design. The 2026-08-27 safe-reassignment update supersedes that original deletion behavior.
 - 2026-08-26: Replaced the global sidebar category filter with responsive, Canvas-style checkbox filters whose selections remain independent across Dashboard, Calendar, and Tasks & deadlines; retained category management in the sidebar.
 - 2026-08-26: Moved Calendar's category filter into a sticky right-hand rail above Coming soon, with a below-calendar fallback on narrower layouts so the month grid remains first.
 - 2026-08-26: Added the MVP task/deadline field model, kind-specific camelCase API mapping, temporal validation and database constraint, compatibility migration for existing items, interval-aware calendar behavior, edit controls, create/edit forms, updated seed fixtures, and five item-domain tests.
@@ -254,10 +280,14 @@ Errors use JSON and meaningful HTTP status codes. SQL values are parameterized. 
 - 2026-08-27: Corrected transient AI command labels so create, text insertion/removal, rename, assignment, edit, and delete operations describe their actual action instead of appearing as generic document writing.
 - 2026-08-27: Split project AI into a streamed conversational role and a second internal command-planner role, with explicit Documents-versus-Files semantics and dependency-free creation rules that combine a new document's title and initial body into one command.
 - 2026-08-27: Replaced command-planning refusals with context-preserving clarification questions, added safe inference rules for relative schedules, prevented partial execution of invalid plans, and raised the internal planner output allowance for document-plus-work requests.
-- 2026-08-27: Displayed inherited categories on project work, synchronized manual and AI project mutations with shared Calendar/list state, temporarily hid AI Skills pending redesign, and moved approval mode plus environment-only model selection into the chat composer.
+- 2026-08-27: Synchronized manual and AI project mutations with shared Calendar/list state, temporarily hid AI Skills pending redesign, and moved approval mode plus environment-only model selection into the chat composer.
 - 2026-08-27: Removed horizontal overflow from project chat by constraining the rail, messages, composer, and compact selectors; long text and model names now wrap or truncate within the available width.
 - 2026-08-27: Exposed the existing many-member work assignment as optional PIC throughout project task/deadline UI and taught AI creation/assignment commands to normalize and validate zero, one, or many PIC member IDs.
 - 2026-08-27: Added a non-destructive Close Project action that clears only the active client selection, restores the Projects heading and reopen picker, and honors unsaved-document warnings without modifying stored data.
+- 2026-08-27: Made Calendar entries visibly interactive on hover and keyboard focus; selecting an existing task or deadline now opens its populated edit/details form while selecting empty day space continues to open creation for that date.
+- 2026-08-27: Removed redundant category controls from project-linked task/deadline forms, preserved internal compatibility references during saves, and repaired the item PATCH query so existing work can be edited successfully.
+- 2026-08-27: Separated projects from categories across the visible UI and filtering model, removed project-related category labels/controls, made category filters apply only to standalone work, added neutral project markers, and fixed the Tasks filter overlay's previously undefined transparent surface.
+- 2026-08-27: Promoted Trash from the buried category manager into a dedicated top-bar dialog with grouped batch summaries and restore actions; added grouping coverage and made selected Tasks-filter ticks visibly green on a pale accent background.
 
 ## Maintenance contract
 
