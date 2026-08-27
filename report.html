@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Project Planora - interactive project report and showcase">
+  <meta name="description" content="Planora project report: problems, user capabilities, design, implementation, and evidence">
   <meta name="theme-color" content="#0b1020">
   <title>Planora | Project Report</title>
   <style>
@@ -915,6 +915,71 @@
       color: var(--muted);
     }
 
+    .capability-card {
+      display: grid;
+      align-content: start;
+      gap: 14px;
+    }
+
+    .capability-card .card-icon {
+      margin-bottom: 8px;
+    }
+
+    .capability-card h3 {
+      margin-bottom: 0;
+    }
+
+    .capability-problem {
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-size: .82rem;
+    }
+
+    .capability-problem strong {
+      color: var(--warning);
+    }
+
+    .feature-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .feature-list li {
+      position: relative;
+      padding-left: 20px;
+      color: var(--muted);
+      font-size: .86rem;
+    }
+
+    .feature-list li::before {
+      position: absolute;
+      top: .55em;
+      left: 1px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      box-shadow: 0 0 10px rgba(var(--primary-2-rgb), .3);
+      content: "";
+    }
+
+    .capability-outcome {
+      margin-top: auto !important;
+      padding: 12px;
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--accent) 9%, transparent);
+      color: var(--text) !important;
+      font-size: .82rem;
+    }
+
+    .capability-outcome strong {
+      color: var(--accent);
+    }
+
     .card-icon {
       display: grid;
       width: 44px;
@@ -1401,6 +1466,81 @@
       color: var(--muted);
       font-family: ui-monospace, monospace;
     }
+
+    .ai-flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .ai-flow-step {
+      position: relative;
+      min-width: 0;
+      padding: 12px 9px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface-solid);
+      text-align: center;
+    }
+
+    .ai-flow-step:not(:last-child)::after {
+      position: absolute;
+      top: 50%;
+      right: -9px;
+      z-index: 1;
+      color: var(--primary-2);
+      font-size: .7rem;
+      content: "→";
+      transform: translate(50%, -50%);
+    }
+
+    .ai-flow-step strong,
+    .ai-flow-step span { display: block; }
+
+    .ai-flow-step strong { color: var(--primary-2); font-size: .68rem; }
+
+    .ai-flow-step span {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: .56rem;
+      line-height: 1.35;
+    }
+
+    .ai-preview-sample {
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface-solid);
+    }
+
+    .ai-preview-sample header,
+    .ai-preview-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .ai-preview-sample header {
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+      font-size: .72rem;
+    }
+
+    .ai-preview-sample header span {
+      color: var(--warning);
+      font-size: .6rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .ai-preview-copy { margin: 13px 0; color: var(--muted); font-size: .72rem; line-height: 1.65; }
+    .ai-preview-copy del { padding: 2px 3px; border-radius: 4px; background: color-mix(in srgb, #ff7d91 20%, transparent); color: #ff9cad; }
+    .ai-preview-copy mark { padding: 2px 3px; border-radius: 4px; background: color-mix(in srgb, var(--accent) 20%, transparent); color: var(--accent); }
+    .ai-preview-actions { justify-content: flex-end; }
+    .ai-preview-actions span { padding: 5px 8px; border: 1px solid var(--line); border-radius: 7px; color: var(--muted); font-size: .58rem; font-weight: 800; }
+    .ai-preview-actions .approve { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); }
 
     .quote {
       padding: clamp(28px, 5vw, 60px);
@@ -1961,6 +2101,16 @@
         grid-template-columns: 1fr;
       }
 
+      .ai-flow { grid-template-columns: 1fr; }
+
+      .ai-flow-step:not(:last-child)::after {
+        top: auto;
+        right: 50%;
+        bottom: -11px;
+        content: "↓";
+        transform: translate(50%, 50%);
+      }
+
       .projection-source {
         grid-column: 1;
       }
@@ -2137,15 +2287,16 @@
         <li><a href="#overview"><span class="nav-index">01</span>Overview</a></li>
         <li><a href="#problem"><span class="nav-index">02</span>Problem</a></li>
         <li><a href="#objectives"><span class="nav-index">03</span>Objectives</a></li>
-        <li><a href="#requirements"><span class="nav-index">04</span>Requirements</a></li>
-        <li><a href="#research"><span class="nav-index">05</span>Research</a></li>
-        <li><a href="#methodology"><span class="nav-index">06</span>Methodology</a></li>
-        <li><a href="#design"><span class="nav-index">07</span>Design</a></li>
-        <li><a href="#implementation"><span class="nav-index">08</span>Implementation</a></li>
-        <li><a href="#testing"><span class="nav-index">09</span>Testing</a></li>
-        <li><a href="#results"><span class="nav-index">10</span>Results</a></li>
-        <li><a href="#reflection"><span class="nav-index">11</span>Reflection</a></li>
-        <li><a href="#references"><span class="nav-index">12</span>References</a></li>
+        <li><a href="#capabilities"><span class="nav-index">04</span>Capabilities</a></li>
+        <li><a href="#requirements"><span class="nav-index">05</span>Requirements</a></li>
+        <li><a href="#research"><span class="nav-index">06</span>Research</a></li>
+        <li><a href="#methodology"><span class="nav-index">07</span>Methodology</a></li>
+        <li><a href="#design"><span class="nav-index">08</span>Design</a></li>
+        <li><a href="#implementation"><span class="nav-index">09</span>Implementation</a></li>
+        <li><a href="#testing"><span class="nav-index">10</span>Testing</a></li>
+        <li><a href="#results"><span class="nav-index">11</span>Results</a></li>
+        <li><a href="#reflection"><span class="nav-index">12</span>Reflection</a></li>
+        <li><a href="#references"><span class="nav-index">13</span>References</a></li>
       </ol>
     </nav>
     <div class="sidebar-footer">
@@ -2165,10 +2316,10 @@
           <p class="eyebrow">Interactive project report / 2026</p>
           <h1>Project <span class="gradient-text">Planora</span></h1>
           <p class="hero-copy">A calm, PostgreSQL-backed planner with visual calendars, folder-like categories, complete
-            project workspaces, safe Trash recovery, and project-specific AI that keeps every proposed write under human
-            control.</p>
+            project workspaces, safe Trash recovery, and project-specific AI with configurable command permissions,
+            review, an activity record, and Undo.</p>
           <div class="actions">
-            <a class="button primary" href="#overview">Explore the work</a>
+            <a class="button primary" href="#capabilities">See what Planora does</a>
             <a class="button" href="#testing">View evidence</a>
           </div>
         </div>
@@ -2248,7 +2399,7 @@
           <div class="status-row">
             <div><span>Phase</span><strong>MVP</strong></div>
             <div><span>Build</span><strong>Passing</strong></div>
-            <div><span>Report</span><strong>v0.7</strong></div>
+            <div><span>Report</span><strong>v0.9</strong></div>
           </div>
         </div>
       </header>
@@ -2264,7 +2415,7 @@
         <div class="grid four">
           <div class="card metric"><strong>1</strong><span>Primary user type</span></div>
           <div class="card metric"><strong>4</strong><span>Core product views</span></div>
-          <div class="card metric"><strong>22</strong><span>Compiled API routes</span></div>
+          <div class="card metric"><strong>24</strong><span>Compiled API routes</span></div>
           <div class="card metric"><strong>6</strong><span>Seeded demo items</span></div>
         </div>
         <div class="grid two" style="margin-top: 18px;">
@@ -2272,8 +2423,8 @@
             <h3>One source of truth for plans and projects</h3>
             <p>The MVP relates tasks, deadlines, projects, members, documents, files, categories, AI conversations, and
               settings, then derives calendar placement, assignment, inherited categories, and urgency summaries. AI
-              proposals stay outside persistence until explicitly confirmed; destructive planner actions use recoverable
-              soft deletion.</p>
+              commands follow each project's approval mode, stay inside an allowlisted server boundary, and use
+              recoverable soft deletion for destructive actions.</p>
           </article>
           <article class="card"><span class="placeholder-label">Current state</span>
             <h3>Working vertical slice</h3>
@@ -2347,14 +2498,158 @@
             <article class="card"><span class="placeholder-label">Objective</span>
               <h3>Make organization safe and adaptable</h3>
               <p>Nested folders, complete project workspaces, category suggestions, impact previews, Trash, and
-                review-before-write AI must help users organize or reverse changes without technical intervention.</p>
+                configurable AI command approval with an audit trail and Undo must help users organize or reverse
+                changes without technical intervention.</p>
             </article>
           </div>
         </div>
       </section>
 
+      <section class="section" id="capabilities">
+        <div class="section-heading"><span class="section-number">04 / CAPABILITIES</span>
+          <div>
+            <h2>From a scattered deadline to a finished project.</h2>
+            <p class="lead">Planora is more than a calendar. It connects capture, scheduling, organization, project
+              materials, teamwork, AI assistance, and recovery so a non-technical user can move from "what do I need to
+              do?" to "the work is complete" in one place.</p>
+          </div>
+        </div>
+
+        <div class="grid three">
+          <article class="card capability-card">
+            <div class="card-icon">01</div>
+            <h3>Know what needs attention</h3>
+            <p class="capability-problem"><strong>Problem:</strong> urgent work is easy to miss inside a long list.</p>
+            <ul class="feature-list">
+              <li>Dashboard counts overdue, upcoming, and completed work automatically.</li>
+              <li>Near-deadline cards bring the next actions forward without setup.</li>
+              <li>Tasks can be completed or reopened directly from the planner.</li>
+            </ul>
+            <p class="capability-outcome"><strong>Outcome:</strong> the user opens Planora and immediately knows what to
+              do first.</p>
+          </article>
+
+          <article class="card capability-card">
+            <div class="card-icon">02</div>
+            <h3>See time at the right scale</h3>
+            <p class="capability-problem"><strong>Problem:</strong> one calendar view cannot explain both today's work
+              and a whole semester.</p>
+            <ul class="feature-list">
+              <li>Switch between focused Day, Sunday-first Week, and six-week Month modes.</li>
+              <li>Tasks occupy their start-to-end interval; deadlines appear at one due time.</li>
+              <li>Select a date to start creating work and navigate by the active period.</li>
+            </ul>
+            <p class="capability-outcome"><strong>Outcome:</strong> the same saved work supports daily focus and
+              long-range planning.</p>
+          </article>
+
+          <article class="card capability-card">
+            <div class="card-icon">03</div>
+            <h3>Organize without hiding context</h3>
+            <p class="capability-problem"><strong>Problem:</strong> mixed personal, academic, and project work makes a
+              planner noisy.</p>
+            <ul class="feature-list">
+              <li>Create nested, colored categories and choose a configurable default.</li>
+              <li>Tick different visible categories in Dashboard, Calendar, and List, then narrow Calendar further by project or unassigned work.</li>
+              <li>Use up to three private category suggestions from a title and description.</li>
+            </ul>
+            <p class="capability-outcome"><strong>Outcome:</strong> each view shows only the context needed there while
+              the underlying records stay connected.</p>
+          </article>
+
+          <article class="card capability-card">
+            <div class="card-icon">04</div>
+            <h3>Run a complete project</h3>
+            <p class="capability-problem"><strong>Problem:</strong> plans, people, notes, and source files often live in
+              unrelated tools.</p>
+            <ul class="feature-list">
+              <li>Track project information, status, progress, dates, and upcoming work in Overview.</li>
+              <li>Add members and optional roles, then assign several people to one task or deadline.</li>
+              <li>Project work inherits its project's category, avoiding duplicate maintenance.</li>
+            </ul>
+            <p class="capability-outcome"><strong>Outcome:</strong> the user can understand ownership, progress, and the
+              next milestone from one workspace.</p>
+          </article>
+
+          <article class="card capability-card">
+            <div class="card-icon">05</div>
+            <h3>Keep thinking and evidence together</h3>
+            <p class="capability-problem"><strong>Problem:</strong> project notes and attachments become separated from
+              the work they support.</p>
+            <ul class="feature-list">
+              <li>Create sanitized rich-text document tabs with manual Save and Ctrl+S.</li>
+              <li>Receive a warning before internal navigation discards unsaved document changes.</li>
+              <li>Attach local files and preview images, PDFs, and supported text formats.</li>
+            </ul>
+            <p class="capability-outcome"><strong>Outcome:</strong> decisions, drafts, and evidence stay beside the
+              schedule they explain.</p>
+          </article>
+
+          <article class="card capability-card">
+            <div class="card-icon">06</div>
+            <h3>Delegate to AI without giving up control</h3>
+            <p class="capability-problem"><strong>Problem:</strong> an AI assistant is less useful if it cannot act, but
+              unsafe if it can change everything silently.</p>
+            <ul class="feature-list">
+              <li>Chat with project-specific context through Gemini, OpenRouter, or DeepSeek using server-only keys.</li>
+              <li>Use a conversational AI followed by an isolated command-planner AI with 24 allowlisted commands; active Reading or Writing status
+                appears inside chat and disappears when the command finishes.</li>
+              <li>Choose Approve everything, Approve changes, or Auto; the backend builds the exact document result
+                before it appears in place with highlighted human approval.</li>
+            </ul>
+            <p class="capability-outcome"><strong>Outcome:</strong> AI can help create documents, plan work, update
+              roles, and organize the project at the user's chosen trust level.</p>
+          </article>
+        </div>
+
+        <div style="margin-top: 34px;">
+          <p class="eyebrow">A realistic Planora journey</p>
+          <div class="timeline">
+            <div class="timeline-item"><span class="timeline-dot">1</span>
+              <article class="card">
+                <h3>Capture the commitment once</h3>
+                <p>The user creates a task with a working interval or a deadline with one due time, adds priority and
+                  notes, and accepts a suggested or default category.</p>
+              </article>
+            </div>
+            <div class="timeline-item"><span class="timeline-dot">2</span>
+              <article class="card">
+                <h3>Plan it visually</h3>
+                <p>The record immediately appears in Dashboard, Calendar, and Tasks &amp; Deadlines. The user chooses a
+                  time scale and ticks only the categories and projects relevant to that view.</p>
+              </article>
+            </div>
+            <div class="timeline-item"><span class="timeline-dot">3</span>
+              <article class="card">
+                <h3>Turn it into coordinated project work</h3>
+                <p>Inside a Project, the user records progress, assigns members, drafts a document, links source files,
+                  and sees upcoming work without leaving the workspace. Project tasks display the inherited project
+                  category and immediately synchronize into Calendar and the main work list.</p>
+              </article>
+            </div>
+            <div class="timeline-item"><span class="timeline-dot">4</span>
+              <article class="card">
+                <h3>Ask AI to help, then keep authority</h3>
+                <p>The AI can summarize readable files, create a proposal, break a goal into work, edit a document, or
+                  update members. Planora validates the response, shows the exact sanitized document preview, then
+                  applies the project's command mode and records every command result. Compact activity stays in the
+                  conversation only while work is running or awaiting a decision; document approval remains beside the
+                  highlighted change.</p>
+              </article>
+            </div>
+            <div class="timeline-item"><span class="timeline-dot">5</span>
+              <article class="card">
+                <h3>Finish or recover safely</h3>
+                <p>Completed work updates every view. Category cascades show their impact before Trash, and recoverable
+                  planner batches or destructive AI commands can be restored instead of becoming permanent mistakes.</p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="section" id="requirements">
-        <div class="section-heading"><span class="section-number">04 / REQUIREMENTS</span>
+        <div class="section-heading"><span class="section-number">05 / REQUIREMENTS</span>
           <div>
             <h2>Define what success must do.</h2>
             <p class="lead">The traceability table will connect every requirement to priority, implementation, and
@@ -2446,23 +2741,26 @@
                 <td>Create, rename, manually save, and delete rich-text document tabs; link and preview local project
                   attachments.</td>
                 <td>Must</td>
-                <td>Centered creation and unsaved-warning dialogs, sanitized Documents, and local Files routes/UI</td>
+                <td>Centered creation and unsaved-warning dialogs, sanitized Documents, central AI addition/removal
+                  highlighting, and local Files routes/UI</td>
                 <td><span class="status-pill">Built</span></td>
               </tr>
               <tr>
                 <td>FR-11</td>
-                <td>Assign multiple project members to existing task/deadline records.</td>
+                <td>Optionally choose zero, one, or many project members as PIC for task/deadline records, manually or through AI.</td>
                 <td>Must</td>
-                <td>Assignment junction table, validation, and project work form</td>
+                <td>Assignment junction table, project-work, Dashboard Priority queue, and main task/deadline PIC display, AI create/assign commands, inherited category display, shared-state refresh, and validation</td>
                 <td><span class="status-pill">Built</span></td>
               </tr>
               <tr>
                 <td>FR-12</td>
-                <td>Provide ordered, responsive project-only AI through configurable OpenRouter or DeepSeek,
-                  built-in/custom tools, and mandatory review before generated creates or document edits.</td>
+                <td>Provide ordered, responsive project-only AI through environment-configured Gemini, OpenRouter, or DeepSeek,
+                  allowlisted project commands, and strict, balanced, or automatic approval.</td>
                 <td>Must</td>
                 <td>Server provider abstraction, progressively streamed display-safe chat, Settings, scoped context,
-                  and version-checked document comparison/review</td>
+                  native JSON-output requests, command normalization, transient in-chat activity, persisted command
+                  ledger, exact full-document previews, mandatory highlighted approval, stale-write checks,
+                  recoverable removal, and Undo</td>
                 <td><span class="status-pill">Built</span></td>
               </tr>
               <tr>
@@ -2478,7 +2776,7 @@
       </section>
 
       <section class="section" id="research">
-        <div class="section-heading"><span class="section-number">05 / RESEARCH</span>
+        <div class="section-heading"><span class="section-number">06 / RESEARCH</span>
           <div>
             <h2>Use evidence to shape the solution.</h2>
             <p class="lead">Background research should compare alternatives and directly explain why particular product
@@ -2498,16 +2796,17 @@
           </article>
           <article class="card">
             <div class="card-icon">C</div><span class="placeholder-label">Technical research</span>
-            <h3>One server boundary, two compatible providers</h3>
-            <p>Official OpenRouter and DeepSeek documentation both describe OpenAI-compatible chat-completion requests.
-              Planora uses one server abstraction, keeps keys out of client responses, and adds an application-level
-              review gate before any AI proposal reaches validated persistence APIs.</p>
+            <h3>One server boundary, three provider choices</h3>
+            <p>OpenRouter and DeepSeek use OpenAI-compatible chat completions, while Gemini uses Google's native
+              streamed content endpoint. Each request enables the provider's JSON-output mode, but Planora still
+              normalizes and semantically validates the result because valid JSON alone does not make a command safe.
+              Keys stay out of client responses, and executable requests pass through an allowlisted command layer.</p>
           </article>
         </div>
       </section>
 
       <section class="section" id="methodology">
-        <div class="section-heading"><span class="section-number">06 / METHODOLOGY</span>
+        <div class="section-heading"><span class="section-number">07 / METHODOLOGY</span>
           <div>
             <h2>Show how the work moved forward.</h2>
             <p class="lead">The development story will combine milestones, iteration, decisions, risks, and changes in
@@ -2534,22 +2833,22 @@
             <article class="card">
               <h3>Vertical-slice build</h3>
               <p>The responsive planner, validated Route Handlers, relational migrations, category tree, complete
-                project sub-tabs, provider abstraction, local file boundary, relative-date seed data, and recovery
-                states were built together.</p>
+                project sub-tabs, provider abstraction, local file boundary, AI command ledger and approval modes,
+                relative-date seed data, and recovery states were built together.</p>
             </article>
           </div>
           <div class="timeline-item"><span class="timeline-dot">04</span>
             <article class="card">
               <h3>Static verification</h3>
-              <p>Dependencies installed without reported vulnerabilities, 33 unit checks passed, ESLint completed
-                cleanly, and the optimized Next.js build compiled all application and 22 API routes.</p>
+              <p>Dependencies installed without reported vulnerabilities, 57 unit checks passed, ESLint completed
+                cleanly, and the optimized Next.js build compiled all application and 24 API routes.</p>
             </article>
           </div>
         </div>
       </section>
 
       <section class="section" id="design">
-        <div class="section-heading"><span class="section-number">07 / DESIGN</span>
+        <div class="section-heading"><span class="section-number">08 / DESIGN</span>
           <div>
             <h2>Make the system understandable at a glance.</h2>
             <p class="lead">Architecture, information flows, interface decisions, and prototypes belong here as visual
@@ -2582,10 +2881,11 @@
               <p class="eyebrow">01 / Experience</p>
               <h3>Plans and project context in one place</h3>
               <p>The dashboard asks what is urgent, the calendar asks when work lands, and the list supports search and
-                action. A responsive, NotebookLM-inspired Project workspace keeps Overview, Documents, Files, Tasks
-                &amp; Deadlines, and Members in a left navigation rail, the active work surface in the center, and
-                project-scoped AI chat and skills persistently available on the right. Settings combines device display
-                preferences with database-backed provider/model selection.
+                action. Projects shows its introductory heading before a workspace is open, then removes it to give the
+                active work more vertical room while keeping compact New and non-destructive Close actions in the selector. Closing restores the heading and project picker without changing stored data. The responsive,
+                NotebookLM-inspired workspace keeps Overview, Documents, Files, Tasks &amp; Deadlines, and Members in a
+                left navigation rail, the active work surface in the center, and project-scoped AI chat persistently
+                available on the right. Skills are temporarily hidden pending redesign. Compact composer selectors expose approval mode and only environment-configured provider/model choices.
               </p>
               <div class="tech-tags"><span>React 19</span><span>Period views</span><span>Three-area
                   workspace</span><span>Review UI</span><span>Responsive</span></div>
@@ -2596,9 +2896,14 @@
               <h3>Explicit JSON and streamed events</h3>
               <p>Next.js Route Handlers manage items, categories, full project workspaces, members, sanitized documents,
                 local attachments, AI chat/tools, settings, cascade previews, and atomic Trash restoration. Project chat
-                converts provider events into display-safe NDJSON answer fragments, followed by one persisted completion
-                and proposal-review event.</p>
-              <div class="tech-tags"><span>Next.js 16</span><span>JSON</span><span>NDJSON stream</span><span>22
+                routes each request through Context, Provider, Validate, and Review stages, limits the model to relevant
+                context and commands, streams one provider call as the user-facing answer, then uses a second internal
+                provider call to produce a dependency-free command plan. A new Documents-tab document and its initial
+                body become one creation command; uploaded Files remain a separate resource. Planora then converts events into
+                display-safe NDJSON. Running and pending commands become concise in-chat activity rows; terminal events
+                remove those rows without deleting the audit ledger. Tool-code envelopes stay out of chat and common
+                provider variants are normalized into the validated command registry.</p>
+              <div class="tech-tags"><span>Next.js 16</span><span>JSON</span><span>NDJSON stream</span><span>24
                   routes</span></div>
             </div>
             <div class="architecture-panel" id="architecture-boundary" role="tabpanel"
@@ -2606,19 +2911,23 @@
               <p class="eyebrow">03 / Safety</p>
               <h3>Validate before persistence or disclosure</h3>
               <p>Allowed fields and identifiers are checked before parameterized SQL; rich text is sanitized, local
-                paths are generated and contained, provider keys remain server-only, and AI-proposed writes wait for
-                explicit human confirmation through ordinary APIs. Existing-document proposals are limited to the
-                active project, compare current and proposed text, and fail safely if the document changed meanwhile.</p>
+                paths are generated and contained, and provider keys remain server-only. AI can use only the fixed
+                project command registry. A deterministic workflow selects relevant context and commands before the
+                two isolated provider roles: conversation first and internal command planning second. It then validates every proposal. Before approval exists, document edits are materialized against the complete current document, sanitized, and combined into one atomic preview per document. The exact stored preview appears in the target document for
+                highlighted approval. Insertions use start/end/before/after anchors; removals use exact text plus an
+                occurrence number. Invalid provider HTML escaping is repaired conservatively; a claimed review with no
+                accepted command becomes a concrete no-change error. Stale document or work edits fail safely, and destructive
+                commands use recoverable removal with Undo.</p>
               <div class="tech-tags"><span>sanitize-html</span><span>pg
-                  pool</span><span>OpenRouter</span><span>DeepSeek</span></div>
+                  pool</span><span>Gemini</span><span>OpenRouter</span><span>DeepSeek</span></div>
             </div>
             <div class="architecture-panel" id="architecture-database" role="tabpanel"
               aria-labelledby="architecture-tab-database" hidden>
               <p class="eyebrow">04 / Persistence</p>
               <h3>Durable, constrained relations</h3>
               <p>PostgreSQL stores category trees, settings, projects, members, many-to-many assignments, documents,
-                attachment metadata, AI history/tools, and planner items. Shared Trash batch IDs make planner cascades
-                recoverable as one operation.</p>
+                attachment metadata, AI history/tools/commands, and planner items. Shared Trash batch IDs make planner
+                cascades recoverable as one operation, while the AI command ledger records decisions and results.</p>
               <div class="tech-tags"><span>PostgreSQL 17</span><span>Junction table</span><span>Soft delete</span></div>
             </div>
             <div class="architecture-panel" id="architecture-setup" role="tabpanel"
@@ -2634,7 +2943,7 @@
       </section>
 
       <section class="section" id="implementation">
-        <div class="section-heading"><span class="section-number">08 / IMPLEMENTATION</span>
+        <div class="section-heading"><span class="section-number">09 / IMPLEMENTATION</span>
           <div>
             <h2>One model, many useful contexts.</h2>
             <p class="lead">Planner views transform one ordered collection, while each project composes relational data,
@@ -2652,19 +2961,22 @@
             <button class="case-tab" id="case-tab-schema" type="button" role="tab" aria-selected="false"
               aria-controls="case-schema" tabindex="-1"><strong>Data model</strong><span>Tree, inheritance, and
                 recovery</span></button>
+            <button class="case-tab" id="case-tab-ai" type="button" role="tab" aria-selected="false"
+              aria-controls="case-ai" tabindex="-1"><strong>AI approval flow</strong><span>From request to exact
+                document preview</span></button>
           </div>
           <div class="case-visual">
             <div class="case-panel" id="case-projections" role="tabpanel" aria-labelledby="case-tab-projections">
               <div class="case-caption">
                 <p class="eyebrow">UI transformation</p>
                 <h3>Capture once. Understand three ways.</h3>
-                <p>Views share the ordered collection while retaining separate category selections, so changing Calendar
-                  visibility does not unexpectedly alter Dashboard or List.</p>
+                <p>Views share the ordered collection while retaining separate category selections. Calendar adds its own
+                  project checks, so either Calendar filter leaves Dashboard and List unchanged.</p>
               </div>
               <div class="projection-map">
                 <div class="projection-source"><strong>Shared item collection</strong></div>
                 <div class="projection-node"><strong>Dashboard</strong><span>Own category checks</span></div>
-                <div class="projection-node"><strong>Calendar</strong><span>Own category checks</span></div>
+                <div class="projection-node"><strong>Calendar</strong><span>Category + project checks</span></div>
                 <div class="projection-node"><strong>List</strong><span>Own category checks</span></div>
               </div>
             </div>
@@ -2681,7 +2993,7 @@
                 </div>
                 <div class="route-row"><span
                     class="route-method">POST</span><code>/api/projects/:id/ai/chat</code><span>Scoped answer +
-                    proposals</span></div>
+                    commands</span></div>
                 <div class="route-row"><span
                     class="route-method">POST/GET</span><code>/api/projects/:id/files</code><span>Local link +
                     preview</span></div>
@@ -2711,12 +3023,37 @@
                 </div>
               </div>
             </div>
+            <div class="case-panel" id="case-ai" role="tabpanel" aria-labelledby="case-tab-ai" hidden>
+              <div class="case-caption">
+                <p class="eyebrow">Controlled AI lifecycle</p>
+                <h3>The provider proposes; Planora decides what is reviewable.</h3>
+                <p>The model never writes directly to PostgreSQL. Planora routes the request, limits context and
+                  commands, requests JSON, validates and materializes the complete sanitized document, then stores one
+                  atomic preview for the user to accept or discard.</p>
+              </div>
+              <div class="ai-flow" aria-label="AI document approval workflow">
+                <div class="ai-flow-step"><strong>Route</strong><span>Select relevant project scope</span></div>
+                <div class="ai-flow-step"><strong>Answer</strong><span>Conversational AI streams concise JSON</span></div>
+                <div class="ai-flow-step"><strong>Plan</strong><span>Command AI acts or asks for missing details</span></div>
+                <div class="ai-flow-step"><strong>Validate</strong><span>Normalize IDs, fields, and commands</span></div>
+                <div class="ai-flow-step"><strong>Preview</strong><span>Build and sanitize the exact result</span></div>
+                <div class="ai-flow-step"><strong>Decide</strong><span>Approve or discard before storage</span></div>
+              </div>
+              <div class="ai-preview-sample" aria-label="Example highlighted document change">
+                <header><strong>Project proposal</strong><span>Not saved</span></header>
+                <p class="ai-preview-copy">Planora will <del>store the model response immediately</del>
+                  <mark>show the exact validated change before saving it</mark>, while unchanged document text remains
+                  visible for context.</p>
+                <div class="ai-preview-actions" aria-hidden="true"><span>Reject AI change</span><span
+                    class="approve">Approve and update document</span></div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       <section class="section" id="testing">
-        <div class="section-heading"><span class="section-number">09 / TESTING</span>
+        <div class="section-heading"><span class="section-number">10 / TESTING</span>
           <div>
             <h2>Replace confidence with evidence.</h2>
             <p class="lead">Test coverage, scenarios, defects, usability findings, and performance measurements should
@@ -2724,8 +3061,8 @@
           </div>
         </div>
         <div class="grid four" style="margin-bottom: 18px;">
-          <div class="card metric"><strong>33</strong><span>Unit checks executed</span></div>
-          <div class="card metric"><strong>33</strong><span>Unit checks passed</span></div>
+          <div class="card metric"><strong>57</strong><span>Unit checks executed</span></div>
+          <div class="card metric"><strong>57</strong><span>Unit checks passed</span></div>
           <div class="card metric"><strong>0</strong><span>Lint errors or warnings</span></div>
           <div class="card metric"><strong>0</strong><span>Known build errors</span></div>
         </div>
@@ -2747,9 +3084,12 @@
                 <td>NFR-01, FR-01–12</td>
                 <td><code>npm test</code></td>
                 <td>URL, category/calendar logic, preferences, models, migrations, project fields, rich-text sanitation,
-                  AI configuration/results and reviewed document targets, assignees, and file paths/types are
+                  AI configuration/results, command modes/validation/migrations, reviewed document targets,
+                  assignees, and file paths/types are
                   deterministic and safe</td>
-                <td>33 unit checks passed across nine test files, including fragmented provider-stream decoding</td>
+                <td>57 unit checks passed across thirteen test files, including Calendar project and unassigned-work filtering, environment-restricted model choices, clarification-aware command planning, AI workflow routing, provider JSON request formatting, bounded document
+                  diff highlighting, atomic preview materialization, positional insertion/removal, command normalization, command safety policy, and
+                  fragmented provider-stream decoding</td>
                 <td><span class="status-pill">Pass</span></td>
               </tr>
               <tr>
@@ -2765,7 +3105,7 @@
                 <td>FR-01–12</td>
                 <td><code>npm run build</code></td>
                 <td>Responsive UI and API compile</td>
-                <td>22 API routes built successfully</td>
+                <td>24 API routes built successfully</td>
                 <td><span class="status-pill">Pass</span></td>
               </tr>
               <tr>
@@ -2782,7 +3122,7 @@
       </section>
 
       <section class="section" id="results">
-        <div class="section-heading"><span class="section-number">10 / RESULTS</span>
+        <div class="section-heading"><span class="section-number">11 / RESULTS</span>
           <div>
             <h2>Evaluate outcomes, not effort.</h2>
             <p class="lead">Results will be measured against the original objectives, supported by quantitative evidence
@@ -2791,13 +3131,14 @@
         </div>
         <blockquote class="quote">The MVP compiles as one coherent planning and project flow: schedule work, inspect it
           at day, week, or month scale, organize nested folders, coordinate project members, save documents and files,
-          and use project-only AI without surrendering control of persistence.<small>Result supported by 33 unit checks,
-            clean lint, and an optimized build of 22 API routes; live persistence and provider validation remain
-            pending.</small></blockquote>
+          and use project-only AI with explicit, balanced, or automatic command permissions.<small>Result supported by
+            57 unit checks, clean lint, and an optimized build of 24 API routes. The AI boundary requests structured
+            output and constructs the exact highlighted document preview before approval; live persistence and provider
+            smoke validation remain pending.</small></blockquote>
       </section>
 
       <section class="section" id="reflection">
-        <div class="section-heading"><span class="section-number">11 / REFLECTION</span>
+        <div class="section-heading"><span class="section-number">12 / REFLECTION</span>
           <div>
             <h2>Be clear about limits and learning.</h2>
             <p class="lead">A strong report distinguishes what was achieved, what remains limited, what changed during
@@ -2825,7 +3166,7 @@
       </section>
 
       <section class="section" id="references">
-        <div class="section-heading"><span class="section-number">12 / REFERENCES</span>
+        <div class="section-heading"><span class="section-number">13 / REFERENCES</span>
           <div>
             <h2>Sources, appendices, and supporting evidence.</h2>
             <p class="lead">Every academic or technical claim must link to a credible source using the citation style
@@ -2840,10 +3181,13 @@
               model.</span></li>
           <li><span><a href="https://tailwindcss.com/docs/installation/using-postcss" rel="noreferrer">Tailwind CSS
                 documentation — PostCSS installation</a>, used for build-time styling integration.</span></li>
-          <li><span><a href="https://openrouter.ai/docs/quickstart" rel="noreferrer">OpenRouter documentation —
-                Quickstart</a>, used for the default server-side chat-completion provider.</span></li>
-          <li><span><a href="https://api-docs.deepseek.com/" rel="noreferrer">DeepSeek API documentation</a>, used for
-              the OpenAI-compatible alternative provider and model configuration.</span></li>
+          <li><span><a href="https://openrouter.ai/docs/guides/features/structured-outputs"
+                rel="noreferrer">OpenRouter documentation — Structured outputs</a>, used for JSON-formatted
+              server-side provider responses.</span></li>
+          <li><span><a href="https://api-docs.deepseek.com/guides/json_mode/" rel="noreferrer">DeepSeek API
+                documentation — JSON output</a>, used for the OpenAI-compatible alternative provider.</span></li>
+          <li><span><a href="https://ai.google.dev/gemini-api/docs/structured-output" rel="noreferrer">Gemini API
+                documentation — Structured outputs</a>, used with native server-side streamed generation.</span></li>
           <li><span><a
                 href="https://blog.google/innovation-and-ai/models-and-research/google-labs/notebooklm-new-features-december-2024/"
                 rel="noreferrer">Google — NotebookLM gets a new look, audio interactivity and a premium version</a>,
@@ -2866,7 +3210,7 @@
 
       <footer class="report-footer">
         <span>Project Planora / Interactive assignment report</span>
-        <span>Student: TBD / Course: TBD / Updated: 26 August 2026</span>
+        <span>Student: TBD / Course: TBD / Updated: 27 August 2026</span>
       </footer>
     </div>
   </main>

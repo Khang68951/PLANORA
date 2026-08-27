@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { calendarDays, shiftCalendarCursor, startOfWeek } from "../lib/calendar.js";
+import { calendarDays, filterItemsByProjects, NO_PROJECT_FILTER, shiftCalendarCursor, startOfWeek } from "../lib/calendar.js";
 
 test("calendar modes produce one day, one Sunday-first week, or a six-week month grid", () => {
   const cursor = new Date(2026, 7, 26, 15, 30);
@@ -18,4 +18,16 @@ test("calendar navigation shifts by its active mode", () => {
     ["day", "week", "month"].map((mode) => localDate(shiftCalendarCursor(cursor, mode, 1))),
     ["2026-12-31", "2027-01-06", "2027-01-01"],
   );
+});
+
+test("calendar project filtering includes selected projects and unassigned work independently", () => {
+  const items = [
+    { id: "unassigned", projectId: null },
+    { id: "alpha-work", projectId: "alpha" },
+    { id: "beta-work", projectId: "beta" },
+  ];
+  assert.equal(filterItemsByProjects(items, null), items);
+  assert.deepEqual(filterItemsByProjects(items, ["alpha"]).map((item) => item.id), ["alpha-work"]);
+  assert.deepEqual(filterItemsByProjects(items, [NO_PROJECT_FILTER, "beta"]).map((item) => item.id), ["unassigned", "beta-work"]);
+  assert.deepEqual(filterItemsByProjects(items, []), []);
 });

@@ -8,7 +8,7 @@ export async function GET(_request, context) {
   try {
     const { id, fileId } = await context.params;
     if (!isUuid(id) || !isUuid(fileId)) return NextResponse.json({ error: "Invalid file." }, { status: 400 });
-    const file = (await query("SELECT original_name, stored_name, mime_type FROM project_files WHERE id = $1 AND project_id = $2", [fileId, id])).rows[0];
+    const file = (await query("SELECT original_name, stored_name, mime_type FROM project_files WHERE id = $1 AND project_id = $2 AND deleted_at IS NULL", [fileId, id])).rows[0];
     if (!file) return NextResponse.json({ error: "File not found." }, { status: 404 });
     const content = await readFile(storagePath(id, file.stored_name).target);
     return new Response(content, { headers: { "Content-Type": file.mime_type, "Content-Disposition": `inline; filename*=UTF-8''${encodeURIComponent(safeOriginalName(file.original_name))}`, "Cache-Control": "private, max-age=60", "X-Content-Type-Options": "nosniff" } });

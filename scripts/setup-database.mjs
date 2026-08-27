@@ -10,7 +10,7 @@ import {
 } from "../lib/database-url.mjs";
 
 const envPath = resolve(".env.local");
-const aiEnvironment = `OPENROUTER_API_KEY=\nOPENROUTER_MODEL=openrouter/free\nDEEPSEEK_API_KEY=\nDEEPSEEK_MODEL=deepseek-v4-flash\nAI_PROVIDER=openrouter\n`;
+const aiEnvironment = `OPENROUTER_API_KEY=\nOPENROUTER_MODEL=openrouter/free\nDEEPSEEK_API_KEY=\nDEEPSEEK_MODEL=deepseek-v4-flash\nGEMINI_API_KEY=\nGEMINI_MODEL=gemini-2.5-flash\nAI_PROVIDER=gemini\n`;
 const retryableCodes = new Set(["ECONNREFUSED", "ECONNRESET", "ENETUNREACH", "ETIMEDOUT", "57P03"]);
 const sleep = (milliseconds) => new Promise((resolvePromise) => setTimeout(resolvePromise, milliseconds));
 

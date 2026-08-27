@@ -20,12 +20,13 @@ import {
   Settings as SettingsIcon,
   Sparkles,
   Trash2,
+  Users,
   X,
 } from "lucide-react";
 import CategoryPanel from "./CategoryPanel";
 import ProjectWorkspace, { UnsavedDocumentDialog } from "./ProjectWorkspace";
 import { descendantsOf, visibleCategoryTree } from "@/lib/categories";
-import { calendarDays, shiftCalendarCursor, startOfDay } from "@/lib/calendar";
+import { calendarDays, filterItemsByProjects, NO_PROJECT_FILTER, shiftCalendarCursor, startOfDay } from "@/lib/calendar";
 import { DEFAULT_APP_PREFERENCES, normalizeAppPreferences } from "@/lib/preferences";
 
 const PREFERENCES_KEY = "planora-app-preferences";
@@ -123,7 +124,37 @@ function CategoryFilter({ categories, selected, onChange, viewLabel, collapsible
   );
 }
 
-function ItemRow({ item, onToggle, onDelete, onEdit, compact = false }) {
+function ProjectFilter({ projects, selected, onChange }) {
+  const allIds = useMemo(() => [NO_PROJECT_FILTER, ...projects.map((project) => project.id)], [projects]);
+  const selectedIds = useMemo(() => {
+    const available = new Set(allIds);
+    return new Set((selected === null ? allIds : selected).filter((id) => available.has(id)));
+  }, [selected, allIds]);
+  const allSelected = allIds.every((id) => selectedIds.has(id));
+  const toggle = (id) => {
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    onChange([...next]);
+  };
+
+  return (
+    <fieldset className="category-filter-panel project-filter-panel">
+      <legend className="sr-only">Filter Calendar by project</legend>
+      <div className="category-filter-heading">
+        <div><strong>Projects shown in Calendar</strong><span>{selectedIds.size} of {allIds.length} selected</span></div>
+        <div><button type="button" onClick={() => onChange(null)}>Show all</button><button type="button" onClick={() => onChange([])}>Hide all</button></div>
+      </div>
+      <div className="category-checkboxes">
+        <label className="category-check all-categories"><input type="checkbox" checked={allSelected} onChange={() => onChange(allSelected ? [] : null)} /><span className="category-check-box"><Check size={11} /></span><strong>All projects</strong></label>
+        <label className="category-check"><input type="checkbox" checked={selectedIds.has(NO_PROJECT_FILTER)} onChange={() => toggle(NO_PROJECT_FILTER)} /><span className="category-check-box"><Check size={11} /></span><span className="project-filter-swatch" /><span>No project</span></label>
+        {projects.map((project) => <label className="category-check" key={project.id}><input type="checkbox" checked={selectedIds.has(project.id)} onChange={() => toggle(project.id)} /><span className="category-check-box"><Check size={11} /></span><span className="category-swatch" style={{ background: project.categoryColor }} /><span>{project.name}</span></label>)}
+      </div>
+    </fieldset>
+  );
+}
+
+function ItemRow({ item, onToggle, onDelete, onEdit, compact = false, showPic = false }) {
   const overdue = isPast(item);
   return (
     <article className={`item-row ${item.status === "completed" ? "is-complete" : ""}`}>
@@ -147,6 +178,7 @@ function ItemRow({ item, onToggle, onDelete, onEdit, compact = false }) {
           <span>{item.kind === "task" ? `${scheduleStart(item).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}–${scheduleEnd(item).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}` : scheduleEnd(item).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}</span>
           <span>{item.categoryName}</span>
           {item.projectTitle ? <span>Project: {item.projectTitle}</span> : null}
+          {showPic && item.assignees?.length ? <span className="item-pic"><Users size={13} /><strong>PIC:</strong> {item.assignees.map((member) => member.name).join(", ")}</span> : null}
         </div>
       </div>
       <div className="item-actions"><button className="edit-button" type="button" onClick={() => onEdit(item)} aria-label={`Edit ${item.title}`}><Pencil size={16} /></button><button className="delete-button" type="button" onClick={() => onDelete(item)} aria-label={`Delete ${item.title}`}><Trash2 size={17} /></button></div>
@@ -205,13 +237,13 @@ function Dashboard({ items, categories, categoryFilter, onCategoryFilter, onNavi
           <div><p className="eyebrow">Priority queue</p><h2>Needs attention</h2></div>
           <button className="text-button" type="button" onClick={() => onNavigate("items")}>View all <ArrowRight size={15} /></button>
         </div>
-        {focus.length ? <div className="item-list">{focus.map((item) => <ItemRow compact key={item.id} item={item} onToggle={onToggle} onDelete={onDelete} onEdit={onEdit} />)}</div> : <EmptyState title="You’re all caught up" message="Nothing urgent is waiting. Enjoy the breathing room." />}
+        {focus.length ? <div className="item-list">{focus.map((item) => <ItemRow compact showPic key={item.id} item={item} onToggle={onToggle} onDelete={onDelete} onEdit={onEdit} />)}</div> : <EmptyState title="You’re all caught up" message="Nothing urgent is waiting. Enjoy the breathing room." />}
       </section>
     </div>
   );
 }
 
-function CalendarView({ items, categories, categoryFilter, onCategoryFilter, cursor, setCursor, onAdd, onToggle, onDelete, onEdit, defaultMode = "month" }) {
+function CalendarView({ items, categories, projects, categoryFilter, onCategoryFilter, projectFilter, onProjectFilter, cursor, setCursor, onAdd, onToggle, onDelete, onEdit, defaultMode = "month" }) {
   const [mode, setMode] = useState(defaultMode);
   const days = calendarDays(cursor, mode);
   const rangeEnd = new Date(days.at(-1).getFullYear(), days.at(-1).getMonth(), days.at(-1).getDate() + 1);
@@ -271,6 +303,7 @@ function CalendarView({ items, categories, categoryFilter, onCategoryFilter, cur
         </div>
         <aside className="calendar-side-column" aria-label="Calendar controls and upcoming items">
           <div className="calendar-category-filter"><CategoryFilter categories={categories} selected={categoryFilter} onChange={onCategoryFilter} viewLabel="Calendar" collapsible /></div>
+          <div className="calendar-project-filter"><ProjectFilter projects={projects} selected={projectFilter} onChange={onProjectFilter} /></div>
           <section className="panel calendar-aside">
             <div className="panel-heading"><div><p className="eyebrow">Next up</p><h2>Coming soon</h2></div></div>
             <div className="mini-list">
@@ -305,7 +338,7 @@ function ItemsView({ items, categories, categoryFilter, onCategoryFilter, onAdd,
           </div>
           <label className="search-box"><Search size={17} /><span className="sr-only">Search items</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search" /></label>
         </div>
-        {visible.length ? <div className="item-list">{visible.map((item) => <ItemRow key={item.id} item={item} onToggle={onToggle} onDelete={onDelete} onEdit={onEdit} />)}</div> : <EmptyState title="No items found" message="Try another filter or add something new." />}
+        {visible.length ? <div className="item-list">{visible.map((item) => <ItemRow showPic key={item.id} item={item} onToggle={onToggle} onDelete={onDelete} onEdit={onEdit} />)}</div> : <EmptyState title="No items found" message="Try another filter or add something new." />}
       </section>
     </div>
   );
@@ -403,10 +436,11 @@ function AppSettingsModal({ preferences, onClose, onSave }) {
   const [draft, setDraft] = useState(preferences);
   const [ai, setAi] = useState(null);
   const [providers, setProviders] = useState(null);
+  const [aiModels, setAiModels] = useState([]);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   useEffect(() => {
-    fetch("/api/settings/ai", { cache: "no-store" }).then(async (response) => { const data = await response.json(); if (!response.ok) throw new Error(data.error); setAi(data.config); setProviders(data.providers); }).catch((loadError) => setError(loadError.message));
+    fetch("/api/settings/ai", { cache: "no-store" }).then(async (response) => { const data = await response.json(); if (!response.ok) throw new Error(data.error); setAi(data.config); setProviders(data.providers); setAiModels(data.models || []); }).catch((loadError) => setError(loadError.message));
   }, []);
   const themes = [
     { id: "paper", name: "Paper", note: "Warm and calm", colors: ["#f5f4ed", "#214e47"] },
@@ -444,7 +478,7 @@ function AppSettingsModal({ preferences, onClose, onSave }) {
         </div>
         <div className="settings-section">
           <div><strong>Project AI provider</strong><span>API keys stay on the server and are never sent to this browser.</span></div>
-          {ai && providers ? <div className="ai-settings-grid"><label className="field"><span>Provider</span><select value={ai.provider} onChange={(event) => { const provider = event.target.value; setAi({ provider, model: providers[provider].defaultModel }); }}><option value="openrouter">OpenRouter</option><option value="deepseek">DeepSeek</option></select></label><label className="field"><span>Model</span><input maxLength={120} value={ai.model} onChange={(event) => setAi({ ...ai, model: event.target.value })} /></label><p className={providers[ai.provider].keyConfigured ? "ai-key-ready" : "ai-key-missing"}>{providers[ai.provider].keyConfigured ? "Server API key configured" : "Server API key missing — add it to .env.local"}</p></div> : <p className="muted-copy">Loading AI settings…</p>}
+          {ai && providers ? <div className="ai-settings-grid"><label className="field"><span>Configured model</span><select value={`${ai.provider}/${ai.model}`} onChange={(event) => { const selected = aiModels[Number(event.target.selectedOptions[0].dataset.index)]; if (selected) setAi({ provider: selected.provider, model: selected.model }); }}>{aiModels.map((entry, index) => <option key={`${entry.provider}/${entry.model}`} value={`${entry.provider}/${entry.model}`} data-index={index} disabled={!entry.keyConfigured}>{entry.provider} · {entry.model}{entry.keyConfigured ? "" : " (API key missing)"}</option>)}</select></label><p className={providers[ai.provider]?.keyConfigured ? "ai-key-ready" : "ai-key-missing"}>{providers[ai.provider]?.keyConfigured ? "Server API key configured" : "Server API key missing — add it to .env.local"}</p></div> : <p className="muted-copy">Loading AI settings…</p>}
         </div>
         <p className="settings-storage-note">Display preferences are saved in this browser. AI provider choices are saved in PostgreSQL; secret keys remain in .env.local.</p>
         {error ? <p className="form-error">{error}</p> : null}
@@ -461,6 +495,7 @@ export default function PlannerApp() {
   const [projects, setProjects] = useState([]);
   const [settings, setSettings] = useState(null);
   const [categoryFilters, setCategoryFilters] = useState({ dashboard: null, calendar: null, items: null });
+  const [calendarProjectFilter, setCalendarProjectFilter] = useState(null);
   const [loading, setLoading] = useState(true);
   const [dbError, setDbError] = useState("");
   const [modalDate, setModalDate] = useState(null);
@@ -484,6 +519,7 @@ export default function PlannerApp() {
     return sortedItems.filter((item) => allowed.has(item.categoryId));
   };
   const updateCategoryFilter = (tab, selected) => setCategoryFilters((current) => ({ ...current, [tab]: selected }));
+  const calendarItems = filterItemsByProjects(itemsForTab("calendar"), calendarProjectFilter);
 
   const loadWorkspace = async () => {
     const [itemsResponse, categoriesResponse, projectsResponse] = await Promise.all([
@@ -590,9 +626,9 @@ export default function PlannerApp() {
           {dbError ? <div className="notice" role="alert"><CircleAlert size={18} /><div><strong>Database setup needed</strong><span>{dbError}</span></div></div> : null}
           {loading ? <div className="loading"><span /><p>Gathering your plans…</p></div> : null}
           {!loading && activeTab === "dashboard" ? <Dashboard items={itemsForTab("dashboard")} categories={filterCategories} categoryFilter={categoryFilters.dashboard} onCategoryFilter={(selected) => updateCategoryFilter("dashboard", selected)} onNavigate={navigate} onToggle={toggleItem} onDelete={deleteItem} onEdit={openEdit} onAdd={openAdd} /> : null}
-          {!loading && activeTab === "calendar" ? <CalendarView key={preferences.defaultCalendarView} defaultMode={preferences.defaultCalendarView} items={itemsForTab("calendar")} categories={filterCategories} categoryFilter={categoryFilters.calendar} onCategoryFilter={(selected) => updateCategoryFilter("calendar", selected)} cursor={cursor} setCursor={setCursor} onToggle={toggleItem} onDelete={deleteItem} onEdit={openEdit} onAdd={openAdd} /> : null}
+          {!loading && activeTab === "calendar" ? <CalendarView key={preferences.defaultCalendarView} defaultMode={preferences.defaultCalendarView} items={calendarItems} categories={filterCategories} projects={projects} categoryFilter={categoryFilters.calendar} onCategoryFilter={(selected) => updateCategoryFilter("calendar", selected)} projectFilter={calendarProjectFilter} onProjectFilter={setCalendarProjectFilter} cursor={cursor} setCursor={setCursor} onToggle={toggleItem} onDelete={deleteItem} onEdit={openEdit} onAdd={openAdd} /> : null}
           {!loading && activeTab === "items" ? <ItemsView items={itemsForTab("items")} categories={filterCategories} categoryFilter={categoryFilters.items} onCategoryFilter={(selected) => updateCategoryFilter("items", selected)} onToggle={toggleItem} onDelete={deleteItem} onEdit={openEdit} onAdd={openAdd} /> : null}
-          {!loading && activeTab === "projects" ? <ProjectWorkspace categories={filterCategories} projects={projects} onProjectsChanged={refreshWorkspace} onDocumentDirtyChange={setProjectDocumentDirty} /> : null}
+          {!loading && activeTab === "projects" ? <ProjectWorkspace categories={filterCategories} projects={projects} onProjectsChanged={refreshWorkspace} onWorkspaceChanged={refreshWorkspace} onDocumentDirtyChange={setProjectDocumentDirty} /> : null}
         </div>
       </main>
       {modalOpen ? <ItemModal initialDate={modalDate} item={editingItem} onClose={() => { setModalOpen(false); setEditingItem(null); }} onSave={saveItem} saving={saving} categories={categories} projects={projects} settings={settings} /> : null}

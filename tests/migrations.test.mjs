@@ -22,3 +22,18 @@ test("project workspace migration includes every required relation and AI settin
   assert.match(migration, /ALTER TABLE planner_settings ADD COLUMN IF NOT EXISTS ai_provider/);
   assert.match(migration, /member_id UUID NOT NULL REFERENCES project_members\(id\) ON DELETE CASCADE/);
 });
+
+test("AI command migration persists modes, command decisions, and recoverable project resources", async () => {
+  const migration = await readFile(new URL("../database/migrations/004_ai_command_system.sql", import.meta.url), "utf8");
+  assert.match(migration, /ai_command_mode VARCHAR\(24\).*approve_changes/);
+  assert.match(migration, /CREATE TABLE project_ai_commands/);
+  assert.match(migration, /safety IN \('read', 'change', 'destructive'\)/);
+  assert.match(migration, /status IN \('pending', 'running', 'applied', 'discarded', 'failed', 'undone'\)/);
+  for (const table of ["project_members", "project_documents", "project_files"]) assert.match(migration, new RegExp(`ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS deleted_at`));
+});
+
+test("Gemini provider migration expands the stored provider constraint", async () => {
+  const migration = await readFile(new URL("../database/migrations/005_gemini_provider.sql", import.meta.url), "utf8");
+  assert.match(migration, /DROP CONSTRAINT IF EXISTS planner_settings_ai_provider_check/);
+  assert.match(migration, /IN \('openrouter', 'deepseek', 'gemini'\)/);
+});
